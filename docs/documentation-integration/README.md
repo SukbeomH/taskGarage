@@ -1,144 +1,186 @@
-# 📝 TaskGarage 문서 동기화 통합 기능
+# TaskGarage 문서 동기화 통합 가이드
 
-## 🎯 개요
+TaskGarage는 **문서 동기화 통합** 기능을 통해 코드와 문서의 100% 동기화를 보장합니다.
 
-TaskGarage 문서 동기화 통합 기능은 코드 변경 시 자동으로 관련 문서를 업데이트하여 코드와 문서의 100% 동기화를 보장하는 시스템입니다.
+## 🎯 **개요**
 
-## ✨ 주요 기능
+TaskGarage는 기존 8단계 개발 워크플로우를 **10단계**로 확장하여 문서 동기화와 셀프 리뷰를 자동으로 통합합니다.
 
-- **🔍 코드 변경 감지**: 구조체 필드, 함수 시그니처, 에러 코드, 설정, API 엔드포인트 변경 자동 감지
-- **📝 자동 문서 동기화**: 코드 변경 시 관련 문서 자동 업데이트
-- **✅ 문서 검증**: 문서 동기화 완료 여부 자동 검증
-- **🔄 워크플로우 통합**: 기존 TaskGarage 워크플로우에 완전 통합
-- **🧪 자동화된 테스트**: 문서 동기화 기능의 안정성 보장
+### **새로 추가된 단계**
 
-## 🔄 워크플로우 통합
+- **7단계: Update Documentation** - 문서 업데이트
+- **8단계: Self Review** - 셀프 리뷰
 
-TaskGarage의 기존 개발 워크플로우에 문서 동기화 및 Self Review 기능이 완전히 통합되었습니다.
+## 📝 **문서 동기화 기능**
 
-### 10단계 확장된 워크플로우
+### **자동 코드 변경 감지**
 
-기존 8단계 워크플로우에 **7단계: Update Documentation**과 **8단계: Self Review**가 추가되어 총 10단계로 확장되었습니다:
+TaskGarage는 다음 패턴을 자동으로 감지하여 문서 업데이트 필요성을 판단합니다:
 
-1. **이해 및 계획** (Preparation)
-2. **초기 탐색 및 계획** (Iteration 1)
-3. **계획 로깅** (Log the Plan)
-4. **계획 검증** (Verify the Plan)
-5. **구현 시작** (Begin Implementation)
-6. **진행 상황 로깅** (Iteration 2+)
-7. **📝 문서 업데이트** (Update Documentation) - **새로 추가**
-8. **🔍 Self Review** (Self Review) - **새로 추가**
-9. **규칙 검토 및 업데이트** (Review & Update Rules)
-10. **작업 완료** (Mark Task Complete)
-11. **변경사항 커밋** (Commit Changes)
-12. **다음 서브태스크 진행** (Proceed to Next Subtask)
+#### **1. 구조체 필드 변경**
+```go
+// 감지 패턴: 새로운 필드, 태그 변경, 타입 변경
+type Config struct {
+    NewField string `json:"newField" yaml:"newField"` // ← 문서 업데이트 필요
+}
+```
 
-### Self Review 기능
+#### **2. 함수 시그니처 변경**
+```go
+// 감지 패턴: 매개변수 추가/제거, 반환값 변경
+func ValidateGPUQuota(ctx context.Context, realm, project string) *ValidationError {
+    // ← 문서 업데이트 필요
+}
+```
+
+#### **3. 에러 코드/메시지 변경**
+```go
+// 감지 패턴: 새로운 에러 코드, 메시지 수정
+const ErrCodeNewValidation = "NewValidation" // ← 문서 업데이트 필요
+```
+
+#### **4. 설정 변경**
+```go
+// 감지 패턴: 환경변수 추가, 설정 구조 변경
+NewSetting: loadConfig("NEW_SETTING"), // ← 문서 업데이트 필요
+```
+
+#### **5. API 엔드포인트 변경**
+```go
+// 감지 패턴: 새로운 엔드포인트, 응답 형식 변경
+func (s *Server) NewEndpoint(w http.ResponseWriter, r *http.Request) {
+    // ← 문서 업데이트 필요
+}
+```
+
+### **문서 동기화 프로세스**
+
+1. **코드 변경 감지**: 패턴 기반 자동 감지
+2. **문서 업데이트 필요성 평가**: 변경 유형별 문서 업데이트 필요성 판단
+3. **자동화된 문서 생성**: 내장 로직을 통한 문서 동기화 실행
+4. **문서 동기화 상태 검증**: 생성된 문서의 정확성 및 완성성 검증
+5. **실패 시 처리**: 문서 동기화가 실패한 경우 task 상태를 'review'로 변경
+
+## 🔍 **셀프 리뷰 시스템**
+
+### **리뷰 항목**
 
 - **결과물 품질 검토**: 구현된 결과물이 task/subtask의 생성 의도와 일치하는지 자체 검토
 - **요구사항 충족도 확인**: 원래 요구사항과 기능적 완성도 검증
 - **코드 품질 검토**: 코드 스타일, 성능, 보안, 유지보수성 측면 검토
 - **테스트 커버리지 확인**: 적절한 테스트가 작성되었는지 검증
 - **문서화 완성도 확인**: 코드 주석, README, API 문서 등이 충분한지 검토
-- **검토 결과 기록**: `update_subtask`를 통해 검토 결과와 개선 사항 로깅
 
-## 🚀 빠른 시작
+### **리뷰 완료 조건**
 
-1. **코드 변경 시**: `update_subtask` 명령어로 코드 변경 사항 기록
-2. **자동 감지**: 시스템이 코드 변경을 자동으로 감지
-3. **문서 동기화**: 관련 문서가 자동으로 업데이트됨
-4. **Self Review**: 구현 완료 후 자체 검토 수행
-5. **검증**: 문서 동기화 및 Self Review 완료 여부가 자동으로 검증됨
-6. **상태 관리**: 검증 실패 시 task 상태가 'review'로 변경
+- Self Review가 완료되지 않은 경우 task를 'done' 상태로 변경할 수 없음
+- 모든 리뷰 항목이 통과되어야 task 완료 가능
 
-## 📁 문서 구조
+## 🛠️ **구현된 스크립트들**
 
-### 📋 [규칙](./rules/README.md)
-- 문서 동기화 규칙 및 가이드라인
-- 워크플로우 통합 방법
-- 자동화 스크립트 통합 패턴
+### **1. 문서 동기화 테스트 스크립트**
+```bash
+node scripts/test_documentation_integration.js
+```
 
-### 🛠️ [구현](./implementation/README.md)
-- 코드 변경 감지 로직
-- 문서 동기화 실행 메커니즘
-- 수정된 파일들의 상세 설명
+**기능:**
+- 코드 변경 감지 패턴 테스트
+- 문서 검증 로직 테스트
+- 워크플로우 통합 테스트
 
-### 🧪 [테스트](./testing/README.md)
-- 테스트 스크립트 및 실행 방법
-- 테스트 결과 해석
-- 문제 해결 가이드
+### **2. 문서 동기화 스크립트**
+```bash
+./scripts/sync_docs_for_task.sh <task_id> <task_details> [project_root]
+```
 
-### 📖 [예제](./examples/README.md)
-- 실제 사용 시나리오
-- 코드 변경 예제
-- 문서 동기화 결과 예시
+**기능:**
+- 코드 변경 유형 분석
+- 변경 유형별 문서 업데이트 실행
+- 문서 동기화 상태 로깅
 
-## 🔗 관련 파일들
+### **3. 문서 검증 스크립트**
+```bash
+python3 scripts/validate_task_docs.py <task_id> [project_root]
+```
 
-### 규칙 파일
-- [`.cursor/rules/taskmaster/documentation_integration.mdc`](../../.cursor/rules/taskmaster/documentation_integration.mdc)
-- [`.cursor/rules/dev_workflow.mdc`](../../.cursor/rules/dev_workflow.mdc)
+**기능:**
+- 문서 완성도 검증
+- 문서 정확성 검증
+- 검증 결과 리포트 생성
 
-### 구현 파일
-- [`scripts/modules/task-manager/update-subtask-by-id.js`](../../scripts/modules/task-manager/update-subtask-by-id.js)
-- [`scripts/modules/task-manager/set-task-status.js`](../../scripts/modules/task-manager/set-task-status.js)
+## 📋 **워크플로우 통합**
 
-### 테스트 파일
-- [`scripts/test_documentation_integration.js`](../../scripts/test_documentation_integration.js)
+### **기존 8단계 → 새로운 10단계**
 
-## 🎯 사용 시나리오
+1. **Understand the Goal** - 목표 이해
+2. **Initial Exploration & Planning** - 초기 탐색 및 계획
+3. **Log the Plan** - 계획 기록
+4. **Verify the Plan** - 계획 검증
+5. **Begin Implementation** - 구현 시작
+6. **Refine and Log Progress** - 진행 상황 정리 및 기록
+7. **📝 Update Documentation** - 문서 업데이트 (새로 추가)
+8. **🔍 Self Review** - 셀프 리뷰 (새로 추가)
+9. **Review & Update Rules** - 규칙 검토 및 업데이트
+10. **Mark Task Complete** - 작업 완료 표시
 
-### 시나리오 1: 새로운 API 엔드포인트 추가
-1. API 엔드포인트 코드 작성
-2. `update_subtask`로 변경 사항 기록
-3. 시스템이 API 변경을 감지
-4. API 문서가 자동으로 업데이트됨
-5. Self Review 수행 (코드 품질, 테스트 커버리지, 문서화 완성도 검토)
-6. 문서 동기화 및 Self Review 완료 확인
+### **문서 동기화 단계 상세**
 
-### 시나리오 2: 설정 구조체 수정
-1. 설정 구조체에 새 필드 추가
-2. `update_subtask`로 변경 사항 기록
-3. 시스템이 구조체 변경을 감지
-4. 설정 문서가 자동으로 업데이트됨
-5. Self Review 수행 (구조체 설계, 타입 안전성, 문서화 검토)
-6. 문서 동기화 및 Self Review 완료 확인
+**7단계: Update Documentation**
+```bash
+# 문서 업데이트 필요성 평가
+taskgarage update-subtask --id=<subtaskId> --prompt="문서 업데이트 필요성 평가 중..."
 
-## 🔧 기술적 특징
+# 자동화된 문서 생성
+./scripts/sync_docs_for_task.sh <task_id> <task_details>
 
-- **기존 패턴 준수**: `executeTaskMasterCommand` 패턴 사용
-- **MCP 통합**: MCP 서버와 완전 통합
-- **에러 처리**: 문서 동기화 및 Self Review 실패 시 적절한 에러 처리
-- **상태 추적**: 문서 동기화 및 Self Review 상태를 task에 기록
-- **자동화**: 수동 개입 없이 완전 자동화
-- **품질 보장**: Self Review를 통한 코드 품질 및 완성도 검증
+# 문서 동기화 상태 검증
+python3 scripts/validate_task_docs.py <task_id>
 
-## 📊 성능 및 안정성
+# 문서 업데이트 상태 기록
+taskgarage update-subtask --id=<subtaskId> --prompt="문서 동기화 완료"
+```
 
-- **테스트 커버리지**: 모든 기능에 대한 자동화된 테스트
-- **에러 복구**: 문서 동기화 실패 시 자동 복구 메커니즘
-- **성능 최적화**: 효율적인 코드 변경 감지 알고리즘
-- **메모리 효율성**: 최소한의 메모리 사용으로 동작
+### **셀프 리뷰 단계 상세**
 
-## 🤝 기여하기
+**8단계: Self Review**
+```bash
+# 결과물 품질 검토
+taskgarage update-subtask --id=<subtaskId> --prompt="결과물 품질 검토 중..."
 
-문서 동기화 통합 기능에 기여하고 싶으시다면:
+# 요구사항 충족도 확인
+taskgarage update-subtask --id=<subtaskId> --prompt="요구사항 충족도 확인 중..."
 
-1. [구현 문서](./implementation/README.md)를 참고하여 코드 구조 파악
-2. [테스트 문서](./testing/README.md)를 참고하여 테스트 실행
-3. [예제 문서](./examples/README.md)를 참고하여 사용법 학습
-4. [규칙 문서](./rules/README.md)를 참고하여 개발 가이드라인 준수
+# 코드 품질 검토
+taskgarage update-subtask --id=<subtaskId> --prompt="코드 품질 검토 중..."
 
-## 📞 지원
+# 테스트 커버리지 확인
+taskgarage update-subtask --id=<subtaskId> --prompt="테스트 커버리지 확인 중..."
 
-문제가 발생하거나 질문이 있으시면:
+# 문서화 완성도 확인
+taskgarage update-subtask --id=<subtaskId> --prompt="문서화 완성도 확인 중..."
 
-1. [테스트 문서](./testing/README.md)의 문제 해결 섹션 확인
-2. [예제 문서](./examples/README.md)의 FAQ 섹션 확인
-3. GitHub Issues를 통해 문제 보고
+# 검토 결과 기록
+taskgarage update-subtask --id=<subtaskId> --prompt="셀프 리뷰 완료 - 모든 항목 통과"
+```
 
----
+## 🎯 **사용 예시**
 
-**📝 마지막 업데이트**: 2024년 12월
-**🔄 버전**: 1.0.0
-**👥 기여자**: TaskGarage 개발팀
+### **새로운 기능 구현 시**
+
+1. **코드 구현 완료**
+2. **문서 동기화 자동 실행**
+3. **셀프 리뷰 수행**
+4. **모든 검증 통과 후 task 완료**
+
+### **문서 동기화 실패 시**
+
+1. **문서 동기화 실패 감지**
+2. **Task 상태를 'review'로 변경**
+3. **문서 동기화 문제 해결**
+4. **재시도 후 성공 시 task 완료**
+
+## 📚 **관련 문서**
+
+- [문서 동기화 통합 규칙](../.cursor/rules/taskmaster/documentation_integration.mdc)
+- [개발 워크플로우 가이드](../.cursor/rules/dev_workflow.mdc)
+- [TaskGarage 메인 README](../README.md)

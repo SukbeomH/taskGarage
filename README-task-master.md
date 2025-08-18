@@ -1,648 +1,71 @@
-# Task Master
+# TaskGarage - Task Master 포크 버전
 
-### by [@eyaltoledano](https://x.com/eyaltoledano)
+**TaskGarage**는 [Task Master](https://github.com/eyaltoledano/claude-task-master)의 포크 버전으로, **문서 동기화 통합**과 **셀프 리뷰 기능**을 추가하여 더욱 완성도 높은 개발 워크플로우를 제공합니다.
 
-A task management system for AI-driven development with Claude, designed to work seamlessly with Cursor AI.
+## 🎯 **원본 프로젝트와의 차이점**
 
-## Requirements
+### **추가된 기능들**
 
-- Node.js 14.0.0 or higher
-- Anthropic API key (Claude API)
-- Anthropic SDK version 0.39.0 or higher
-- OpenAI SDK (for Perplexity API integration, optional)
+#### 📝 **문서 동기화 통합**
+- **자동 코드 변경 감지**: 구조체 필드, 함수 시그니처, 에러 코드, 설정, API 엔드포인트 변경 자동 감지
+- **문서 동기화 워크플로우**: 10단계 개발 프로세스에 문서 동기화 단계 통합
+- **문서 검증 시스템**: 문서 완성도 및 정확성 자동 검증
+- **실패 시 처리**: 문서 동기화 실패 시 task 상태를 'review'로 변경
 
-## Configuration
+#### 🔍 **셀프 리뷰 시스템**
+- **품질 검토**: 구현 결과물의 품질 및 요구사항 충족도 검토
+- **코드 품질 검증**: 스타일, 성능, 보안, 유지보수성 종합 검토
+- **테스트 커버리지 확인**: 적절한 테스트 작성 여부 검증
+- **문서화 완성도 검토**: 코드 주석, README, API 문서 등 검토
+- **완료 조건 강화**: Self Review 완료 확인 후 task 완료 허용
 
-TaskGarage uses two primary configuration methods:
+### **워크플로우 확장**
 
-1.  **`.taskmasterconfig` File (Project Root)**
+| 단계 | 원본 Task Master | TaskGarage |
+|------|------------------|------------|
+| 1-6 | 기존 6단계 | 동일 |
+| 7 | 없음 | **📝 Update Documentation** (새로 추가) |
+| 8 | 없음 | **🔍 Self Review** (새로 추가) |
+| 9-10 | 기존 2단계 | 동일 |
 
-    - Stores most settings: AI model selections (main, research, fallback), parameters (max tokens, temperature), logging level, default priority/subtasks, project name.
-    - **Created and managed using `taskgarage models --setup` CLI command or the `models` MCP tool.**
-    - Do not edit manually unless you know what you are doing.
+## 📚 **원본 프로젝트 정보**
 
-2.  **Environment Variables (`.env` file or MCP `env` block)**
-    - Used **only** for sensitive **API Keys** (e.g., `ANTHROPIC_API_KEY`, `PERPLEXITY_API_KEY`, etc.) and specific endpoints (like `OLLAMA_BASE_URL`).
-    - **For CLI:** Place keys in a `.env` file in your project root.
-    - **For MCP/Cursor:** Place keys in the `env` section of your `.cursor/mcp.json` (or other MCP config according to the AI IDE or client you use) file under the `taskmaster-ai` server definition.
+### **Task Master**
+- **원본 저장소**: [https://github.com/eyaltoledano/claude-task-master](https://github.com/eyaltoledano/claude-task-master)
+- **개발자**: [@eyaltoledano](https://x.com/eyaltoledano), [@RalphEcom](https://x.com/RalphEcom), [@jasonzhou1993](https://x.com/jasonzhou1993)
+- **설명**: AI 기반 태스크 관리 시스템으로 Cursor, Lovable, Windsurf, Roo 등과 함께 사용할 수 있습니다.
 
-**Important:** Settings like model choices, max tokens, temperature, and log level are **no longer configured via environment variables.** Use the `taskgarage models` command or tool.
+### **주요 원본 기능들**
+- AI 기반 태스크 관리 시스템
+- MCP (Model Control Protocol) 지원
+- 다중 AI 제공자 지원 (Claude, OpenAI, Google, Perplexity 등)
+- 태그 기반 태스크 관리
+- 복잡도 분석 및 태스크 확장
+- 연구 기능 통합
+- 확장 프로그램 지원
 
-See the [Configuration Guide](docs/configuration.md) for full details.
+## 🛠️ **TaskGarage 추가 스크립트들**
 
-## Installation
+### **문서 동기화 관련**
+- `scripts/test_documentation_integration.js` - 문서 동기화 통합 기능 테스트
+- `scripts/sync_docs_for_task.sh` - 문서 동기화 스크립트
+- `scripts/validate_task_docs.py` - 문서 검증 스크립트
 
-```bash
-# Install globally
-npm install -g taskgarage
+### **규칙 파일들**
+- `.cursor/rules/taskmaster/documentation_integration.mdc` - 문서 동기화 통합 규칙
+- `.cursor/rules/dev_workflow.mdc` - 10단계 워크플로우 업데이트
 
-# OR install locally within your project
-npm install taskgarage
-```
+## 📖 **문서**
 
-### Initialize a new project
+- [원본 Task Master 문서](https://github.com/eyaltoledano/claude-task-master#readme)
+- [TaskGarage 메인 README](./README.md)
+- [문서 동기화 통합 가이드](./docs/documentation-integration/README.md)
+- [개발 워크플로우 가이드](./.cursor/rules/dev_workflow.mdc)
 
-```bash
-# If installed globally
-taskgarage init
+## 🤝 **기여**
 
-# If installed locally
-npx taskgarage init
-```
+이 프로젝트는 [Task Master](https://github.com/eyaltoledano/claude-task-master)의 포크 버전입니다. 원본 프로젝트에 대한 기여는 [원본 저장소](https://github.com/eyaltoledano/claude-task-master)를 참조하세요.
 
-This will prompt you for project details and set up a new project with the necessary files and structure.
+## 📄 **라이선스**
 
-### Important Notes
-
-1. **ES Modules Configuration:**
-
-   - This project uses ES Modules (ESM) instead of CommonJS.
-   - This is set via `"type": "module"` in your package.json.
-   - Use `import/export` syntax instead of `require()`.
-   - Files should use `.js` or `.mjs` extensions.
-   - To use a CommonJS module, either:
-     - Rename it with `.cjs` extension
-     - Use `await import()` for dynamic imports
-   - If you need CommonJS throughout your project, remove `"type": "module"` from package.json, but Task Master scripts expect ESM.
-
-2. The Anthropic SDK version should be 0.39.0 or higher.
-
-## Quick Start with Global Commands
-
-After installing the package globally, you can use these CLI commands from any directory:
-
-```bash
-# Initialize a new project
-taskgarage init
-
-# Parse a PRD and generate tasks
-taskgarage parse-prd your-prd.txt
-
-# List all tasks
-taskgarage list
-
-# Show the next task to work on
-taskgarage next
-
-# Generate task files
-taskgarage generate
-```
-
-## Troubleshooting
-
-### If `taskgarage init` doesn't respond:
-
-Try running it with Node directly:
-
-```bash
-node node_modules/claude-taskgarage/scripts/init.js
-```
-
-Or clone the repository and run:
-
-```bash
-git clone https://github.com/eyaltoledano/claude-taskgarage.git
-cd claude-taskgarage
-node scripts/init.js
-```
-
-## Task Structure
-
-Tasks in tasks.json have the following structure:
-
-- `id`: Unique identifier for the task (Example: `1`)
-- `title`: Brief, descriptive title of the task (Example: `"Initialize Repo"`)
-- `description`: Concise description of what the task involves (Example: `"Create a new repository, set up initial structure."`)
-- `status`: Current state of the task (Example: `"pending"`, `"done"`, `"deferred"`)
-- `dependencies`: IDs of tasks that must be completed before this task (Example: `[1, 2]`)
-  - Dependencies are displayed with status indicators (✅ for completed, ⏱️ for pending)
-  - This helps quickly identify which prerequisite tasks are blocking work
-- `priority`: Importance level of the task (Example: `"high"`, `"medium"`, `"low"`)
-- `details`: In-depth implementation instructions (Example: `"Use GitHub client ID/secret, handle callback, set session token."`)
-- `testStrategy`: Verification approach (Example: `"Deploy and call endpoint to confirm 'Hello World' response."`)
-- `subtasks`: List of smaller, more specific tasks that make up the main task (Example: `[{"id": 1, "title": "Configure OAuth", ...}]`)
-
-## Integrating with Cursor AI
-
-Claude Task Master is designed to work seamlessly with [Cursor AI](https://www.cursor.so/), providing a structured workflow for AI-driven development.
-
-### Setup with Cursor
-
-1. After initializing your project, open it in Cursor
-2. The `.cursor/rules/dev_workflow.mdc` file is automatically loaded by Cursor, providing the AI with knowledge about the task management system
-3. Place your PRD document in the `scripts/` directory (e.g., `scripts/prd.txt`)
-4. Open Cursor's AI chat and switch to Agent mode
-
-### Setting up MCP in Cursor
-
-To enable enhanced task management capabilities directly within Cursor using the Model Control Protocol (MCP):
-
-1. Go to Cursor settings
-2. Navigate to the MCP section
-3. Click on "Add New MCP Server"
-4. Configure with the following details:
-   - Name: "Task Master"
-   - Type: "Command"
-   - Command: "npx -y taskgarage"
-5. Save the settings
-
-Once configured, you can interact with Task Master's task management commands directly through Cursor's interface, providing a more integrated experience.
-
-### Initial Task Generation
-
-In Cursor's AI chat, instruct the agent to generate tasks from your PRD:
-
-```
-Please use the taskgarage parse-prd command to generate tasks from my PRD. The PRD is located at scripts/prd.txt.
-```
-
-The agent will execute:
-
-```bash
-taskgarage parse-prd scripts/prd.txt
-```
-
-This will:
-
-- Parse your PRD document
-- Generate a structured `tasks.json` file with tasks, dependencies, priorities, and test strategies
-- The agent will understand this process due to the Cursor rules
-
-### Generate Individual Task Files
-
-Next, ask the agent to generate individual task files:
-
-```
-Please generate individual task files from tasks.json
-```
-
-The agent will execute:
-
-```bash
-taskgarage generate
-```
-
-This creates individual task files in the `tasks/` directory (e.g., `task_001.txt`, `task_002.txt`), making it easier to reference specific tasks.
-
-## AI-Driven Development Workflow
-
-The Cursor agent is pre-configured (via the rules file) to follow this workflow:
-
-### 1. Task Discovery and Selection
-
-Ask the agent to list available tasks:
-
-```
-What tasks are available to work on next?
-```
-
-The agent will:
-
-- Run `taskgarage list` to see all tasks
-- Run `taskgarage next` to determine the next task to work on
-- Analyze dependencies to determine which tasks are ready to be worked on
-- Prioritize tasks based on priority level and ID order
-- Suggest the next task(s) to implement
-
-### 2. Task Implementation
-
-When implementing a task, the agent will:
-
-- Reference the task's details section for implementation specifics
-- Consider dependencies on previous tasks
-- Follow the project's coding standards
-- Create appropriate tests based on the task's testStrategy
-
-You can ask:
-
-```
-Let's implement task 3. What does it involve?
-```
-
-### 3. Task Verification
-
-Before marking a task as complete, verify it according to:
-
-- The task's specified testStrategy
-- Any automated tests in the codebase
-- Manual verification if required
-
-### 4. Task Completion
-
-When a task is completed, tell the agent:
-
-```
-Task 3 is now complete. Please update its status.
-```
-
-The agent will execute:
-
-```bash
-taskgarage set-status --id=3 --status=done
-```
-
-### 5. Handling Implementation Drift
-
-If during implementation, you discover that:
-
-- The current approach differs significantly from what was planned
-- Future tasks need to be modified due to current implementation choices
-- New dependencies or requirements have emerged
-
-Tell the agent:
-
-```
-We've changed our approach. We're now using Express instead of Fastify. Please update all future tasks to reflect this change.
-```
-
-The agent will execute:
-
-```bash
-taskgarage update --from=4 --prompt="Now we are using Express instead of Fastify."
-```
-
-This will rewrite or re-scope subsequent tasks in tasks.json while preserving completed work.
-
-### 6. Breaking Down Complex Tasks
-
-For complex tasks that need more granularity:
-
-```
-Task 5 seems complex. Can you break it down into subtasks?
-```
-
-The agent will execute:
-
-```bash
-taskgarage expand --id=5 --num=3
-```
-
-You can provide additional context:
-
-```
-Please break down task 5 with a focus on security considerations.
-```
-
-The agent will execute:
-
-```bash
-taskgarage expand --id=5 --prompt="Focus on security aspects"
-```
-
-You can also expand all pending tasks:
-
-```
-Please break down all pending tasks into subtasks.
-```
-
-The agent will execute:
-
-```bash
-taskgarage expand --all
-```
-
-For research-backed subtask generation using Perplexity AI:
-
-```
-Please break down task 5 using research-backed generation.
-```
-
-The agent will execute:
-
-```bash
-taskgarage expand --id=5 --research
-```
-
-## Command Reference
-
-Here's a comprehensive reference of all available commands:
-
-### Parse PRD
-
-```bash
-# Parse a PRD file and generate tasks
-taskgarage parse-prd <prd-file.txt>
-
-# Limit the number of tasks generated (default is 10)
-taskgarage parse-prd <prd-file.txt> --num-tasks=5
-
-# Allow task master to determine the number of tasks based on complexity
-taskgarage parse-prd <prd-file.txt> --num-tasks=0
-```
-
-### List Tasks
-
-```bash
-# List all tasks
-taskgarage list
-
-# List tasks with a specific status
-taskgarage list --status=<status>
-
-# List tasks with subtasks
-taskgarage list --with-subtasks
-
-# List tasks with a specific status and include subtasks
-taskgarage list --status=<status> --with-subtasks
-```
-
-### Show Next Task
-
-```bash
-# Show the next task to work on based on dependencies and status
-taskgarage next
-```
-
-### Show Specific Task
-
-```bash
-# Show details of a specific task
-taskgarage show <id>
-# or
-taskgarage show --id=<id>
-
-# View a specific subtask (e.g., subtask 2 of task 1)
-taskgarage show 1.2
-```
-
-### Update Tasks
-
-```bash
-# Update tasks from a specific ID and provide context
-taskgarage update --from=<id> --prompt="<prompt>"
-```
-
-### Generate Task Files
-
-```bash
-# Generate individual task files from tasks.json
-taskgarage generate
-```
-
-### Set Task Status
-
-```bash
-# Set status of a single task
-taskgarage set-status --id=<id> --status=<status>
-
-# Set status for multiple tasks
-taskgarage set-status --id=1,2,3 --status=<status>
-
-# Set status for subtasks
-taskgarage set-status --id=1.1,1.2 --status=<status>
-```
-
-When marking a task as "done", all of its subtasks will automatically be marked as "done" as well.
-
-### Expand Tasks
-
-```bash
-# Expand a specific task with subtasks
-taskgarage expand --id=<id> --num=<number>
-
-# Expand a task with a dynamic number of subtasks (ignoring complexity report)
-taskgarage expand --id=<id> --num=0
-
-# Expand with additional context
-taskgarage expand --id=<id> --prompt="<context>"
-
-# Expand all pending tasks
-taskgarage expand --all
-
-# Force regeneration of subtasks for tasks that already have them
-taskgarage expand --all --force
-
-# Research-backed subtask generation for a specific task
-taskgarage expand --id=<id> --research
-
-# Research-backed generation for all tasks
-taskgarage expand --all --research
-```
-
-### Clear Subtasks
-
-```bash
-# Clear subtasks from a specific task
-taskgarage clear-subtasks --id=<id>
-
-# Clear subtasks from multiple tasks
-taskgarage clear-subtasks --id=1,2,3
-
-# Clear subtasks from all tasks
-taskgarage clear-subtasks --all
-```
-
-### Analyze Task Complexity
-
-```bash
-# Analyze complexity of all tasks
-taskgarage analyze-complexity
-
-# Save report to a custom location
-taskgarage analyze-complexity --output=my-report.json
-
-# Use a specific LLM model
-taskgarage analyze-complexity --model=claude-3-opus-20240229
-
-# Set a custom complexity threshold (1-10)
-taskgarage analyze-complexity --threshold=6
-
-# Use an alternative tasks file
-taskgarage analyze-complexity --file=custom-tasks.json
-
-# Use Perplexity AI for research-backed complexity analysis
-taskgarage analyze-complexity --research
-```
-
-### View Complexity Report
-
-```bash
-# Display the task complexity analysis report
-taskgarage complexity-report
-
-# View a report at a custom location
-taskgarage complexity-report --file=my-report.json
-```
-
-### Managing Task Dependencies
-
-```bash
-# Add a dependency to a task
-taskgarage add-dependency --id=<id> --depends-on=<id>
-
-# Remove a dependency from a task
-taskgarage remove-dependency --id=<id> --depends-on=<id>
-
-# Validate dependencies without fixing them
-taskgarage validate-dependencies
-
-# Find and fix invalid dependencies automatically
-taskgarage fix-dependencies
-```
-
-### Add a New Task
-
-```bash
-# Add a new task using AI
-taskgarage add-task --prompt="Description of the new task"
-
-# Add a task with dependencies
-taskgarage add-task --prompt="Description" --dependencies=1,2,3
-
-# Add a task with priority
-taskgarage add-task --prompt="Description" --priority=high
-```
-
-## Feature Details
-
-### Analyzing Task Complexity
-
-The `analyze-complexity` command:
-
-- Analyzes each task using AI to assess its complexity on a scale of 1-10
-- Recommends optimal number of subtasks based on configured DEFAULT_SUBTASKS
-- Generates tailored prompts for expanding each task
-- Creates a comprehensive JSON report with ready-to-use commands
-- Saves the report to scripts/task-complexity-report.json by default
-
-The generated report contains:
-
-- Complexity analysis for each task (scored 1-10)
-- Recommended number of subtasks based on complexity
-- AI-generated expansion prompts customized for each task
-- Ready-to-run expansion commands directly within each task analysis
-
-### Viewing Complexity Report
-
-The `complexity-report` command:
-
-- Displays a formatted, easy-to-read version of the complexity analysis report
-- Shows tasks organized by complexity score (highest to lowest)
-- Provides complexity distribution statistics (low, medium, high)
-- Highlights tasks recommended for expansion based on threshold score
-- Includes ready-to-use expansion commands for each complex task
-- If no report exists, offers to generate one on the spot
-
-### Smart Task Expansion
-
-The `expand` command automatically checks for and uses the complexity report:
-
-When a complexity report exists:
-
-- Tasks are automatically expanded using the recommended subtask count and prompts
-- When expanding all tasks, they're processed in order of complexity (highest first)
-- Research-backed generation is preserved from the complexity analysis
-- You can still override recommendations with explicit command-line options
-
-Example workflow:
-
-```bash
-# Generate the complexity analysis report with research capabilities
-taskgarage analyze-complexity --research
-
-# Review the report in a readable format
-taskgarage complexity-report
-
-# Expand tasks using the optimized recommendations
-taskgarage expand --id=8
-# or expand all tasks
-taskgarage expand --all
-```
-
-### Finding the Next Task
-
-The `next` command:
-
-- Identifies tasks that are pending/in-progress and have all dependencies satisfied
-- Prioritizes tasks by priority level, dependency count, and task ID
-- Displays comprehensive information about the selected task:
-  - Basic task details (ID, title, priority, dependencies)
-  - Implementation details
-  - Subtasks (if they exist)
-- Provides contextual suggested actions:
-  - Command to mark the task as in-progress
-  - Command to mark the task as done
-  - Commands for working with subtasks
-
-### Viewing Specific Task Details
-
-The `show` command:
-
-- Displays comprehensive details about a specific task or subtask
-- Shows task status, priority, dependencies, and detailed implementation notes
-- For parent tasks, displays all subtasks and their status
-- For subtasks, shows parent task relationship
-- Provides contextual action suggestions based on the task's state
-- Works with both regular tasks and subtasks (using the format taskId.subtaskId)
-
-## Best Practices for AI-Driven Development
-
-1. **Start with a detailed PRD**: The more detailed your PRD, the better the generated tasks will be.
-
-2. **Review generated tasks**: After parsing the PRD, review the tasks to ensure they make sense and have appropriate dependencies.
-
-3. **Analyze task complexity**: Use the complexity analysis feature to identify which tasks should be broken down further.
-
-4. **Follow the dependency chain**: Always respect task dependencies - the Cursor agent will help with this.
-
-5. **Update as you go**: If your implementation diverges from the plan, use the update command to keep future tasks aligned with your current approach.
-
-6. **Break down complex tasks**: Use the expand command to break down complex tasks into manageable subtasks.
-
-7. **Regenerate task files**: After any updates to tasks.json, regenerate the task files to keep them in sync.
-
-8. **Communicate context to the agent**: When asking the Cursor agent to help with a task, provide context about what you're trying to achieve.
-
-9. **Validate dependencies**: Periodically run the validate-dependencies command to check for invalid or circular dependencies.
-
-## Example Cursor AI Interactions
-
-### Starting a new project
-
-```
-I've just initialized a new project with Claude Task Master. I have a PRD at scripts/prd.txt.
-Can you help me parse it and set up the initial tasks?
-```
-
-### Working on tasks
-
-```
-What's the next task I should work on? Please consider dependencies and priorities.
-```
-
-### Implementing a specific task
-
-```
-I'd like to implement task 4. Can you help me understand what needs to be done and how to approach it?
-```
-
-### Managing subtasks
-
-```
-I need to regenerate the subtasks for task 3 with a different approach. Can you help me clear and regenerate them?
-```
-
-### Handling changes
-
-```
-We've decided to use MongoDB instead of PostgreSQL. Can you update all future tasks to reflect this change?
-```
-
-### Completing work
-
-```
-I've finished implementing the authentication system described in task 2. All tests are passing.
-Please mark it as complete and tell me what I should work on next.
-```
-
-### Analyzing complexity
-
-```
-Can you analyze the complexity of our tasks to help me understand which ones need to be broken down further?
-```
-
-### Viewing complexity report
-
-```
-Can you show me the complexity report in a more readable format?
-```
+원본 프로젝트와 동일한 MIT with Commons Clause 라이선스를 따릅니다.

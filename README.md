@@ -1,297 +1,83 @@
-# TaskGarage [![GitHub stars](https://img.shields.io/github/stars/sukbeom/taskgarage?style=social)](https://github.com/sukbeom/taskgarage/stargazers)
+# TaskGarage [![GitHub stars](https://img.shields.io/github/stars/SukbeomH/taskGarage)](https://github.com/SukbeomH/taskGarage/stargazers)
 
-[![CI](https://github.com/eyaltoledano/claude-taskgarage/actions/workflows/ci.yml/badge.svg)](https://github.com/eyaltoledano/claude-taskgarage/actions/workflows/ci.yml) [![npm version](https://badge.fury.io/js/taskgarage.svg)](https://badge.fury.io/js/taskgarage) [![Discord](https://dcbadge.limes.pink/api/server/https://discord.gg/taskmasterai?style=flat)](https://discord.gg/taskmasterai) [![License: MIT with Commons Clause](https://img.shields.io/badge/license-MIT%20with%20Commons%20Clause-blue.svg)](LICENSE)
+**TaskGarage**는 [Task Master](https://github.com/eyaltoledano/claude-task-master)의 포크 버전으로, **문서 동기화 통합**과 **셀프 리뷰 기능**을 추가하여 더욱 완성도 높은 개발 워크플로우를 제공합니다.
 
-[![NPM Downloads](https://img.shields.io/npm/d18m/taskgarage?style=flat)](https://www.npmjs.com/package/taskgarage) [![NPM Downloads](https://img.shields.io/npm/dm/taskgarage?style=flat)](https://www.npmjs.com/package/taskgarage) [![NPM Downloads](https://img.shields.io/npm/dw/taskgarage?style=flat)](https://www.npmjs.com/package/taskgarage)
+## 🎯 **TaskGarage의 핵심 개선사항**
 
-## Forked from Task Master by [@eyaltoledano](https://x.com/eyaltoledano), [@RalphEcom](https://x.com/RalphEcom) & [@jasonzhou1993](https://x.com/jasonzhou1993)
+### 📝 **문서 동기화 통합**
+- **자동 문서 업데이트**: 코드 변경 시 관련 문서 자동 동기화
+- **문서 검증 시스템**: 문서 완성도 및 정확성 자동 검증
+- **워크플로우 통합**: 10단계 개발 프로세스에 문서 동기화 단계 포함
+- **코드 변경 감지**: 구조체 필드, 함수 시그니처, 에러 코드, 설정, API 엔드포인트 변경 자동 감지
 
-**Forked and modified by [@sukbeom](https://github.com/sukbeom)**
+### 🔍 **셀프 리뷰 시스템**
+- **품질 검토**: 구현 결과물의 품질 및 요구사항 충족도 검토
+- **코드 품질 검증**: 스타일, 성능, 보안, 유지보수성 종합 검토
+- **테스트 커버리지 확인**: 적절한 테스트 작성 여부 검증
+- **문서화 완성도 검토**: 코드 주석, README, API 문서 등 검토
 
-[![Twitter Follow](https://img.shields.io/twitter/follow/eyaltoledano)](https://x.com/eyaltoledano)
-[![Twitter Follow](https://img.shields.io/twitter/follow/RalphEcom)](https://x.com/RalphEcom)
-[![Twitter Follow](https://img.shields.io/twitter/follow/jasonzhou1993)](https://x.com/jasonzhou1993)
+## 📦 **설치**
 
-A forked version of Task Master - A task management system for AI-driven development with Claude, designed to work seamlessly with Cursor AI.
+```bash
+npm install -g taskgarage
+```
 
-## Documentation
-
-📚 **[View Full Documentation](https://github.com/sukbeom/taskgarage#readme)**
-
-For detailed guides, API references, and comprehensive examples, visit the project repository.
-
-### Quick Reference
-
-The following documentation is also available in the `docs` directory:
-
-- [Configuration Guide](docs/configuration.md) - Set up environment variables and customize TaskGarage
-- [Tutorial](docs/tutorial.md) - Step-by-step guide to getting started with TaskGarage
-- [Command Reference](docs/command-reference.md) - Complete list of all available commands
-- [Task Structure](docs/task-structure.md) - Understanding the task format and features
-- [Example Interactions](docs/examples.md) - Common Cursor AI interaction examples
-- [Migration Guide](docs/migration-guide.md) - Guide to migrating to the new project structure
-
-#### Quick Install for Cursor 1.0+ (One-Click)
-
-[![Add taskgarage MCP server to Cursor](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/install-mcp?name=taskgarage&config=eyJjb21tYW5kIjoibnB4IC15IC0tcGFja2FnZT10YXNrLW1hc3Rlci1haSB0YXNrLW1hc3Rlci1haSIsImVudiI6eyJBTlRIUk9QSUNfQVBJX0tFWSI6IllPVVJfQU5USFJPUElDX0FQSV9LRVlfSEVSRSIsIlBFUlBMRVhJVFlfQVBJX0tFWSI6IllPVVJfUEVSUExFWElUWV9BUElfS0VZX0hFUkUiLCJPUEVOQUlfQVBJX0tFWSI6IllPVVJfT1BFTkFJX0tFWV9IRVJFIiwiR09PR0xFX0FQSV9LRVkiOiJZT1VSX0dPT0dMRV9LRVlfSEVSRSIsIk1JU1RSQUxfQVBJX0tFWSI6IllPVVJfTUlTVFJBTF9LRVlfSEVSRSIsIkdST1FfQVBJX0tFWSI6IllPVVJfR1JPUV9LRVlfSEVSRSIsIk9QRU5ST1VURVJfQVBJX0tFWSI6IllPVVJfT1BFTlJPVVRFUl9LRVlfSEVSRSIsIlhBSV9BUElfS0VZIjoiWU9VUl9YQUlfS0VZX0hFUkUiLCJBWlVSRV9PUEVOQUlfQVBJX0tFWSI6IllPVVJfQVpVUkVfS0VZX0hFUkUiLCJPTExBTUFfQVBJX0tFWSI6IllPVVJfT0xMQU1BX0FQSV9LRVlfSEVSRSJ9fQ%3D%3D)
-
-> **Note:** After clicking the link, you'll still need to add your API keys to the configuration. The link installs the MCP server with placeholder keys that you'll need to replace with your actual API keys.
-
-## Requirements
-
-TaskGarage utilizes AI across several commands, and those require a separate API key. You can use a variety of models from different AI providers provided you add your API keys. For example, if you want to use Claude 3.7, you'll need an Anthropic API key.
-
-You can define 3 types of models to be used: the main model, the research model, and the fallback model (in case either the main or research fail). Whatever model you use, its provider API key must be present in either mcp.json or .env.
-
-At least one (1) of the following is required:
-
-- Anthropic API key (Claude API)
-- OpenAI API key
-- Google Gemini API key
-- Perplexity API key (for research model)
-- xAI API Key (for research or main model)
-- OpenRouter API Key (for research or main model)
-- Claude Code (no API key required - requires Claude Code CLI)
-
-Using the research model is optional but highly recommended. You will need at least ONE API key (unless using Claude Code). Adding all API keys enables you to seamlessly switch between model providers at will.
-
-## Quick Start
-
-### Option 1: MCP (Recommended)
-
-MCP (Model Control Protocol) lets you run Task Master directly from your editor.
-
-#### 1. Add your MCP config at the following path depending on your editor
-
-| Editor       | Scope   | Linux/macOS Path                      | Windows Path                                      | Key          |
-| ------------ | ------- | ------------------------------------- | ------------------------------------------------- | ------------ |
-| **Cursor**   | Global  | `~/.cursor/mcp.json`                  | `%USERPROFILE%\.cursor\mcp.json`                  | `mcpServers` |
-|              | Project | `<project_folder>/.cursor/mcp.json`   | `<project_folder>\.cursor\mcp.json`               | `mcpServers` |
-| **Windsurf** | Global  | `~/.codeium/windsurf/mcp_config.json` | `%USERPROFILE%\.codeium\windsurf\mcp_config.json` | `mcpServers` |
-| **VS Code**  | Project | `<project_folder>/.vscode/mcp.json`   | `<project_folder>\.vscode\mcp.json`               | `servers`    |
-
-##### Manual Configuration
-
-###### Cursor & Windsurf (`mcpServers`)
+## 🔧 **MCP 설정**
 
 ```json
 {
   "mcpServers": {
     "taskgarage": {
       "command": "npx",
-      "args": ["-y", "--package=taskgarage", "taskgarage"],
+      "args": ["taskgarage-mcp"],
       "env": {
-        "ANTHROPIC_API_KEY": "YOUR_ANTHROPIC_API_KEY_HERE",
-        "PERPLEXITY_API_KEY": "YOUR_PERPLEXITY_API_KEY_HERE",
-        "OPENAI_API_KEY": "YOUR_OPENAI_KEY_HERE",
-        "GOOGLE_API_KEY": "YOUR_GOOGLE_KEY_HERE",
-        "MISTRAL_API_KEY": "YOUR_MISTRAL_KEY_HERE",
-        "GROQ_API_KEY": "YOUR_GROQ_KEY_HERE",
-        "OPENROUTER_API_KEY": "YOUR_OPENROUTER_KEY_HERE",
-        "XAI_API_KEY": "YOUR_XAI_KEY_HERE",
-        "AZURE_OPENAI_API_KEY": "YOUR_AZURE_KEY_HERE",
-        "OLLAMA_API_KEY": "YOUR_OLLAMA_API_KEY_HERE"
+        "ANTHROPIC_API_KEY": "your-api-key"
       }
     }
   }
 }
 ```
 
-> 🔑 Replace `YOUR_…_KEY_HERE` with your real API keys. You can remove keys you don't use.
+## 🎯 **원본 프로젝트와의 차이점**
 
-> **Note**: If you see `0 tools enabled` in the MCP settings, try removing the `--package=taskgarage` flag from `args`.
+| 기능 | 원본 Task Master | TaskGarage |
+|------|------------------|------------|
+| 문서 동기화 | ❌ 없음 | ✅ 자동 통합 |
+| 셀프 리뷰 | ❌ 없음 | ✅ 10단계 워크플로우 |
+| 개발 프로세스 | 8단계 | 10단계 (문서 동기화 + 셀프 리뷰) |
+| 문서 검증 | ❌ 수동 | ✅ 자동화 |
+| 코드 변경 감지 | ❌ 없음 | ✅ 패턴 기반 자동 감지 |
 
-###### VS Code (`servers` + `type`)
+## 🚀 **새로운 10단계 워크플로우**
 
-```json
-{
-  "servers": {
-    "taskgarage": {
-      "command": "npx",
-      "args": ["-y", "--package=taskgarage", "taskgarage"],
-      "env": {
-        "ANTHROPIC_API_KEY": "YOUR_ANTHROPIC_API_KEY_HERE",
-        "PERPLEXITY_API_KEY": "YOUR_PERPLEXITY_API_KEY_HERE",
-        "OPENAI_API_KEY": "YOUR_OPENAI_KEY_HERE",
-        "GOOGLE_API_KEY": "YOUR_GOOGLE_KEY_HERE",
-        "MISTRAL_API_KEY": "YOUR_MISTRAL_KEY_HERE",
-        "GROQ_API_KEY": "YOUR_GROQ_KEY_HERE",
-        "OPENROUTER_API_KEY": "YOUR_OPENROUTER_KEY_HERE",
-        "XAI_API_KEY": "YOUR_XAI_KEY_HERE",
-        "AZURE_OPENAI_API_KEY": "YOUR_AZURE_KEY_HERE",
-        "OLLAMA_API_KEY": "YOUR_OLLAMA_API_KEY_HERE"
-      },
-      "type": "stdio"
-    }
-  }
-}
-```
+1. **Understand the Goal** - 목표 이해
+2. **Initial Exploration & Planning** - 초기 탐색 및 계획
+3. **Log the Plan** - 계획 기록
+4. **Verify the Plan** - 계획 검증
+5. **Begin Implementation** - 구현 시작
+6. **Refine and Log Progress** - 진행 상황 정리 및 기록
+7. **📝 Update Documentation** - 문서 업데이트 (새로 추가)
+8. **🔍 Self Review** - 셀프 리뷰 (새로 추가)
+9. **Review & Update Rules** - 규칙 검토 및 업데이트
+10. **Mark Task Complete** - 작업 완료 표시
 
-> 🔑 Replace `YOUR_…_KEY_HERE` with your real API keys. You can remove keys you don't use.
+## 📚 **문서**
 
-#### 2. (Cursor-only) Enable TaskGarage MCP
+- [원본 Task Master 문서](https://github.com/eyaltoledano/claude-task-master#readme)
+- [TaskGarage 추가 기능 가이드](./docs/documentation-integration/README.md)
+- [셀프 리뷰 워크플로우](./.cursor/rules/dev_workflow.mdc)
+- [문서 동기화 통합 규칙](./.cursor/rules/taskmaster/documentation_integration.mdc)
 
-Open Cursor Settings (Ctrl+Shift+J) ➡ Click on MCP tab on the left ➡ Enable taskgarage with the toggle
+## 🛠️ **추가된 스크립트들**
 
-#### 3. (Optional) Configure the models you want to use
+- `scripts/test_documentation_integration.js` - 문서 동기화 통합 기능 테스트
+- `scripts/sync_docs_for_task.sh` - 문서 동기화 스크립트
+- `scripts/validate_task_docs.py` - 문서 검증 스크립트
 
-In your editor's AI chat pane, say:
+## 🤝 **기여**
 
-```txt
-Change the main, research and fallback models to <model_name>, <model_name> and <model_name> respectively.
-```
+이 프로젝트는 [Task Master](https://github.com/eyaltoledano/claude-task-master)의 포크 버전입니다. 원본 프로젝트에 대한 기여는 [원본 저장소](https://github.com/eyaltoledano/claude-task-master)를 참조하세요.
 
-For example, to use Claude Code (no API key required):
-```txt
-Change the main model to claude-code/sonnet
-```
+## 📄 **라이선스**
 
-[Table of available models](docs/models.md) | [Claude Code setup](docs/examples/claude-code-usage.md)
-
-#### 4. Initialize Task Master
-
-In your editor's AI chat pane, say:
-
-```txt
-Initialize taskmaster-ai in my project
-```
-
-#### 5. Make sure you have a PRD (Recommended)
-
-For **new projects**: Create your PRD at `.taskmaster/docs/prd.txt`  
-For **existing projects**: You can use `scripts/prd.txt` or migrate with `taskgarage migrate`
-
-An example PRD template is available after initialization in `.taskmaster/templates/example_prd.txt`.
-
-> [!NOTE]
-> While a PRD is recommended for complex projects, you can always create individual tasks by asking "Can you help me implement [description of what you want to do]?" in chat.
-
-**Always start with a detailed PRD.**
-
-The more detailed your PRD, the better the generated tasks will be.
-
-#### 6. Common Commands
-
-Use your AI assistant to:
-
-- Parse requirements: `Can you parse my PRD at scripts/prd.txt?`
-- Plan next step: `What's the next task I should work on?`
-- Implement a task: `Can you help me implement task 3?`
-- View multiple tasks: `Can you show me tasks 1, 3, and 5?`
-- Expand a task: `Can you help me expand task 4?`
-- **Research fresh information**: `Research the latest best practices for implementing JWT authentication with Node.js`
-- **Research with context**: `Research React Query v5 migration strategies for our current API implementation in src/api.js`
-
-[More examples on how to use Task Master in chat](docs/examples.md)
-
-### Option 2: Using Command Line
-
-#### Installation
-
-```bash
-# Install globally
-npm install -g taskgarage
-
-# OR install locally within your project
-npm install taskgarage
-```
-
-#### Initialize a new project
-
-```bash
-# If installed globally
-taskgarage init
-
-# If installed locally
-npx taskgarage init
-
-# Initialize project with specific rules
-taskgarage init --rules cursor,windsurf,vscode
-```
-
-This will prompt you for project details and set up a new project with the necessary files and structure.
-
-#### Common Commands
-
-```bash
-# Initialize a new project
-taskgarage init
-
-# Parse a PRD and generate tasks
-taskgarage parse-prd your-prd.txt
-
-# List all tasks
-taskgarage list
-
-# Show the next task to work on
-taskgarage next
-
-# Show specific task(s) - supports comma-separated IDs
-taskgarage show 1,3,5
-
-# Research fresh information with project context
-taskgarage research "What are the latest best practices for JWT authentication?"
-
-# Generate task files
-taskgarage generate
-
-# Add rules after initialization
-taskgarage rules add windsurf,roo,vscode
-```
-
-## Claude Code Support
-
-TaskGarage now supports Claude models through the Claude Code CLI, which requires no API key:
-
-- **Models**: `claude-code/opus` and `claude-code/sonnet`
-- **Requirements**: Claude Code CLI installed
-- **Benefits**: No API key needed, uses your local Claude instance
-
-[Learn more about Claude Code setup](docs/examples/claude-code-usage.md)
-
-## Troubleshooting
-
-### If `taskgarage init` doesn't respond
-
-Try running it with Node directly:
-
-```bash
-node node_modules/claude-taskgarage/scripts/init.js
-```
-
-Or clone the repository and run:
-
-```bash
-git clone https://github.com/sukbeom/taskgarage.git
-cd taskgarage
-node scripts/init.js
-```
-
-## Contributors
-
-<a href="https://github.com/sukbeom/taskgarage/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=sukbeom/taskgarage" alt="TaskGarage project contributors" />
-</a>
-
-## Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=sukbeom/taskgarage&type=Timeline)](https://www.star-history.com/#sukbeom/taskgarage&Timeline)
-
-## Licensing
-
-TaskGarage is licensed under the MIT License with Commons Clause. This means you can:
-
-✅ **Allowed**:
-
-- Use TaskGarage for any purpose (personal, commercial, academic)
-- Modify the code
-- Distribute copies
-- Create and sell products built using TaskGarage
-
-❌ **Not Allowed**:
-
-- Sell TaskGarage itself
-- Offer TaskGarage as a hosted service
-- Create competing products based on TaskGarage
-
-See the [LICENSE](LICENSE) file for the complete license text and [licensing details](docs/licensing.md) for more information.
+원본 프로젝트와 동일한 MIT with Commons Clause 라이선스를 따릅니다.
