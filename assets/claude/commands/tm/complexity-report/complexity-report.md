@@ -11,7 +11,7 @@ Shows comprehensive task complexity analysis with actionable insights.
 ## Execution
 
 ```bash
-task-master complexity-report [--file=<path>]
+taskgarage complexity-report [--file=<path>]
 ```
 
 ## Report Location

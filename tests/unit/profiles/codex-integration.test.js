@@ -24,7 +24,7 @@ describe('Codex Profile Integration', () => {
 		jest.clearAllMocks();
 
 		// Create a temporary directory for testing
-		tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'task-master-test-'));
+		tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'taskgarage-test-'));
 
 		// Spy on fs methods
 		jest.spyOn(fs, 'writeFileSync').mockImplementation(() => {});
@@ -72,7 +72,7 @@ describe('Codex Profile Integration', () => {
 		// Assert - Codex profile should not create any directories
 		// Only the temp directory creation calls should exist
 		const mkdirCalls = fs.mkdirSync.mock.calls.filter(
-			(call) => !call[0].includes('task-master-test-')
+			(call) => !call[0].includes('taskgarage-test-')
 		);
 		expect(mkdirCalls).toHaveLength(0);
 	});

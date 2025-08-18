@@ -9,7 +9,7 @@ import {
 	handleApiResult,
 	withNormalizedProjectRoot
 } from './utils.js';
-import { listTasksDirect } from '../core/task-master-core.js';
+import { listTasksDirect } from '../core/taskgarage-core.js';
 import {
 	resolveTasksPath,
 	resolveComplexityReportPath

@@ -9,7 +9,7 @@ import {
 	createErrorResponse,
 	withNormalizedProjectRoot
 } from './utils.js';
-import { generateTaskFilesDirect } from '../core/task-master-core.js';
+import { generateTaskFilesDirect } from '../core/taskgarage-core.js';
 import { findTasksPath } from '../core/utils/path-utils.js';
 import { resolveTag } from '../../../scripts/modules/utils.js';
 import path from 'path';

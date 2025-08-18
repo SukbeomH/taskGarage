@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 
 /**
- * Task Master
+ * TaskGarage - Forked from Task Master
  * Copyright (c) 2025 Eyal Toledano, Ralph Khreish
+ * Forked and modified by Sukbeom
  *
  * This software is licensed under the MIT License with Commons Clause.
  * You may use this software for any purpose, including commercial applications,
@@ -16,7 +17,7 @@
  */
 
 /**
- * Claude Task Master
+ * TaskGarage - Forked from Task Master
  * A task management system for AI-driven development with Claude
  */
 
@@ -68,8 +69,8 @@ if (import.meta.url === `file://${process.argv[1]}`) {
 	const program = new Command();
 
 	program
-		.name('task-master')
-		.description('Claude Task Master CLI')
+		.name('taskgarage')
+		.description('TaskGarage CLI - Forked from Task Master')
 		.version(version);
 
 	program

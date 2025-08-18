@@ -1,12 +1,12 @@
 /**
- * Tests for task-master.js initTaskMaster function
+ * Tests for taskgarage.js initTaskMaster function
  */
 
 import { jest } from '@jest/globals';
 import path from 'path';
 import fs from 'fs';
 import os from 'os';
-import { initTaskMaster, TaskMaster } from '../../src/task-master.js';
+import { initTaskMaster, TaskMaster } from '../../src/taskgarage.js';
 import {
 	TASKMASTER_DIR,
 	TASKMASTER_TASKS_FILE,

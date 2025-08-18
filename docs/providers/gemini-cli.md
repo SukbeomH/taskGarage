@@ -46,10 +46,10 @@ More details on authentication steps and options can be found in the [gemini-cli
 
 ## Configuration
 
-Use the `task-master init` command to run through the guided initialization:
+Use the `taskgarage init` command to run through the guided initialization:
 
 ```bash
-task-master init
+taskgarage init
 ```
 
 **OR**
@@ -58,10 +58,10 @@ Configure `gemini-cli` as a provider using the Task Master models command:
 
 ```bash
 # Set gemini-cli as your main provider with gemini-2.5-pro
-task-master models --set-main gemini-2.5-pro --gemini-cli
+taskgarage models --set-main gemini-2.5-pro --gemini-cli
 
 # Or use the faster gemini-2.5-flash model
-task-master models --set-main gemini-2.5-flash --gemini-cli
+taskgarage models --set-main gemini-2.5-flash --gemini-cli
 ```
 
 You can also manually edit your `.taskmaster/config.json`:
@@ -119,7 +119,7 @@ Once gemini-cli is installed and authenticated, and Task Master  simply use Task
 
 ```bash
 # The provider will automatically use your OAuth credentials
-task-master parse-prd my-prd.txt
+taskgarage parse-prd my-prd.txt
 ```
 
 ## Troubleshooting

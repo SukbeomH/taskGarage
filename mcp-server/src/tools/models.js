@@ -9,7 +9,7 @@ import {
 	createErrorResponse,
 	withNormalizedProjectRoot
 } from './utils.js';
-import { modelsDirect } from '../core/task-master-core.js';
+import { modelsDirect } from '../core/taskgarage-core.js';
 
 /**
  * Register the models tool with the MCP server

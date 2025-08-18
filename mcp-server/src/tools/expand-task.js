@@ -9,7 +9,7 @@ import {
 	createErrorResponse,
 	withNormalizedProjectRoot
 } from './utils.js';
-import { expandTaskDirect } from '../core/task-master-core.js';
+import { expandTaskDirect } from '../core/taskgarage-core.js';
 import {
 	findTasksPath,
 	findComplexityReportPath

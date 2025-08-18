@@ -166,7 +166,7 @@ function addShellAliases() {
 
 		// Check if aliases already exist
 		const configContent = fs.readFileSync(shellConfigFile, 'utf8');
-		if (configContent.includes("alias tm='task-master'")) {
+		if (configContent.includes("alias tm='taskgarage'")) {
 			log('info', 'Task Master aliases already exist in shell config.');
 			return true;
 		}
@@ -174,8 +174,8 @@ function addShellAliases() {
 		// Add aliases to the shell config file
 		const aliasBlock = `
 # Task Master aliases added on ${new Date().toLocaleDateString()}
-alias tm='task-master'
-alias taskmaster='task-master'
+alias tm='taskgarage'
+alias taskmaster='taskgarage'
 `;
 
 		fs.appendFileSync(shellConfigFile, aliasBlock);
@@ -229,8 +229,8 @@ function copyTemplateFile(templateName, targetPath, replacements = {}) {
 		// case 'scripts_README.md':
 		// 	sourcePath = path.join(__dirname, '..', 'assets', 'scripts_README.md');
 		// 	break;
-		// case 'README-task-master.md':
-		// 	sourcePath = path.join(__dirname, '..', 'README-task-master.md');
+		// case 'README-taskgarage.md':
+		// 	sourcePath = path.join(__dirname, '..', 'README-taskgarage.md');
 		// 	break;
 		default:
 			// For other files like env.example, gitignore, etc. that don't have direct equivalents
@@ -282,17 +282,17 @@ function copyTemplateFile(templateName, targetPath, replacements = {}) {
 		}
 
 		// Handle README.md - offer to preserve or create a different file
-		if (filename === 'README-task-master.md') {
+		if (filename === 'README-taskgarage.md') {
 			log('info', `${targetPath} already exists`);
 			// Create a separate README file specifically for this project
 			const taskMasterReadmePath = path.join(
 				path.dirname(targetPath),
-				'README-task-master.md'
+				'README-taskgarage.md'
 			);
 			fs.writeFileSync(taskMasterReadmePath, content);
 			log(
 				'success',
-				`Created ${taskMasterReadmePath} (preserved original README-task-master.md)`
+				`Created ${taskMasterReadmePath} (preserved original README-taskgarage.md)`
 			);
 			return;
 		}
@@ -384,7 +384,7 @@ async function initializeProject(options = {}) {
 		}
 
 		// Use provided options or defaults
-		const projectName = options.name || 'task-master-project';
+		const projectName = options.name || 'taskgarage-project';
 		const projectDescription =
 			options.description || 'A project managed with Task Master AI';
 		const projectVersion = options.version || '0.1.0';
@@ -445,7 +445,7 @@ async function initializeProject(options = {}) {
 				const addAliasesInput = await promptQuestion(
 					rl,
 					chalk.cyan(
-						'Add shell aliases for task-master? This lets you type "tm" instead of "task-master" (Y/n): '
+						'Add shell aliases for taskgarage? This lets you type "tm" instead of "taskgarage" (Y/n): '
 					)
 				);
 				addAliasesPrompted = addAliasesInput.trim().toLowerCase() !== 'n';
@@ -481,7 +481,7 @@ async function initializeProject(options = {}) {
 			console.log('\nTask Master Project settings:');
 			console.log(
 				chalk.blue(
-					'Add shell aliases (so you can use "tm" instead of "task-master"):'
+					'Add shell aliases (so you can use "tm" instead of "taskgarage"):'
 				),
 				chalk.white(addAliasesPrompted ? 'Yes' : 'No')
 			);
@@ -744,14 +744,14 @@ function createProjectStructure(
 		);
 		try {
 			// Correct command confirmed by you.
-			execSync('npx task-master rules --setup', {
+			execSync('npx taskgarage rules --setup', {
 				stdio: 'inherit',
 				cwd: targetDir
 			});
 			log('success', 'Rule profiles configured.');
 		} catch (error) {
 			log('error', 'Failed to configure rule profiles:', error.message);
-			log('warn', 'You may need to run "task-master rules --setup" manually.');
+			log('warn', 'You may need to run "taskgarage rules --setup" manually.');
 		}
 	} else if (isSilentMode() || dryRun || options?.yes) {
 		// This branch can log why setup was skipped, similar to the model setup logic.
@@ -781,14 +781,14 @@ function createProjectStructure(
 			'Running interactive response language setup. Please input your preferred language.'
 		);
 		try {
-			execSync('npx task-master lang --setup', {
+			execSync('npx taskgarage lang --setup', {
 				stdio: 'inherit',
 				cwd: targetDir
 			});
 			log('success', 'Response Language configured.');
 		} catch (error) {
 			log('error', 'Failed to configure response language:', error.message);
-			log('warn', 'You may need to run "task-master lang --setup" manually.');
+			log('warn', 'You may need to run "taskgarage lang --setup" manually.');
 		}
 	} else if (isSilentMode() && !dryRun) {
 		log(
@@ -797,7 +797,7 @@ function createProjectStructure(
 		);
 		log(
 			'warn',
-			'Please configure response language using "task-master models --set-response-language" or the "models" MCP tool.'
+			'Please configure response language using "taskgarage models --set-response-language" or the "models" MCP tool.'
 		);
 	} else if (dryRun) {
 		log('info', 'DRY RUN: Skipping interactive response language setup.');
@@ -819,20 +819,20 @@ function createProjectStructure(
 			'Running interactive model setup. Please select your preferred AI models.'
 		);
 		try {
-			execSync('npx task-master models --setup', {
+			execSync('npx taskgarage models --setup', {
 				stdio: 'inherit',
 				cwd: targetDir
 			});
 			log('success', 'AI Models configured.');
 		} catch (error) {
 			log('error', 'Failed to configure AI models:', error.message);
-			log('warn', 'You may need to run "task-master models --setup" manually.');
+			log('warn', 'You may need to run "taskgarage models --setup" manually.');
 		}
 	} else if (isSilentMode() && !dryRun) {
 		log('info', 'Skipping interactive model setup in silent (MCP) mode.');
 		log(
 			'warn',
-			'Please configure AI models using "task-master models --set-..." or the "models" MCP tool.'
+			'Please configure AI models using "taskgarage models --set-..." or the "models" MCP tool.'
 		);
 	} else if (dryRun) {
 		log('info', 'DRY RUN: Skipping interactive model setup.');
@@ -840,7 +840,7 @@ function createProjectStructure(
 		log('info', 'Skipping interactive model setup due to --yes flag.');
 		log(
 			'info',
-			'Default AI models will be used. You can configure different models later using "task-master models --setup" or "task-master models --set-..." commands.'
+			'Default AI models will be used. You can configure different models later using "taskgarage models --setup" or "taskgarage models --set-..." commands.'
 		);
 	}
 	// ====================================
@@ -879,15 +879,15 @@ function createProjectStructure(
 			boxen(
 				`${chalk.cyan.bold('Things you should do next:')}\n\n${chalk.white('1. ')}${chalk.yellow(
 					'Configure AI models (if needed) and add API keys to `.env`'
-				)}\n${chalk.white('   ├─ ')}${chalk.dim('Models: Use `task-master models` commands')}\n${chalk.white('   └─ ')}${chalk.dim(
+				)}\n${chalk.white('   ├─ ')}${chalk.dim('Models: Use `taskgarage models` commands')}\n${chalk.white('   └─ ')}${chalk.dim(
 					'Keys: Add provider API keys to .env (or inside the MCP config file i.e. .cursor/mcp.json)'
 				)}\n${chalk.white('2. ')}${chalk.yellow(
 					'Discuss your idea with AI and ask for a PRD using example_prd.txt, and save it to scripts/PRD.txt'
 				)}\n${chalk.white('3. ')}${chalk.yellow(
 					'Ask Cursor Agent (or run CLI) to parse your PRD and generate initial tasks:'
-				)}\n${chalk.white('   └─ ')}${chalk.dim('MCP Tool: ')}${chalk.cyan('parse_prd')}${chalk.dim(' | CLI: ')}${chalk.cyan('task-master parse-prd scripts/prd.txt')}\n${chalk.white('4. ')}${chalk.yellow(
+				)}\n${chalk.white('   └─ ')}${chalk.dim('MCP Tool: ')}${chalk.cyan('parse_prd')}${chalk.dim(' | CLI: ')}${chalk.cyan('taskgarage parse-prd scripts/prd.txt')}\n${chalk.white('4. ')}${chalk.yellow(
 					'Ask Cursor to analyze the complexity of the tasks in your PRD using research'
-				)}\n${chalk.white('   └─ ')}${chalk.dim('MCP Tool: ')}${chalk.cyan('analyze_project_complexity')}${chalk.dim(' | CLI: ')}${chalk.cyan('task-master analyze-complexity')}\n${chalk.white('5. ')}${chalk.yellow(
+				)}\n${chalk.white('   └─ ')}${chalk.dim('MCP Tool: ')}${chalk.cyan('analyze_project_complexity')}${chalk.dim(' | CLI: ')}${chalk.cyan('taskgarage analyze-complexity')}\n${chalk.white('5. ')}${chalk.yellow(
 					'Ask Cursor to expand all of your tasks using the complexity analysis'
 				)}\n${chalk.white('6. ')}${chalk.yellow('Ask Cursor to begin working on the next task')}\n${chalk.white('7. ')}${chalk.yellow(
 					'Add new tasks anytime using the add-task command or MCP tool'
@@ -898,7 +898,7 @@ function createProjectStructure(
 				)}\n${chalk.white('10. ')}${chalk.green.bold('Ship it!')}\n\n${chalk.dim(
 					'* Review the README.md file to learn how to use other commands via Cursor Agent.'
 				)}\n${chalk.dim(
-					'* Use the task-master command without arguments to see all available commands.'
+					'* Use the taskgarage command without arguments to see all available commands.'
 				)}`,
 				{
 					padding: 1,

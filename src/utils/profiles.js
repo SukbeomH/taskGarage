@@ -97,7 +97,7 @@ export function wouldRemovalLeaveNoProfiles(projectRoot, profilesToRemove) {
  * This function dynamically lists all available profiles (from RULE_PROFILES) and presents them as checkboxes.
  * The user must select at least one profile (no defaults are pre-selected). The result is an array of selected profile names.
  *
- * Used by both project initialization (init) and the CLI 'task-master rules setup' command.
+ * Used by both project initialization (init) and the CLI 'taskgarage rules setup' command.
  *
  * @returns {Promise<string[]>} Array of selected profile names (e.g., ['cursor', 'windsurf'])
  */

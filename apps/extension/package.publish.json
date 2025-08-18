@@ -1,5 +1,5 @@
 {
-	"name": "task-master-hamster",
+	"name": "taskgarage-hamster",
 	"displayName": "Taskmaster AI",
 	"description": "A visual Kanban board interface for Taskmaster projects in VS Code",
 	"version": "0.23.1",
@@ -16,7 +16,7 @@
 		"todo",
 		"task tracking",
 		"project management",
-		"task-master",
+		"taskgarage",
 		"task management",
 		"agile",
 		"scrum",
@@ -42,7 +42,7 @@
 		"boards",
 		"cards"
 	],
-	"repository": "https://github.com/eyaltoledano/claude-task-master",
+	"repository": "https://github.com/eyaltoledano/claude-taskgarage",
 	"activationEvents": ["onStartupFinished", "workspaceContains:.taskmaster/**"],
 	"main": "./dist/extension.js",
 	"contributes": {
@@ -88,14 +88,14 @@
 				"taskmaster.mcp.command": {
 					"type": "string",
 					"default": "npx",
-					"description": "The command or absolute path to execute for the MCP server (e.g., 'npx' or '/usr/local/bin/task-master-ai')."
+					"description": "The command or absolute path to execute for the MCP server (e.g., 'npx' or '/usr/local/bin/taskgarage-ai')."
 				},
 				"taskmaster.mcp.args": {
 					"type": "array",
 					"items": {
 						"type": "string"
 					},
-					"default": ["-y", "--package=task-master-ai", "task-master-ai"],
+					"default": ["-y", "--package=taskgarage-ai", "taskgarage-ai"],
 					"description": "An array of arguments to pass to the MCP server command."
 				},
 				"taskmaster.mcp.cwd": {

@@ -18,7 +18,7 @@ Taskmaster uses two primary configuration methods:
 1.  **`.taskmasterconfig` File (Project Root)**
 
     - Stores most settings: AI model selections (main, research, fallback), parameters (max tokens, temperature), logging level, default priority/subtasks, project name.
-    - **Created and managed using `task-master models --setup` CLI command or the `models` MCP tool.**
+    - **Created and managed using `taskgarage models --setup` CLI command or the `models` MCP tool.**
     - Do not edit manually unless you know what you are doing.
 
 2.  **Environment Variables (`.env` file or MCP `env` block)**
@@ -26,7 +26,7 @@ Taskmaster uses two primary configuration methods:
     - **For CLI:** Place keys in a `.env` file in your project root.
     - **For MCP/Cursor:** Place keys in the `env` section of your `.cursor/mcp.json` (or other MCP config according to the AI IDE or client you use) file under the `taskmaster-ai` server definition.
 
-**Important:** Settings like model choices, max tokens, temperature, and log level are **no longer configured via environment variables.** Use the `task-master models` command or tool.
+**Important:** Settings like model choices, max tokens, temperature, and log level are **no longer configured via environment variables.** Use the `taskgarage models` command or tool.
 
 See the [Configuration Guide](docs/configuration.md) for full details.
 
@@ -34,20 +34,20 @@ See the [Configuration Guide](docs/configuration.md) for full details.
 
 ```bash
 # Install globally
-npm install -g task-master-ai
+npm install -g taskgarage-ai
 
 # OR install locally within your project
-npm install task-master-ai
+npm install taskgarage-ai
 ```
 
 ### Initialize a new project
 
 ```bash
 # If installed globally
-task-master init
+taskgarage init
 
 # If installed locally
-npx task-master init
+npx taskgarage init
 ```
 
 This will prompt you for project details and set up a new project with the necessary files and structure.
@@ -73,36 +73,36 @@ After installing the package globally, you can use these CLI commands from any d
 
 ```bash
 # Initialize a new project
-task-master init
+taskgarage init
 
 # Parse a PRD and generate tasks
-task-master parse-prd your-prd.txt
+taskgarage parse-prd your-prd.txt
 
 # List all tasks
-task-master list
+taskgarage list
 
 # Show the next task to work on
-task-master next
+taskgarage next
 
 # Generate task files
-task-master generate
+taskgarage generate
 ```
 
 ## Troubleshooting
 
-### If `task-master init` doesn't respond:
+### If `taskgarage init` doesn't respond:
 
 Try running it with Node directly:
 
 ```bash
-node node_modules/claude-task-master/scripts/init.js
+node node_modules/claude-taskgarage/scripts/init.js
 ```
 
 Or clone the repository and run:
 
 ```bash
-git clone https://github.com/eyaltoledano/claude-task-master.git
-cd claude-task-master
+git clone https://github.com/eyaltoledano/claude-taskgarage.git
+cd claude-taskgarage
 node scripts/init.js
 ```
 
@@ -143,7 +143,7 @@ To enable enhanced task management capabilities directly within Cursor using the
 4. Configure with the following details:
    - Name: "Task Master"
    - Type: "Command"
-   - Command: "npx -y task-master-ai"
+   - Command: "npx -y taskgarage-ai"
 5. Save the settings
 
 Once configured, you can interact with Task Master's task management commands directly through Cursor's interface, providing a more integrated experience.
@@ -153,13 +153,13 @@ Once configured, you can interact with Task Master's task management commands di
 In Cursor's AI chat, instruct the agent to generate tasks from your PRD:
 
 ```
-Please use the task-master parse-prd command to generate tasks from my PRD. The PRD is located at scripts/prd.txt.
+Please use the taskgarage parse-prd command to generate tasks from my PRD. The PRD is located at scripts/prd.txt.
 ```
 
 The agent will execute:
 
 ```bash
-task-master parse-prd scripts/prd.txt
+taskgarage parse-prd scripts/prd.txt
 ```
 
 This will:
@@ -179,7 +179,7 @@ Please generate individual task files from tasks.json
 The agent will execute:
 
 ```bash
-task-master generate
+taskgarage generate
 ```
 
 This creates individual task files in the `tasks/` directory (e.g., `task_001.txt`, `task_002.txt`), making it easier to reference specific tasks.
@@ -198,8 +198,8 @@ What tasks are available to work on next?
 
 The agent will:
 
-- Run `task-master list` to see all tasks
-- Run `task-master next` to determine the next task to work on
+- Run `taskgarage list` to see all tasks
+- Run `taskgarage next` to determine the next task to work on
 - Analyze dependencies to determine which tasks are ready to be worked on
 - Prioritize tasks based on priority level and ID order
 - Suggest the next task(s) to implement
@@ -238,7 +238,7 @@ Task 3 is now complete. Please update its status.
 The agent will execute:
 
 ```bash
-task-master set-status --id=3 --status=done
+taskgarage set-status --id=3 --status=done
 ```
 
 ### 5. Handling Implementation Drift
@@ -258,7 +258,7 @@ We've changed our approach. We're now using Express instead of Fastify. Please u
 The agent will execute:
 
 ```bash
-task-master update --from=4 --prompt="Now we are using Express instead of Fastify."
+taskgarage update --from=4 --prompt="Now we are using Express instead of Fastify."
 ```
 
 This will rewrite or re-scope subsequent tasks in tasks.json while preserving completed work.
@@ -274,7 +274,7 @@ Task 5 seems complex. Can you break it down into subtasks?
 The agent will execute:
 
 ```bash
-task-master expand --id=5 --num=3
+taskgarage expand --id=5 --num=3
 ```
 
 You can provide additional context:
@@ -286,7 +286,7 @@ Please break down task 5 with a focus on security considerations.
 The agent will execute:
 
 ```bash
-task-master expand --id=5 --prompt="Focus on security aspects"
+taskgarage expand --id=5 --prompt="Focus on security aspects"
 ```
 
 You can also expand all pending tasks:
@@ -298,7 +298,7 @@ Please break down all pending tasks into subtasks.
 The agent will execute:
 
 ```bash
-task-master expand --all
+taskgarage expand --all
 ```
 
 For research-backed subtask generation using Perplexity AI:
@@ -310,7 +310,7 @@ Please break down task 5 using research-backed generation.
 The agent will execute:
 
 ```bash
-task-master expand --id=5 --research
+taskgarage expand --id=5 --research
 ```
 
 ## Command Reference
@@ -321,75 +321,75 @@ Here's a comprehensive reference of all available commands:
 
 ```bash
 # Parse a PRD file and generate tasks
-task-master parse-prd <prd-file.txt>
+taskgarage parse-prd <prd-file.txt>
 
 # Limit the number of tasks generated (default is 10)
-task-master parse-prd <prd-file.txt> --num-tasks=5
+taskgarage parse-prd <prd-file.txt> --num-tasks=5
 
 # Allow task master to determine the number of tasks based on complexity
-task-master parse-prd <prd-file.txt> --num-tasks=0
+taskgarage parse-prd <prd-file.txt> --num-tasks=0
 ```
 
 ### List Tasks
 
 ```bash
 # List all tasks
-task-master list
+taskgarage list
 
 # List tasks with a specific status
-task-master list --status=<status>
+taskgarage list --status=<status>
 
 # List tasks with subtasks
-task-master list --with-subtasks
+taskgarage list --with-subtasks
 
 # List tasks with a specific status and include subtasks
-task-master list --status=<status> --with-subtasks
+taskgarage list --status=<status> --with-subtasks
 ```
 
 ### Show Next Task
 
 ```bash
 # Show the next task to work on based on dependencies and status
-task-master next
+taskgarage next
 ```
 
 ### Show Specific Task
 
 ```bash
 # Show details of a specific task
-task-master show <id>
+taskgarage show <id>
 # or
-task-master show --id=<id>
+taskgarage show --id=<id>
 
 # View a specific subtask (e.g., subtask 2 of task 1)
-task-master show 1.2
+taskgarage show 1.2
 ```
 
 ### Update Tasks
 
 ```bash
 # Update tasks from a specific ID and provide context
-task-master update --from=<id> --prompt="<prompt>"
+taskgarage update --from=<id> --prompt="<prompt>"
 ```
 
 ### Generate Task Files
 
 ```bash
 # Generate individual task files from tasks.json
-task-master generate
+taskgarage generate
 ```
 
 ### Set Task Status
 
 ```bash
 # Set status of a single task
-task-master set-status --id=<id> --status=<status>
+taskgarage set-status --id=<id> --status=<status>
 
 # Set status for multiple tasks
-task-master set-status --id=1,2,3 --status=<status>
+taskgarage set-status --id=1,2,3 --status=<status>
 
 # Set status for subtasks
-task-master set-status --id=1.1,1.2 --status=<status>
+taskgarage set-status --id=1.1,1.2 --status=<status>
 ```
 
 When marking a task as "done", all of its subtasks will automatically be marked as "done" as well.
@@ -398,99 +398,99 @@ When marking a task as "done", all of its subtasks will automatically be marked 
 
 ```bash
 # Expand a specific task with subtasks
-task-master expand --id=<id> --num=<number>
+taskgarage expand --id=<id> --num=<number>
 
 # Expand a task with a dynamic number of subtasks (ignoring complexity report)
-task-master expand --id=<id> --num=0
+taskgarage expand --id=<id> --num=0
 
 # Expand with additional context
-task-master expand --id=<id> --prompt="<context>"
+taskgarage expand --id=<id> --prompt="<context>"
 
 # Expand all pending tasks
-task-master expand --all
+taskgarage expand --all
 
 # Force regeneration of subtasks for tasks that already have them
-task-master expand --all --force
+taskgarage expand --all --force
 
 # Research-backed subtask generation for a specific task
-task-master expand --id=<id> --research
+taskgarage expand --id=<id> --research
 
 # Research-backed generation for all tasks
-task-master expand --all --research
+taskgarage expand --all --research
 ```
 
 ### Clear Subtasks
 
 ```bash
 # Clear subtasks from a specific task
-task-master clear-subtasks --id=<id>
+taskgarage clear-subtasks --id=<id>
 
 # Clear subtasks from multiple tasks
-task-master clear-subtasks --id=1,2,3
+taskgarage clear-subtasks --id=1,2,3
 
 # Clear subtasks from all tasks
-task-master clear-subtasks --all
+taskgarage clear-subtasks --all
 ```
 
 ### Analyze Task Complexity
 
 ```bash
 # Analyze complexity of all tasks
-task-master analyze-complexity
+taskgarage analyze-complexity
 
 # Save report to a custom location
-task-master analyze-complexity --output=my-report.json
+taskgarage analyze-complexity --output=my-report.json
 
 # Use a specific LLM model
-task-master analyze-complexity --model=claude-3-opus-20240229
+taskgarage analyze-complexity --model=claude-3-opus-20240229
 
 # Set a custom complexity threshold (1-10)
-task-master analyze-complexity --threshold=6
+taskgarage analyze-complexity --threshold=6
 
 # Use an alternative tasks file
-task-master analyze-complexity --file=custom-tasks.json
+taskgarage analyze-complexity --file=custom-tasks.json
 
 # Use Perplexity AI for research-backed complexity analysis
-task-master analyze-complexity --research
+taskgarage analyze-complexity --research
 ```
 
 ### View Complexity Report
 
 ```bash
 # Display the task complexity analysis report
-task-master complexity-report
+taskgarage complexity-report
 
 # View a report at a custom location
-task-master complexity-report --file=my-report.json
+taskgarage complexity-report --file=my-report.json
 ```
 
 ### Managing Task Dependencies
 
 ```bash
 # Add a dependency to a task
-task-master add-dependency --id=<id> --depends-on=<id>
+taskgarage add-dependency --id=<id> --depends-on=<id>
 
 # Remove a dependency from a task
-task-master remove-dependency --id=<id> --depends-on=<id>
+taskgarage remove-dependency --id=<id> --depends-on=<id>
 
 # Validate dependencies without fixing them
-task-master validate-dependencies
+taskgarage validate-dependencies
 
 # Find and fix invalid dependencies automatically
-task-master fix-dependencies
+taskgarage fix-dependencies
 ```
 
 ### Add a New Task
 
 ```bash
 # Add a new task using AI
-task-master add-task --prompt="Description of the new task"
+taskgarage add-task --prompt="Description of the new task"
 
 # Add a task with dependencies
-task-master add-task --prompt="Description" --dependencies=1,2,3
+taskgarage add-task --prompt="Description" --dependencies=1,2,3
 
 # Add a task with priority
-task-master add-task --prompt="Description" --priority=high
+taskgarage add-task --prompt="Description" --priority=high
 ```
 
 ## Feature Details
@@ -538,15 +538,15 @@ Example workflow:
 
 ```bash
 # Generate the complexity analysis report with research capabilities
-task-master analyze-complexity --research
+taskgarage analyze-complexity --research
 
 # Review the report in a readable format
-task-master complexity-report
+taskgarage complexity-report
 
 # Expand tasks using the optimized recommendations
-task-master expand --id=8
+taskgarage expand --id=8
 # or expand all tasks
-task-master expand --all
+taskgarage expand --all
 ```
 
 ### Finding the Next Task

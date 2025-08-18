@@ -9,7 +9,7 @@ import {
 	withNormalizedProjectRoot,
 	createErrorResponse
 } from './utils.js';
-import { parsePRDDirect } from '../core/task-master-core.js';
+import { parsePRDDirect } from '../core/taskgarage-core.js';
 import {
 	PRD_FILE,
 	TASKMASTER_DOCS_DIR,

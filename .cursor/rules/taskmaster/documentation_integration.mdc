@@ -1,0 +1,253 @@
+# Taskmaster 문서 동기화 통합 규칙
+
+이 규칙은 Taskmaster 워크플로우에 문서 업데이트를 완전히 통합하여 코드와 문서의 100% 동기화를 보장합니다.
+
+## 📝 문서 업데이트 트리거 감지
+
+### 코드 변경 유형별 문서 업데이트 필요성
+
+#### 1. **구조체 필드 변경**
+```go
+// 감지 패턴: 새로운 필드, 태그 변경, 타입 변경
+type Config struct {
+    NewField string `json:"newField" yaml:"newField"` // ← 문서 업데이트 필요
+}
+```
+
+#### 2. **함수 시그니처 변경**
+```go
+// 감지 패턴: 매개변수 추가/제거, 반환값 변경
+func ValidateGPUQuota(ctx context.Context, realm, project string) *ValidationError {
+    // ← 문서 업데이트 필요
+}
+```
+
+#### 3. **에러 코드/메시지 변경**
+```go
+// 감지 패턴: 새로운 에러 코드, 메시지 수정
+const ErrCodeNewValidation = "NewValidation" // ← 문서 업데이트 필요
+```
+
+#### 4. **설정 변경**
+```go
+// 감지 패턴: 환경변수 추가, 설정 구조 변경
+NewSetting: loadConfig("NEW_SETTING"), // ← 문서 업데이트 필요
+```
+
+#### 5. **API 엔드포인트 변경**
+```go
+// 감지 패턴: 새로운 엔드포인트, 응답 형식 변경
+func (s *Server) NewEndpoint(w http.ResponseWriter, r *http.Request) {
+    // ← 문서 업데이트 필요
+}
+```
+
+## 🔄 워크플로우 통합
+
+### 기존 8단계 → 새로운 10단계 확장
+
+**7단계: Update Documentation** (새로 추가)
+- **문서 업데이트 필요성 평가**: 코드 변경 사항에 따른 문서 업데이트 필요성 판단
+- **자동화된 문서 생성**: 내장 로직을 통한 문서 동기화 실행
+- **문서 동기화 상태 검증**: 생성된 문서의 정확성 및 완성성 검증
+- **문서 업데이트 실패 시 task 상태를 'review'로 변경**: 문서 동기화가 실패한 경우 task 완료 차단
+- **문서 업데이트 상태를 subtask에 기록**: `update_subtask`를 통해 문서 동기화 진행 상황 로깅
+
+**8단계: Self Review** (새로 추가)
+- **결과물 품질 검토**: 구현된 결과물이 task/subtask의 생성 의도와 일치하는지 자체 검토
+- **요구사항 충족도 확인**: 원래 요구사항과 기능적 완성도 검증
+- **코드 품질 검토**: 코드 스타일, 성능, 보안, 유지보수성 측면 검토
+- **테스트 커버리지 확인**: 적절한 테스트가 작성되었는지 검증
+- **문서화 완성도 확인**: 코드 주석, README, API 문서 등이 충분한지 검토
+- **검토 결과 기록**: `update_subtask`를 통해 검토 결과와 개선 사항 로깅
+
+## 🛠️ 자동화 스크립트 통합
+
+### 기존 패턴 준수
+
+#### 1. **내장 로직 사용**
+```javascript
+// ✅ DO: 기존 패턴 사용
+import { executeTaskMasterCommand } from '../utils.js';
+
+// ❌ DON'T: execSync 직접 사용
+const { execSync } = require('child_process');
+```
+
+#### 2. **MCP 통합 패턴**
+```javascript
+// ✅ DO: MCP 통합 패턴
+const result = await executeTaskMasterCommand('generate', log, [], projectRoot);
+
+// ❌ DON'T: 외부 스크립트 직접 호출
+execSync('./scripts/sync_docs_for_task.sh');
+```
+
+#### 3. **에러 처리 패턴**
+```javascript
+// ✅ DO: 기존 에러 처리 패턴
+try {
+    // 문서 동기화 로직
+} catch (error) {
+    log('warning', `문서 동기화 실패: ${error.message}`);
+    return false;
+}
+```
+
+## 📋 구현 가이드라인
+
+### 1. **코드 변경 감지 함수**
+```javascript
+/**
+ * Check if the prompt contains code changes that require documentation updates
+ * @param {string} prompt - The prompt to analyze
+ * @returns {Promise<boolean>} - True if code changes are detected
+ */
+async function checkForCodeChanges(prompt) {
+    // 기존 패턴에 맞는 정규식 패턴 사용
+    const codeChangePatterns = [
+        /type\s+\w+\s+struct|struct\s+\w+\s*{/i,
+        /func\s+\w+\s*\(|function\s+\w+\s*\(/i,
+        /ErrCode|Error|error|const\s+\w+\s*=/i,
+        /config|Config|ENV|environment|loadConfig|NewConfig/i,
+        /endpoint|Endpoint|API|api/i
+    ];
+    
+    return codeChangePatterns.some(pattern => pattern.test(prompt));
+}
+```
+
+### 2. **문서 검증 함수**
+```javascript
+/**
+ * Check if documentation is validated for a task
+ * @param {string} taskId - The task ID to check
+ * @param {Object} data - The tasks data
+ * @param {string} projectRoot - The project root directory
+ * @returns {Promise<boolean>} - True if documentation is validated
+ */
+async function checkDocumentationValidation(taskId, data, projectRoot) {
+    try {
+        // 기존 패턴에 맞는 검증 로직
+        const task = findTaskById(taskId, data);
+        if (!task) return true; // task가 없으면 검증 통과
+        
+        // 문서 동기화 상태 확인
+        const hasCodeChanges = await checkForCodeChanges(task.details || '');
+        if (!hasCodeChanges) return true; // 코드 변경이 없으면 검증 통과
+        
+        // 문서 동기화 완료 여부 확인
+        return await verifyDocumentationSync(taskId, projectRoot);
+    } catch (error) {
+        return false; // 에러 발생 시 검증 실패
+    }
+}
+```
+
+### 3. **문서 동기화 실행**
+```javascript
+/**
+ * Execute documentation synchronization
+ * @param {string} taskId - The task ID
+ * @param {string} prompt - The task details
+ * @param {string} projectRoot - The project root directory
+ * @param {Object} log - Logger instance
+ * @returns {Promise<boolean>} - True if successful
+ */
+async function executeDocumentationSync(taskId, prompt, projectRoot, log) {
+    try {
+        // 기존 executeTaskMasterCommand 패턴 사용
+        const result = await executeTaskMasterCommand(
+            'generate', 
+            log, 
+            ['--tag', 'master'], 
+            projectRoot
+        );
+        
+        if (result.success) {
+            log('info', `📝 Task ${taskId} 문서 동기화 완료`);
+            return true;
+        } else {
+            log('warning', `📝 Task ${taskId} 문서 동기화 실패: ${result.error}`);
+            return false;
+        }
+    } catch (error) {
+        log('error', `📝 Task ${taskId} 문서 동기화 오류: ${error.message}`);
+        return false;
+    }
+}
+```
+
+## 🧪 테스트 패턴
+
+### 기존 테스트 패턴 준수
+```javascript
+// ✅ DO: 기존 테스트 패턴 사용
+import { jest } from '@jest/globals';
+
+jest.mock('child_process', () => ({
+    execSync: jest.fn()
+}));
+
+// ❌ DON'T: 새로운 모킹 패턴 도입
+jest.mock('./scripts/sync_docs_for_task.sh');
+```
+
+## 📊 상태 관리
+
+### 문서 동기화 상태 필드
+```javascript
+// task 객체에 문서 동기화 상태 추가
+const task = {
+    id: taskId,
+    title: "Task title",
+    status: "pending",
+    // ... 기존 필드들
+    documentationSync: {
+        required: false,
+        completed: false,
+        lastAttempt: null,
+        error: null
+    }
+};
+```
+
+## 🔄 워크플로우 통합 점
+
+### 1. **update_subtask 통합**
+- 코드 변경 감지 시 자동 문서 동기화 실행
+- 문서 동기화 상태를 subtask에 기록
+- 실패 시 경고 메시지 출력
+
+### 2. **set_task_status 통합**
+- 'done' 상태 변경 시 문서 검증 실행
+- 문서 동기화 미완료 시 'review' 상태로 변경
+- 문서 동기화 완료 시 정상적으로 'done' 상태로 변경
+
+### 3. **generate 명령어 활용**
+- 기존 `generate` 명령어를 활용한 문서 동기화
+- 외부 스크립트 대신 내장 로직 사용
+- MCP 통합 환경에서 안정적 동작
+
+## 🎯 성공 지표
+
+### 문서 동기화 성공 기준
+1. **코드 변경 감지**: 정확한 코드 변경 패턴 인식
+2. **문서 생성**: 관련 문서 파일 자동 생성/업데이트
+3. **상태 관리**: task 상태와 문서 동기화 상태 일치
+4. **에러 처리**: 문서 동기화 실패 시 적절한 상태 변경
+5. **로깅**: 문서 동기화 과정의 상세한 로그 기록
+
+### 품질 보증
+- **테스트 커버리지**: 문서 동기화 로직에 대한 단위 테스트
+- **통합 테스트**: 전체 워크플로우에서의 문서 동기화 검증
+- **성능 모니터링**: 문서 동기화 실행 시간 측정
+- **사용자 피드백**: 문서 동기화 결과에 대한 사용자 확인
+
+---
+
+이 규칙을 따라 Taskmaster 워크플로우에 문서 업데이트를 완전히 통합하여 코드와 문서의 일관성을 보장하세요.
+description:
+globs:
+alwaysApply: false
+---

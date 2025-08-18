@@ -9,7 +9,7 @@ import {
 	createErrorResponse,
 	withNormalizedProjectRoot
 } from './utils.js';
-import { complexityReportDirect } from '../core/task-master-core.js';
+import { complexityReportDirect } from '../core/taskgarage-core.js';
 import { COMPLEXITY_REPORT_FILE } from '../../../src/constants/paths.js';
 import { findComplexityReportPath } from '../core/utils/path-utils.js';
 import { getCurrentTag } from '../../../scripts/modules/utils.js';
@@ -52,7 +52,7 @@ export function registerComplexityReportTool(server) {
 
 				if (!reportPath) {
 					return createErrorResponse(
-						'No complexity report found. Run task-master analyze-complexity first.'
+						'No complexity report found. Run taskgarage analyze-complexity first.'
 					);
 				}
 

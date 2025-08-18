@@ -1,11 +1,11 @@
 # Official Taskmaster AI Extension
 
-Transform your AI-driven development workflow with a beautiful, interactive Kanban board directly in VS Code. Seamlessly manage tasks from [Taskmaster AI](https://github.com/eyaltoledano/claude-task-master) projects with real-time synchronization and intelligent task management.
+Transform your AI-driven development workflow with a beautiful, interactive Kanban board directly in VS Code. Seamlessly manage tasks from [Taskmaster AI](https://github.com/eyaltoledano/claude-taskgarage) projects with real-time synchronization and intelligent task management.
 
 ![Taskmaster AI Extension](https://img.shields.io/badge/VS%20Code-Extension-blue)
 ![License](https://img.shields.io/badge/License-MIT-green)
-![Version](https://img.shields.io/visual-studio-marketplace/v/Hamster.task-master-hamster)
-![Installs](https://img.shields.io/visual-studio-marketplace/i/Hamster.task-master-hamster)
+![Version](https://img.shields.io/visual-studio-marketplace/v/Hamster.taskgarage-hamster)
+![Installs](https://img.shields.io/visual-studio-marketplace/i/Hamster.taskgarage-hamster)
 
 ## 🎯 What is Taskmaster AI?
 
@@ -54,8 +54,8 @@ Taskmaster AI is an intelligent task management system designed for AI-assisted 
 If you don't have a Taskmaster project yet:
 ```bash
 cd your-project
-npm i -g task-master-ai
-   task-master init
+npm i -g taskgarage-ai
+   taskgarage init
    ```
 
 ### 2. **Open Kanban Board**
@@ -108,8 +108,8 @@ The extension integrates seamlessly with Taskmaster AI via MCP to provide:
 Access settings via **File → Preferences → Settings** and search for "Taskmaster":
 
 ### **MCP Connection Settings**
-- **MCP Server Command** - Path to task-master-ai executable (default: `npx`)
-- **MCP Server Args** - Arguments for the server command (default: `-y`, `--package=task-master-ai`, `task-master-ai`)
+- **MCP Server Command** - Path to taskgarage-ai executable (default: `npx`)
+- **MCP Server Args** - Arguments for the server command (default: `-y`, `--package=taskgarage-ai`, `taskgarage-ai`)
 - **Connection Timeout** - Server response timeout (default: 30s)
 - **Auto Refresh** - Enable automatic task updates (default: enabled)
 
@@ -151,10 +151,10 @@ Access settings via **File → Preferences → Settings** and search for "Taskma
 ## 🆘 Support & Resources
 
 ### **Getting Help**
-- 📖 **Documentation**: [Taskmaster AI Docs](https://github.com/eyaltoledano/claude-task-master)
-- 🐛 **Report Issues**: [GitHub Issues](https://github.com/eyaltoledano/claude-task-master/issues)
-- 💬 **Discussions**: [GitHub Discussions](https://github.com/eyaltoledano/claude-task-master/discussions)
-- 🐛 **Report Issues**: [GitHub Issues](https://github.com/eyaltoledano/claude-task-master/issues)
+- 📖 **Documentation**: [Taskmaster AI Docs](https://github.com/eyaltoledano/claude-taskgarage)
+- 🐛 **Report Issues**: [GitHub Issues](https://github.com/eyaltoledano/claude-taskgarage/issues)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/eyaltoledano/claude-taskgarage/discussions)
+- 🐛 **Report Issues**: [GitHub Issues](https://github.com/eyaltoledano/claude-taskgarage/issues)
 
 ## 🎯 Tips for Best Results
 
@@ -195,7 +195,7 @@ Access settings via **File → Preferences → Settings** and search for "Taskma
 ## Support
 
 This is an open-source project maintained in my spare time. While I strive to fix bugs and improve the extension, support is provided on a best-effort basis. Feel free to:
-- Report issues on [GitHub](https://github.com/eyaltoledano/claude-task-master/issues)
+- Report issues on [GitHub](https://github.com/eyaltoledano/claude-taskgarage/issues)
 - Submit pull requests with improvements
 - Fork the project if you need specific modifications
 

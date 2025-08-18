@@ -9,7 +9,7 @@ import {
 	handleApiResult,
 	withNormalizedProjectRoot
 } from './utils.js';
-import { copyTagDirect } from '../core/task-master-core.js';
+import { copyTagDirect } from '../core/taskgarage-core.js';
 import { findTasksPath } from '../core/utils/path-utils.js';
 
 /**

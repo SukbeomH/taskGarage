@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import type { TaskMasterApi } from '../utils/task-master-api';
+import type { TaskMasterApi } from '../utils/taskgarage-api';
 
 export class SidebarWebviewManager implements vscode.WebviewViewProvider {
 	private webviewView?: vscode.WebviewView;

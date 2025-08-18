@@ -1,21 +1,21 @@
 {
 	"meta": {
-		"generatedAt": "2025-08-02T14:28:59.851Z",
+		"generatedAt": "2025-08-18T02:01:54.735Z",
 		"tasksAnalyzed": 1,
-		"totalTasks": 93,
+		"totalTasks": 94,
 		"analysisCount": 1,
 		"thresholdScore": 5,
 		"projectName": "Taskmaster",
-		"usedResearch": false
+		"usedResearch": true
 	},
 	"complexityAnalysis": [
 		{
-			"taskId": 24,
-			"taskTitle": "Implement AI-Powered Test Generation Command",
+			"taskId": 105,
+			"taskTitle": "포크 프로젝트 브랜딩 및 독립성 구성",
 			"complexityScore": 8,
-			"recommendedSubtasks": 6,
-			"expansionPrompt": "Expand task 24 'Implement AI-Powered Test Generation Command' into 6 subtasks, focusing on: 1) Command structure implementation, 2) AI prompt engineering for test generation, 3) Test file generation and output, 4) Framework-specific template implementation, 5) MCP tool integration, and 6) Documentation and help system integration. Include detailed implementation steps, dependencies, and testing approaches for each subtask.",
-			"reasoning": "This task has high complexity due to several challenging aspects: 1) AI integration requiring sophisticated prompt engineering, 2) Test generation across multiple frameworks, 3) File system operations with proper error handling, 4) MCP tool integration, 5) Complex configuration requirements, and 6) Framework-specific template generation. The task already has 5 subtasks but could benefit from reorganization based on the updated implementation details in the info blocks, particularly around framework support and configuration."
+			"recommendedSubtasks": 8,
+			"expansionPrompt": "포크 프로젝트의 완전한 독립성과 브랜딩을 위해 다음 세부 작업으로 분해하세요: 1) 패키지 및 내부 참조 일괄 변경, 2) CLI 명령어 및 실행 환경 독립화, 3) MCP 서버 및 클라이언트 식별자 독립화, 4) 공식 문서 및 브랜딩 정보 업데이트, 5) 구성 파일 및 템플릿 기본값 독립화, 6) 종속성 및 내부 참조 정리, 7) 회귀 및 독립성 검증 자동화, 8) 라이선스 및 크레딧 관리. 각 작업은 코드, 문서, 테스트, 배포 관점에서 세분화하세요.",
+			"reasoning": "이 작업은 단순한 문자열 치환을 넘어, 패키지 구조, CLI 환경, 서버 식별자, 문서, 템플릿, 내부 참조, 테스트, 라이선스 등 프로젝트 전반에 걸친 일관성 있는 변경과 검증이 필요합니다. Node.js 오픈소스 프로젝트의 포크 및 브랜딩 표준, CLI 도구의 독립성 확보, 문서 및 라이선스 관리, 회귀 테스트 자동화 등 다양한 영역의 베스트 프랙티스를 모두 반영해야 하므로 복잡도가 높으며, 최소 8개 이상의 세부 작업으로 분해하는 것이 유지보수성과 품질 확보에 적합합니다."
 		}
 	]
 }

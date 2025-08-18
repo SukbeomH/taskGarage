@@ -148,7 +148,7 @@ For other development environments:
 
 **Schema URLs**:
 - **Local Development**: `./src/prompts/schemas/prompt-template.schema.json`
-- **GitHub Reference**: `https://github.com/eyaltoledano/claude-task-master/blob/main/src/prompts/schemas/prompt-template.schema.json`
+- **GitHub Reference**: `https://github.com/eyaltoledano/claude-taskgarage/blob/main/src/prompts/schemas/prompt-template.schema.json`
 
 **File Patterns**:
 - `src/prompts/**/*.json`
@@ -392,7 +392,7 @@ The schema includes custom validation for:
 
 ### Current Schema Locations
 - **Local Development**: `./src/prompts/schemas/prompt-template.schema.json`
-- **GitHub Blob**: `https://github.com/eyaltoledano/claude-task-master/blob/main/src/prompts/schemas/prompt-template.schema.json`
+- **GitHub Blob**: `https://github.com/eyaltoledano/claude-taskgarage/blob/main/src/prompts/schemas/prompt-template.schema.json`
 - **Schema ID**: Used for internal references and validation
 
 ### URL Usage Guidelines

@@ -5,9 +5,9 @@ Taskmaster uses two primary methods for configuration:
 1.  **`.taskmaster/config.json` File (Recommended - New Structure)**
 
     - This JSON file stores most configuration settings, including AI model selections, parameters, logging levels, and project defaults.
-    - **Location:** This file is created in the `.taskmaster/` directory when you run the `task-master models --setup` interactive setup or initialize a new project with `task-master init`.
-    - **Migration:** Existing projects with `.taskmasterconfig` in the root will continue to work, but should be migrated to the new structure using `task-master migrate`.
-    - **Management:** Use the `task-master models --setup` command (or `models` MCP tool) to interactively create and manage this file. You can also set specific models directly using `task-master models --set-<role>=<model_id>`, adding `--ollama` or `--openrouter` flags for custom models. Manual editing is possible but not recommended unless you understand the structure.
+    - **Location:** This file is created in the `.taskmaster/` directory when you run the `taskgarage models --setup` interactive setup or initialize a new project with `taskgarage init`.
+    - **Migration:** Existing projects with `.taskmasterconfig` in the root will continue to work, but should be migrated to the new structure using `taskgarage migrate`.
+    - **Management:** Use the `taskgarage models --setup` command (or `models` MCP tool) to interactively create and manage this file. You can also set specific models directly using `taskgarage models --set-<role>=<model_id>`, adding `--ollama` or `--openrouter` flags for custom models. Manual editing is possible but not recommended unless you understand the structure.
     - **Example Structure:**
       ```json
       {
@@ -56,7 +56,7 @@ Taskmaster uses two primary methods for configuration:
 
     - For projects that haven't migrated to the new structure yet.
     - **Location:** Project root directory.
-    - **Migration:** Use `task-master migrate` to move this to `.taskmaster/config.json`.
+    - **Migration:** Use `taskgarage migrate` to move this to `.taskmaster/config.json`.
     - **Deprecation:** While still supported, you'll see warnings encouraging migration to the new structure.
 
 ## Environment Variables (`.env` file or MCP `env` block - For API Keys Only)
@@ -103,7 +103,7 @@ Taskmaster includes a tagged task lists system for multi-context task management
 
 Task Master provides manual git integration through the `--from-branch` option:
 
-- **Manual Tag Creation**: Use `task-master add-tag --from-branch` to create a tag based on your current git branch name
+- **Manual Tag Creation**: Use `taskgarage add-tag --from-branch` to create a tag based on your current git branch name
 - **User Control**: No automatic tag switching - you control when and how tags are created
 - **Flexible Workflow**: Supports any git workflow without imposing rigid branch-tag mappings
 
@@ -152,23 +152,23 @@ PERPLEXITY_API_KEY=pplx-your-key-here
 
 ### Configuration Errors
 
-- If Task Master reports errors about missing configuration or cannot find the config file, run `task-master models --setup` in your project root to create or repair the file.
-- For new projects, config will be created at `.taskmaster/config.json`. For legacy projects, you may want to use `task-master migrate` to move to the new structure.
+- If Task Master reports errors about missing configuration or cannot find the config file, run `taskgarage models --setup` in your project root to create or repair the file.
+- For new projects, config will be created at `.taskmaster/config.json`. For legacy projects, you may want to use `taskgarage migrate` to move to the new structure.
 - Ensure API keys are correctly placed in your `.env` file (for CLI) or `.cursor/mcp.json` (for MCP) and are valid for the providers selected in your config file.
 
-### If `task-master init` doesn't respond:
+### If `taskgarage init` doesn't respond:
 
 Try running it with Node directly:
 
 ```bash
-node node_modules/claude-task-master/scripts/init.js
+node node_modules/claude-taskgarage/scripts/init.js
 ```
 
 Or clone the repository and run:
 
 ```bash
-git clone https://github.com/eyaltoledano/claude-task-master.git
-cd claude-task-master
+git clone https://github.com/eyaltoledano/claude-taskgarage.git
+cd claude-taskgarage
 node scripts/init.js
 ```
 
@@ -222,13 +222,13 @@ node scripts/init.js
 7. **Setup Commands**:
    ```bash
    # Set MCP provider for main role
-   task-master models set-main --provider mcp --model claude-3-5-sonnet-20241022
+   taskgarage models set-main --provider mcp --model claude-3-5-sonnet-20241022
    
    # Set MCP provider for research role  
-   task-master models set-research --provider mcp --model claude-3-opus-20240229
+   taskgarage models set-research --provider mcp --model claude-3-opus-20240229
    
    # Verify configuration
-   task-master models list
+   taskgarage models list
    ```
 
 8. **Troubleshooting**:

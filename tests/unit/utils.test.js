@@ -646,7 +646,7 @@ describe('CLI Flag Format Validation', () => {
 	test('detectCamelCaseFlags should identify camelCase flags', () => {
 		const args = [
 			'node',
-			'task-master',
+			'taskgarage',
 			'add-task',
 			'--promptText=test',
 			'--userID=123'
@@ -667,7 +667,7 @@ describe('CLI Flag Format Validation', () => {
 	test('detectCamelCaseFlags should not flag kebab-case flags', () => {
 		const args = [
 			'node',
-			'task-master',
+			'taskgarage',
 			'add-task',
 			'--prompt-text=test',
 			'--user-id=123'
@@ -680,7 +680,7 @@ describe('CLI Flag Format Validation', () => {
 	test('detectCamelCaseFlags should respect single-word flags', () => {
 		const args = [
 			'node',
-			'task-master',
+			'taskgarage',
 			'add-task',
 			'--prompt=test',
 			'--file=test.json',

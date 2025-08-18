@@ -1,29 +1,31 @@
-# Task Master [![GitHub stars](https://img.shields.io/github/stars/eyaltoledano/claude-task-master?style=social)](https://github.com/eyaltoledano/claude-task-master/stargazers)
+# TaskGarage [![GitHub stars](https://img.shields.io/github/stars/sukbeom/taskgarage?style=social)](https://github.com/sukbeom/taskgarage/stargazers)
 
-[![CI](https://github.com/eyaltoledano/claude-task-master/actions/workflows/ci.yml/badge.svg)](https://github.com/eyaltoledano/claude-task-master/actions/workflows/ci.yml) [![npm version](https://badge.fury.io/js/task-master-ai.svg)](https://badge.fury.io/js/task-master-ai) [![Discord](https://dcbadge.limes.pink/api/server/https://discord.gg/taskmasterai?style=flat)](https://discord.gg/taskmasterai) [![License: MIT with Commons Clause](https://img.shields.io/badge/license-MIT%20with%20Commons%20Clause-blue.svg)](LICENSE)
+[![CI](https://github.com/eyaltoledano/claude-taskgarage/actions/workflows/ci.yml/badge.svg)](https://github.com/eyaltoledano/claude-taskgarage/actions/workflows/ci.yml) [![npm version](https://badge.fury.io/js/taskgarage-ai.svg)](https://badge.fury.io/js/taskgarage-ai) [![Discord](https://dcbadge.limes.pink/api/server/https://discord.gg/taskmasterai?style=flat)](https://discord.gg/taskmasterai) [![License: MIT with Commons Clause](https://img.shields.io/badge/license-MIT%20with%20Commons%20Clause-blue.svg)](LICENSE)
 
-[![NPM Downloads](https://img.shields.io/npm/d18m/task-master-ai?style=flat)](https://www.npmjs.com/package/task-master-ai) [![NPM Downloads](https://img.shields.io/npm/dm/task-master-ai?style=flat)](https://www.npmjs.com/package/task-master-ai) [![NPM Downloads](https://img.shields.io/npm/dw/task-master-ai?style=flat)](https://www.npmjs.com/package/task-master-ai)
+[![NPM Downloads](https://img.shields.io/npm/d18m/taskgarage-ai?style=flat)](https://www.npmjs.com/package/taskgarage-ai) [![NPM Downloads](https://img.shields.io/npm/dm/taskgarage-ai?style=flat)](https://www.npmjs.com/package/taskgarage-ai) [![NPM Downloads](https://img.shields.io/npm/dw/taskgarage-ai?style=flat)](https://www.npmjs.com/package/taskgarage-ai)
 
-## By [@eyaltoledano](https://x.com/eyaltoledano), [@RalphEcom](https://x.com/RalphEcom) & [@jasonzhou1993](https://x.com/jasonzhou1993)
+## Forked from Task Master by [@eyaltoledano](https://x.com/eyaltoledano), [@RalphEcom](https://x.com/RalphEcom) & [@jasonzhou1993](https://x.com/jasonzhou1993)
+
+**Forked and modified by [@sukbeom](https://github.com/sukbeom)**
 
 [![Twitter Follow](https://img.shields.io/twitter/follow/eyaltoledano)](https://x.com/eyaltoledano)
 [![Twitter Follow](https://img.shields.io/twitter/follow/RalphEcom)](https://x.com/RalphEcom)
 [![Twitter Follow](https://img.shields.io/twitter/follow/jasonzhou1993)](https://x.com/jasonzhou1993)
 
-A task management system for AI-driven development with Claude, designed to work seamlessly with Cursor AI.
+A forked version of Task Master - A task management system for AI-driven development with Claude, designed to work seamlessly with Cursor AI.
 
 ## Documentation
 
-📚 **[View Full Documentation](https://docs.task-master.dev)**
+📚 **[View Full Documentation](https://github.com/sukbeom/taskgarage#readme)**
 
-For detailed guides, API references, and comprehensive examples, visit our documentation site.
+For detailed guides, API references, and comprehensive examples, visit the project repository.
 
 ### Quick Reference
 
 The following documentation is also available in the `docs` directory:
 
-- [Configuration Guide](docs/configuration.md) - Set up environment variables and customize Task Master
-- [Tutorial](docs/tutorial.md) - Step-by-step guide to getting started with Task Master
+- [Configuration Guide](docs/configuration.md) - Set up environment variables and customize TaskGarage
+- [Tutorial](docs/tutorial.md) - Step-by-step guide to getting started with TaskGarage
 - [Command Reference](docs/command-reference.md) - Complete list of all available commands
 - [Task Structure](docs/task-structure.md) - Understanding the task format and features
 - [Example Interactions](docs/examples.md) - Common Cursor AI interaction examples
@@ -31,7 +33,7 @@ The following documentation is also available in the `docs` directory:
 
 #### Quick Install for Cursor 1.0+ (One-Click)
 
-[![Add task-master-ai MCP server to Cursor](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/install-mcp?name=task-master-ai&config=eyJjb21tYW5kIjoibnB4IC15IC0tcGFja2FnZT10YXNrLW1hc3Rlci1haSB0YXNrLW1hc3Rlci1haSIsImVudiI6eyJBTlRIUk9QSUNfQVBJX0tFWSI6IllPVVJfQU5USFJPUElDX0FQSV9LRVlfSEVSRSIsIlBFUlBMRVhJVFlfQVBJX0tFWSI6IllPVVJfUEVSUExFWElUWV9BUElfS0VZX0hFUkUiLCJPUEVOQUlfQVBJX0tFWSI6IllPVVJfT1BFTkFJX0tFWV9IRVJFIiwiR09PR0xFX0FQSV9LRVkiOiJZT1VSX0dPT0dMRV9LRVlfSEVSRSIsIk1JU1RSQUxfQVBJX0tFWSI6IllPVVJfTUlTVFJBTF9LRVlfSEVSRSIsIkdST1FfQVBJX0tFWSI6IllPVVJfR1JPUV9LRVlfSEVSRSIsIk9QRU5ST1VURVJfQVBJX0tFWSI6IllPVVJfT1BFTlJPVVRFUl9LRVlfSEVSRSIsIlhBSV9BUElfS0VZIjoiWU9VUl9YQUlfS0VZX0hFUkUiLCJBWlVSRV9PUEVOQUlfQVBJX0tFWSI6IllPVVJfQVpVUkVfS0VZX0hFUkUiLCJPTExBTUFfQVBJX0tFWSI6IllPVVJfT0xMQU1BX0FQSV9LRVlfSEVSRSJ9fQ%3D%3D)
+[![Add taskgarage-ai MCP server to Cursor](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/install-mcp?name=taskgarage-ai&config=eyJjb21tYW5kIjoibnB4IC15IC0tcGFja2FnZT10YXNrLW1hc3Rlci1haSB0YXNrLW1hc3Rlci1haSIsImVudiI6eyJBTlRIUk9QSUNfQVBJX0tFWSI6IllPVVJfQU5USFJPUElDX0FQSV9LRVlfSEVSRSIsIlBFUlBMRVhJVFlfQVBJX0tFWSI6IllPVVJfUEVSUExFWElUWV9BUElfS0VZX0hFUkUiLCJPUEVOQUlfQVBJX0tFWSI6IllPVVJfT1BFTkFJX0tFWV9IRVJFIiwiR09PR0xFX0FQSV9LRVkiOiJZT1VSX0dPT0dMRV9LRVlfSEVSRSIsIk1JU1RSQUxfQVBJX0tFWSI6IllPVVJfTUlTVFJBTF9LRVlfSEVSRSIsIkdST1FfQVBJX0tFWSI6IllPVVJfR1JPUV9LRVlfSEVSRSIsIk9QRU5ST1VURVJfQVBJX0tFWSI6IllPVVJfT1BFTlJPVVRFUl9LRVlfSEVSRSIsIlhBSV9BUElfS0VZIjoiWU9VUl9YQUlfS0VZX0hFUkUiLCJBWlVSRV9PUEVOQUlfQVBJX0tFWSI6IllPVVJfQVpVUkVfS0VZX0hFUkUiLCJPTExBTUFfQVBJX0tFWSI6IllPVVJfT0xMQU1BX0FQSV9LRVlfSEVSRSJ9fQ%3D%3D)
 
 > **Note:** After clicking the link, you'll still need to add your API keys to the configuration. The link installs the MCP server with placeholder keys that you'll need to replace with your actual API keys.
 
@@ -75,9 +77,9 @@ MCP (Model Control Protocol) lets you run Task Master directly from your editor.
 ```json
 {
   "mcpServers": {
-    "task-master-ai": {
+    "taskgarage-ai": {
       "command": "npx",
-      "args": ["-y", "--package=task-master-ai", "task-master-ai"],
+      "args": ["-y", "--package=taskgarage-ai", "taskgarage-ai"],
       "env": {
         "ANTHROPIC_API_KEY": "YOUR_ANTHROPIC_API_KEY_HERE",
         "PERPLEXITY_API_KEY": "YOUR_PERPLEXITY_API_KEY_HERE",
@@ -97,16 +99,16 @@ MCP (Model Control Protocol) lets you run Task Master directly from your editor.
 
 > 🔑 Replace `YOUR_…_KEY_HERE` with your real API keys. You can remove keys you don't use.
 
-> **Note**: If you see `0 tools enabled` in the MCP settings, try removing the `--package=task-master-ai` flag from `args`.
+> **Note**: If you see `0 tools enabled` in the MCP settings, try removing the `--package=taskgarage-ai` flag from `args`.
 
 ###### VS Code (`servers` + `type`)
 
 ```json
 {
   "servers": {
-    "task-master-ai": {
+    "taskgarage-ai": {
       "command": "npx",
-      "args": ["-y", "--package=task-master-ai", "task-master-ai"],
+      "args": ["-y", "--package=taskgarage-ai", "taskgarage-ai"],
       "env": {
         "ANTHROPIC_API_KEY": "YOUR_ANTHROPIC_API_KEY_HERE",
         "PERPLEXITY_API_KEY": "YOUR_PERPLEXITY_API_KEY_HERE",
@@ -129,7 +131,7 @@ MCP (Model Control Protocol) lets you run Task Master directly from your editor.
 
 #### 2. (Cursor-only) Enable Taskmaster MCP
 
-Open Cursor Settings (Ctrl+Shift+J) ➡ Click on MCP tab on the left ➡ Enable task-master-ai with the toggle
+Open Cursor Settings (Ctrl+Shift+J) ➡ Click on MCP tab on the left ➡ Enable taskgarage-ai with the toggle
 
 #### 3. (Optional) Configure the models you want to use
 
@@ -157,7 +159,7 @@ Initialize taskmaster-ai in my project
 #### 5. Make sure you have a PRD (Recommended)
 
 For **new projects**: Create your PRD at `.taskmaster/docs/prd.txt`  
-For **existing projects**: You can use `scripts/prd.txt` or migrate with `task-master migrate`
+For **existing projects**: You can use `scripts/prd.txt` or migrate with `taskgarage migrate`
 
 An example PRD template is available after initialization in `.taskmaster/templates/example_prd.txt`.
 
@@ -188,23 +190,23 @@ Use your AI assistant to:
 
 ```bash
 # Install globally
-npm install -g task-master-ai
+npm install -g taskgarage-ai
 
 # OR install locally within your project
-npm install task-master-ai
+npm install taskgarage-ai
 ```
 
 #### Initialize a new project
 
 ```bash
 # If installed globally
-task-master init
+taskgarage init
 
 # If installed locally
-npx task-master init
+npx taskgarage init
 
 # Initialize project with specific rules
-task-master init --rules cursor,windsurf,vscode
+taskgarage init --rules cursor,windsurf,vscode
 ```
 
 This will prompt you for project details and set up a new project with the necessary files and structure.
@@ -213,33 +215,33 @@ This will prompt you for project details and set up a new project with the neces
 
 ```bash
 # Initialize a new project
-task-master init
+taskgarage init
 
 # Parse a PRD and generate tasks
-task-master parse-prd your-prd.txt
+taskgarage parse-prd your-prd.txt
 
 # List all tasks
-task-master list
+taskgarage list
 
 # Show the next task to work on
-task-master next
+taskgarage next
 
 # Show specific task(s) - supports comma-separated IDs
-task-master show 1,3,5
+taskgarage show 1,3,5
 
 # Research fresh information with project context
-task-master research "What are the latest best practices for JWT authentication?"
+taskgarage research "What are the latest best practices for JWT authentication?"
 
 # Generate task files
-task-master generate
+taskgarage generate
 
 # Add rules after initialization
-task-master rules add windsurf,roo,vscode
+taskgarage rules add windsurf,roo,vscode
 ```
 
 ## Claude Code Support
 
-Task Master now supports Claude models through the Claude Code CLI, which requires no API key:
+TaskGarage now supports Claude models through the Claude Code CLI, which requires no API key:
 
 - **Models**: `claude-code/opus` and `claude-code/sonnet`
 - **Requirements**: Claude Code CLI installed
@@ -249,47 +251,47 @@ Task Master now supports Claude models through the Claude Code CLI, which requir
 
 ## Troubleshooting
 
-### If `task-master init` doesn't respond
+### If `taskgarage init` doesn't respond
 
 Try running it with Node directly:
 
 ```bash
-node node_modules/claude-task-master/scripts/init.js
+node node_modules/claude-taskgarage/scripts/init.js
 ```
 
 Or clone the repository and run:
 
 ```bash
-git clone https://github.com/eyaltoledano/claude-task-master.git
-cd claude-task-master
+git clone https://github.com/sukbeom/taskgarage.git
+cd taskgarage
 node scripts/init.js
 ```
 
 ## Contributors
 
-<a href="https://github.com/eyaltoledano/claude-task-master/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=eyaltoledano/claude-task-master" alt="Task Master project contributors" />
+<a href="https://github.com/sukbeom/taskgarage/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=sukbeom/taskgarage" alt="TaskGarage project contributors" />
 </a>
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=eyaltoledano/claude-task-master&type=Timeline)](https://www.star-history.com/#eyaltoledano/claude-task-master&Timeline)
+[![Star History Chart](https://api.star-history.com/svg?repos=sukbeom/taskgarage&type=Timeline)](https://www.star-history.com/#sukbeom/taskgarage&Timeline)
 
 ## Licensing
 
-Task Master is licensed under the MIT License with Commons Clause. This means you can:
+TaskGarage is licensed under the MIT License with Commons Clause. This means you can:
 
 ✅ **Allowed**:
 
-- Use Task Master for any purpose (personal, commercial, academic)
+- Use TaskGarage for any purpose (personal, commercial, academic)
 - Modify the code
 - Distribute copies
-- Create and sell products built using Task Master
+- Create and sell products built using TaskGarage
 
 ❌ **Not Allowed**:
 
-- Sell Task Master itself
-- Offer Task Master as a hosted service
-- Create competing products based on Task Master
+- Sell TaskGarage itself
+- Offer TaskGarage as a hosted service
+- Create competing products based on TaskGarage
 
 See the [LICENSE](LICENSE) file for the complete license text and [licensing details](docs/licensing.md) for more information.

@@ -1,13 +1,13 @@
 {
-	"name": "task-master-ai",
-	"version": "0.24.0",
-	"description": "A task management system for ambitious AI-driven development that doesn't overwhelm and confuse Cursor.",
+	"name": "taskgarage",
+	"version": "0.1.0",
+	"description": "Forked version of Task Master AI - A task management system for ambitious AI-driven development that doesn't overwhelm and confuse Cursor.",
 	"main": "index.js",
 	"type": "module",
 	"bin": {
-		"task-master": "bin/task-master.js",
-		"task-master-mcp": "mcp-server/server.js",
-		"task-master-ai": "mcp-server/server.js"
+		"taskgarage": "bin/taskgarage.js",
+		"taskgarage-mcp": "mcp-server/server.js",
+		"taskgarage-ai": "mcp-server/server.js"
 	},
 	"workspaces": [
 		"apps/*",
@@ -20,7 +20,7 @@
 		"test:coverage": "node --experimental-vm-modules node_modules/.bin/jest --coverage",
 		"test:e2e": "./tests/e2e/run_e2e.sh",
 		"test:e2e-report": "./tests/e2e/run_e2e.sh --analyze-log",
-		"prepare": "chmod +x bin/task-master.js mcp-server/server.js",
+		"prepare": "chmod +x bin/taskgarage.js mcp-server/server.js",
 		"changeset": "changeset",
 		"release": "changeset publish",
 		"inspector": "npx @modelcontextprotocol/inspector node mcp-server/server.js",
@@ -96,17 +96,17 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/eyaltoledano/claude-task-master.git"
+		"url": "git+https://github.com/sukbeom/taskgarage.git"
 	},
-	"homepage": "https://github.com/eyaltoledano/claude-task-master#readme",
+	"homepage": "https://github.com/sukbeom/taskgarage#readme",
 	"bugs": {
-		"url": "https://github.com/eyaltoledano/claude-task-master/issues"
+		"url": "https://github.com/sukbeom/taskgarage/issues"
 	},
 	"files": [
 		"scripts/**",
 		"assets/**",
 		".cursor/**",
-		"README-task-master.md",
+		"README-taskgarage.md",
 		"index.js",
 		"bin/**",
 		"mcp-server/**",

@@ -25,8 +25,8 @@ We're a **PR-friendly team** that values collaboration:
 ### 1. Fork and Clone
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/claude-task-master.git
-cd claude-task-master
+git clone https://github.com/YOUR_USERNAME/claude-taskgarage.git
+cd claude-taskgarage
 npm install
 ```
 
@@ -277,7 +277,7 @@ Any additional context or notes for reviewers.
 ## 🏗️ Project Structure
 
 ```
-claude-task-master/
+claude-taskgarage/
 ├── bin/                    # CLI executables
 ├── mcp-server/            # MCP server implementation
 ├── scripts/               # Core task management logic
@@ -321,8 +321,8 @@ Include:
 ## 💬 Getting Help
 
 - **Discord**: [Join our community](https://discord.gg/taskmasterai)
-- **Issues**: [GitHub Issues](https://github.com/eyaltoledano/claude-task-master/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/eyaltoledano/claude-task-master/discussions)
+- **Issues**: [GitHub Issues](https://github.com/eyaltoledano/claude-taskgarage/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/eyaltoledano/claude-taskgarage/discussions)
 
 ## 📄 License
 

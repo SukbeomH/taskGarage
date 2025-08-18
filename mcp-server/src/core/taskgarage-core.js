@@ -1,5 +1,5 @@
 /**
- * task-master-core.js
+ * taskgarage-core.js
  * Central module that imports and re-exports all direct function implementations
  * for improved organization and maintainability.
  */

@@ -12,7 +12,7 @@ import {
 import {
 	setTaskStatusDirect,
 	nextTaskDirect
-} from '../core/task-master-core.js';
+} from '../core/taskgarage-core.js';
 import {
 	findTasksPath,
 	findComplexityReportPath

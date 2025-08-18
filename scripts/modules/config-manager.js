@@ -157,7 +157,7 @@ function _loadAndValidateConfig(explicitRoot = null) {
 			if (isLegacy) {
 				console.warn(
 					chalk.yellow(
-						`⚠️  DEPRECATION WARNING: Found configuration in legacy location '${configPath}'. Please migrate to .taskmaster/config.json. Run 'task-master migrate' to automatically migrate your project.`
+						`⚠️  DEPRECATION WARNING: Found configuration in legacy location '${configPath}'. Please migrate to .taskmaster/config.json. Run 'taskgarage migrate' to automatically migrate your project.`
 					)
 				);
 			}
@@ -211,7 +211,7 @@ function _loadAndValidateConfig(explicitRoot = null) {
 			// Only warn if an explicit root was *expected*.
 			console.warn(
 				chalk.yellow(
-					`Warning: Configuration file not found at provided project root (${explicitRoot}). Using default configuration. Run 'task-master models --setup' to configure.`
+					`Warning: Configuration file not found at provided project root (${explicitRoot}). Using default configuration. Run 'taskgarage models --setup' to configure.`
 				)
 			);
 		} else {
@@ -720,7 +720,7 @@ function getMcpApiKeyStatus(providerName, projectRoot = null) {
 		const mcpConfig = JSON.parse(mcpConfigRaw);
 
 		const mcpEnv =
-			mcpConfig?.mcpServers?.['task-master-ai']?.env ||
+			mcpConfig?.mcpServers?.['taskgarage-ai']?.env ||
 			mcpConfig?.mcpServers?.['taskmaster-ai']?.env;
 		if (!mcpEnv) {
 			return false;

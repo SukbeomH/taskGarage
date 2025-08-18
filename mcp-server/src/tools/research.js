@@ -9,7 +9,7 @@ import {
 	handleApiResult,
 	withNormalizedProjectRoot
 } from './utils.js';
-import { researchDirect } from '../core/task-master-core.js';
+import { researchDirect } from '../core/taskgarage-core.js';
 import { resolveTag } from '../../../scripts/modules/utils.js';
 
 /**

@@ -4,32 +4,32 @@
 
 ### Patch Changes
 
-- [#1090](https://github.com/eyaltoledano/claude-task-master/pull/1090) [`a464e55`](https://github.com/eyaltoledano/claude-task-master/commit/a464e550b886ef81b09df80588fe5881bce83d93) Thanks [@Crunchyman-ralph](https://github.com/Crunchyman-ralph)! - Fix issues with some users not being able to connect to Taskmaster MCP server while using the extension
+- [#1090](https://github.com/eyaltoledano/claude-taskgarage/pull/1090) [`a464e55`](https://github.com/eyaltoledano/claude-taskgarage/commit/a464e550b886ef81b09df80588fe5881bce83d93) Thanks [@Crunchyman-ralph](https://github.com/Crunchyman-ralph)! - Fix issues with some users not being able to connect to Taskmaster MCP server while using the extension
 
-- Updated dependencies [[`4357af3`](https://github.com/eyaltoledano/claude-task-master/commit/4357af3f13859d90bca8795215e5d5f1d94abde5), [`e495b2b`](https://github.com/eyaltoledano/claude-task-master/commit/e495b2b55950ee54c7d0f1817d8530e28bd79c05), [`36468f3`](https://github.com/eyaltoledano/claude-task-master/commit/36468f3c93faf4035a5c442ccbc501077f3440f1), [`e495b2b`](https://github.com/eyaltoledano/claude-task-master/commit/e495b2b55950ee54c7d0f1817d8530e28bd79c05), [`e495b2b`](https://github.com/eyaltoledano/claude-task-master/commit/e495b2b55950ee54c7d0f1817d8530e28bd79c05), [`75c514c`](https://github.com/eyaltoledano/claude-task-master/commit/75c514cf5b2ca47f95c0ad7fa92654a4f2a6be4b), [`4bb6370`](https://github.com/eyaltoledano/claude-task-master/commit/4bb63706b80c28d1b2d782ba868a725326f916c7)]:
-  - task-master-ai@0.24.0
+- Updated dependencies [[`4357af3`](https://github.com/eyaltoledano/claude-taskgarage/commit/4357af3f13859d90bca8795215e5d5f1d94abde5), [`e495b2b`](https://github.com/eyaltoledano/claude-taskgarage/commit/e495b2b55950ee54c7d0f1817d8530e28bd79c05), [`36468f3`](https://github.com/eyaltoledano/claude-taskgarage/commit/36468f3c93faf4035a5c442ccbc501077f3440f1), [`e495b2b`](https://github.com/eyaltoledano/claude-taskgarage/commit/e495b2b55950ee54c7d0f1817d8530e28bd79c05), [`e495b2b`](https://github.com/eyaltoledano/claude-taskgarage/commit/e495b2b55950ee54c7d0f1817d8530e28bd79c05), [`75c514c`](https://github.com/eyaltoledano/claude-taskgarage/commit/75c514cf5b2ca47f95c0ad7fa92654a4f2a6be4b), [`4bb6370`](https://github.com/eyaltoledano/claude-taskgarage/commit/4bb63706b80c28d1b2d782ba868a725326f916c7)]:
+  - taskgarage-ai@0.24.0
 
 ## 0.23.1-rc.1
 
 ### Patch Changes
 
-- Updated dependencies [[`75c514c`](https://github.com/eyaltoledano/claude-task-master/commit/75c514cf5b2ca47f95c0ad7fa92654a4f2a6be4b)]:
-  - task-master-ai@0.24.0-rc.2
+- Updated dependencies [[`75c514c`](https://github.com/eyaltoledano/claude-taskgarage/commit/75c514cf5b2ca47f95c0ad7fa92654a4f2a6be4b)]:
+  - taskgarage-ai@0.24.0-rc.2
 
 ## 0.23.1-rc.0
 
 ### Patch Changes
 
-- [#1090](https://github.com/eyaltoledano/claude-task-master/pull/1090) [`a464e55`](https://github.com/eyaltoledano/claude-task-master/commit/a464e550b886ef81b09df80588fe5881bce83d93) Thanks [@Crunchyman-ralph](https://github.com/Crunchyman-ralph)! - Fix issues with some users not being able to connect to Taskmaster MCP server while using the extension
+- [#1090](https://github.com/eyaltoledano/claude-taskgarage/pull/1090) [`a464e55`](https://github.com/eyaltoledano/claude-taskgarage/commit/a464e550b886ef81b09df80588fe5881bce83d93) Thanks [@Crunchyman-ralph](https://github.com/Crunchyman-ralph)! - Fix issues with some users not being able to connect to Taskmaster MCP server while using the extension
 
-- Updated dependencies [[`4357af3`](https://github.com/eyaltoledano/claude-task-master/commit/4357af3f13859d90bca8795215e5d5f1d94abde5), [`36468f3`](https://github.com/eyaltoledano/claude-task-master/commit/36468f3c93faf4035a5c442ccbc501077f3440f1), [`4bb6370`](https://github.com/eyaltoledano/claude-task-master/commit/4bb63706b80c28d1b2d782ba868a725326f916c7)]:
-  - task-master-ai@0.24.0-rc.1
+- Updated dependencies [[`4357af3`](https://github.com/eyaltoledano/claude-taskgarage/commit/4357af3f13859d90bca8795215e5d5f1d94abde5), [`36468f3`](https://github.com/eyaltoledano/claude-taskgarage/commit/36468f3c93faf4035a5c442ccbc501077f3440f1), [`4bb6370`](https://github.com/eyaltoledano/claude-taskgarage/commit/4bb63706b80c28d1b2d782ba868a725326f916c7)]:
+  - taskgarage-ai@0.24.0-rc.1
 
 ## 0.23.0
 
 ### Minor Changes
 
-- [#1064](https://github.com/eyaltoledano/claude-task-master/pull/1064) [`b82d858`](https://github.com/eyaltoledano/claude-task-master/commit/b82d858f81a1e702ad59d84d5ae8a2ca84359a83) Thanks [@Crunchyman-ralph](https://github.com/Crunchyman-ralph)! - 🎉 **Introducing TaskMaster Extension!**
+- [#1064](https://github.com/eyaltoledano/claude-taskgarage/pull/1064) [`b82d858`](https://github.com/eyaltoledano/claude-taskgarage/commit/b82d858f81a1e702ad59d84d5ae8a2ca84359a83) Thanks [@Crunchyman-ralph](https://github.com/Crunchyman-ralph)! - 🎉 **Introducing TaskMaster Extension!**
 
   We're thrilled to launch the first version of our Code extension, bringing the power of TaskMaster directly into your favorite code editor. While this is our initial release and we've kept things focused, it already packs powerful features to supercharge your development workflow.
 
@@ -72,7 +72,7 @@
 
 ### Minor Changes
 
-- [#1064](https://github.com/eyaltoledano/claude-task-master/pull/1064) [`b82d858`](https://github.com/eyaltoledano/claude-task-master/commit/b82d858f81a1e702ad59d84d5ae8a2ca84359a83) Thanks [@Crunchyman-ralph](https://github.com/Crunchyman-ralph)! - 🎉 **Introducing TaskMaster Extension!**
+- [#1064](https://github.com/eyaltoledano/claude-taskgarage/pull/1064) [`b82d858`](https://github.com/eyaltoledano/claude-taskgarage/commit/b82d858f81a1e702ad59d84d5ae8a2ca84359a83) Thanks [@Crunchyman-ralph](https://github.com/Crunchyman-ralph)! - 🎉 **Introducing TaskMaster Extension!**
 
   We're thrilled to launch the first version of our Code extension, bringing the power of TaskMaster directly into your favorite code editor. While this is our initial release and we've kept things focused, it already packs powerful features to supercharge your development workflow.
 
@@ -115,7 +115,7 @@
 
 ### Minor Changes
 
-- [#997](https://github.com/eyaltoledano/claude-task-master/pull/997) [`64302dc`](https://github.com/eyaltoledano/claude-task-master/commit/64302dc1918f673fcdac05b29411bf76ffe93505) Thanks [@DavidMaliglowka](https://github.com/DavidMaliglowka)! - 🎉 **Introducing TaskMaster Extension!**
+- [#997](https://github.com/eyaltoledano/claude-taskgarage/pull/997) [`64302dc`](https://github.com/eyaltoledano/claude-taskgarage/commit/64302dc1918f673fcdac05b29411bf76ffe93505) Thanks [@DavidMaliglowka](https://github.com/DavidMaliglowka)! - 🎉 **Introducing TaskMaster Extension!**
 
   We're thrilled to launch the first version of our Code extension, bringing the power of TaskMaster directly into your favorite code editor. While this is our initial release and we've kept things focused, it already packs powerful features to supercharge your development workflow.
 

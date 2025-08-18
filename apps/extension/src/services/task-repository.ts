@@ -5,7 +5,7 @@
 
 import { EventEmitter } from '../utils/event-emitter';
 import type { ExtensionLogger } from '../utils/logger';
-import type { TaskMasterApi, TaskMasterTask } from '../utils/task-master-api';
+import type { TaskMasterApi, TaskMasterTask } from '../utils/taskgarage-api';
 
 // Use the TaskMasterTask type directly to ensure compatibility
 export type Task = TaskMasterTask;

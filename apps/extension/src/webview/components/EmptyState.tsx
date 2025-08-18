@@ -32,7 +32,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({ currentTag }) => {
 						<div className="space-y-2">
 							<div className="bg-vscode-editor-background rounded p-2 font-mono text-sm">
 								<span className="text-vscode-terminal-ansiYellow">
-									task-master
+									taskgarage
 								</span>{' '}
 								<span className="text-vscode-terminal-ansiCyan">parse-prd</span>{' '}
 								<span className="text-vscode-foreground/70">
@@ -47,7 +47,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({ currentTag }) => {
 							</div>
 							<div className="bg-vscode-editor-background rounded p-2 font-mono text-sm">
 								<span className="text-vscode-terminal-ansiYellow">
-									task-master
+									taskgarage
 								</span>{' '}
 								<span className="text-vscode-terminal-ansiCyan">add-task</span>{' '}
 								<span className="text-vscode-terminal-ansiMagenta">
@@ -62,7 +62,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({ currentTag }) => {
 							</div>
 							<div className="bg-vscode-editor-background rounded p-2 font-mono text-sm">
 								<span className="text-vscode-terminal-ansiYellow">
-									task-master
+									taskgarage
 								</span>{' '}
 								<span className="text-vscode-terminal-ansiCyan">add-task</span>{' '}
 								<span className="text-vscode-terminal-ansiMagenta">--help</span>
@@ -111,7 +111,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({ currentTag }) => {
 					{/* Documentation link */}
 					<div className="flex justify-center pt-4">
 						<a
-							href="https://docs.task-master.dev"
+							href="https://docs.taskgarage.dev"
 							className="inline-flex items-center gap-2 text-vscode-textLink-foreground hover:text-vscode-textLink-activeForeground transition-colors"
 							onClick={(e) => {
 								e.preventDefault();
@@ -120,7 +120,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({ currentTag }) => {
 									const vscode = window.acquireVsCodeApi();
 									vscode.postMessage({
 										type: 'openExternal',
-										url: 'https://docs.task-master.dev'
+										url: 'https://docs.taskgarage.dev'
 									});
 								}
 							}}

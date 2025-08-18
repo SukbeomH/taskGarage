@@ -498,7 +498,7 @@ function displayHelp() {
 	const terminalWidth = process.stdout.columns || 100; // Default to 100 if can't detect
 
 	console.log(
-		boxen(chalk.white.bold('Task Master CLI'), {
+		boxen(chalk.white.bold('TaskGarage CLI'), {
 			padding: 1,
 			borderColor: 'blue',
 			borderStyle: 'round',
@@ -870,19 +870,19 @@ function displayHelp() {
 			chalk.white.bold('Quick Start:') +
 				'\n\n' +
 				chalk.cyan('1. Create Project: ') +
-				chalk.white('task-master init') +
+				chalk.white('taskgarage init') +
 				'\n' +
 				chalk.cyan('2. Setup Models: ') +
-				chalk.white('task-master models --setup') +
+				chalk.white('taskgarage models --setup') +
 				'\n' +
 				chalk.cyan('3. Parse PRD: ') +
-				chalk.white('task-master parse-prd --input=<prd-file>') +
+				chalk.white('taskgarage parse-prd --input=<prd-file>') +
 				'\n' +
 				chalk.cyan('4. List Tasks: ') +
-				chalk.white('task-master list') +
+				chalk.white('taskgarage list') +
 				'\n' +
 				chalk.cyan('5. Find Next Task: ') +
-				chalk.white('task-master next'),
+				chalk.white('taskgarage next'),
 			{
 				padding: 1,
 				borderColor: 'yellow',
@@ -1149,7 +1149,7 @@ async function displayNextTask(
 				chalk.yellow('No subtasks found. Consider breaking down this task:') +
 					'\n' +
 					chalk.white(
-						`Run: ${chalk.cyan(`task-master expand --id=${nextTask.id}`)}`
+						`Run: ${chalk.cyan(`taskgarage expand --id=${nextTask.id}`)}`
 					),
 				{
 					padding: { top: 0, bottom: 0, left: 1, right: 1 },
@@ -1166,17 +1166,17 @@ async function displayNextTask(
 	if (isSubtask) {
 		// Suggested actions for a subtask
 		suggestedActionsContent +=
-			`${chalk.cyan('1.')} Mark as in-progress: ${chalk.yellow(`task-master set-status --id=${nextTask.id} --status=in-progress`)}\n` +
-			`${chalk.cyan('2.')} Mark as done when completed: ${chalk.yellow(`task-master set-status --id=${nextTask.id} --status=done`)}\n` +
-			`${chalk.cyan('3.')} View parent task: ${chalk.yellow(`task-master show --id=${nextTask.parentId}`)}`;
+			`${chalk.cyan('1.')} Mark as in-progress: ${chalk.yellow(`taskgarage set-status --id=${nextTask.id} --status=in-progress`)}\n` +
+			`${chalk.cyan('2.')} Mark as done when completed: ${chalk.yellow(`taskgarage set-status --id=${nextTask.id} --status=done`)}\n` +
+			`${chalk.cyan('3.')} View parent task: ${chalk.yellow(`taskgarage show --id=${nextTask.parentId}`)}`;
 	} else {
 		// Suggested actions for a parent task
 		suggestedActionsContent +=
-			`${chalk.cyan('1.')} Mark as in-progress: ${chalk.yellow(`task-master set-status --id=${nextTask.id} --status=in-progress`)}\n` +
-			`${chalk.cyan('2.')} Mark as done when completed: ${chalk.yellow(`task-master set-status --id=${nextTask.id} --status=done`)}\n` +
+			`${chalk.cyan('1.')} Mark as in-progress: ${chalk.yellow(`taskgarage set-status --id=${nextTask.id} --status=in-progress`)}\n` +
+			`${chalk.cyan('2.')} Mark as done when completed: ${chalk.yellow(`taskgarage set-status --id=${nextTask.id} --status=done`)}\n` +
 			(nextTask.subtasks && nextTask.subtasks.length > 0
-				? `${chalk.cyan('3.')} Update subtask status: ${chalk.yellow(`task-master set-status --id=${nextTask.id}.1 --status=done`)}` // Example: first subtask
-				: `${chalk.cyan('3.')} Break down into subtasks: ${chalk.yellow(`task-master expand --id=${nextTask.id}`)}`);
+				? `${chalk.cyan('3.')} Update subtask status: ${chalk.yellow(`taskgarage set-status --id=${nextTask.id}.1 --status=done`)}` // Example: first subtask
+				: `${chalk.cyan('3.')} Break down into subtasks: ${chalk.yellow(`taskgarage expand --id=${nextTask.id}`)}`);
 	}
 
 	console.log(
@@ -1312,9 +1312,9 @@ async function displayTaskById(
 			boxen(
 				chalk.white.bold('Suggested Actions:') +
 					'\n' +
-					`${chalk.cyan('1.')} Mark as in-progress: ${chalk.yellow(`task-master set-status --id=${task.parentTask.id}.${task.id} --status=in-progress`)}\n` +
-					`${chalk.cyan('2.')} Mark as done when completed: ${chalk.yellow(`task-master set-status --id=${task.parentTask.id}.${task.id} --status=done`)}\n` +
-					`${chalk.cyan('3.')} View parent task: ${chalk.yellow(`task-master show --id=${task.parentTask.id}`)}`,
+					`${chalk.cyan('1.')} Mark as in-progress: ${chalk.yellow(`taskgarage set-status --id=${task.parentTask.id}.${task.id} --status=in-progress`)}\n` +
+					`${chalk.cyan('2.')} Mark as done when completed: ${chalk.yellow(`taskgarage set-status --id=${task.parentTask.id}.${task.id} --status=done`)}\n` +
+					`${chalk.cyan('3.')} View parent task: ${chalk.yellow(`taskgarage show --id=${task.parentTask.id}`)}`,
 				{
 					padding: { top: 0, bottom: 0, left: 1, right: 1 },
 					borderColor: 'green',
@@ -1553,7 +1553,7 @@ async function displayTaskById(
 					chalk.yellow('No subtasks found. Consider breaking down this task:') +
 						'\n' +
 						chalk.white(
-							`Run: ${chalk.cyan(`task-master expand --id=${task.id}`)}`
+							`Run: ${chalk.cyan(`taskgarage expand --id=${task.id}`)}`
 						),
 					{
 						padding: { top: 0, bottom: 0, left: 1, right: 1 },
@@ -1645,22 +1645,22 @@ async function displayTaskById(
 
 	// Basic actions
 	actions.push(
-		`${chalk.cyan(`${actionNumber}.`)} Mark as in-progress: ${chalk.yellow(`task-master set-status --id=${task.id} --status=in-progress`)}`
+		`${chalk.cyan(`${actionNumber}.`)} Mark as in-progress: ${chalk.yellow(`taskgarage set-status --id=${task.id} --status=in-progress`)}`
 	);
 	actionNumber++;
 	actions.push(
-		`${chalk.cyan(`${actionNumber}.`)} Mark as done when completed: ${chalk.yellow(`task-master set-status --id=${task.id} --status=done`)}`
+		`${chalk.cyan(`${actionNumber}.`)} Mark as done when completed: ${chalk.yellow(`taskgarage set-status --id=${task.id} --status=done`)}`
 	);
 	actionNumber++;
 
 	// Subtask-related action
 	if (subtasksForProgress && subtasksForProgress.length > 0) {
 		actions.push(
-			`${chalk.cyan(`${actionNumber}.`)} Update subtask status: ${chalk.yellow(`task-master set-status --id=${task.id}.1 --status=done`)}`
+			`${chalk.cyan(`${actionNumber}.`)} Update subtask status: ${chalk.yellow(`taskgarage set-status --id=${task.id}.1 --status=done`)}`
 		);
 	} else {
 		actions.push(
-			`${chalk.cyan(`${actionNumber}.`)} Break down into subtasks: ${chalk.yellow(`task-master expand --id=${task.id}`)}`
+			`${chalk.cyan(`${actionNumber}.`)} Break down into subtasks: ${chalk.yellow(`taskgarage expand --id=${task.id}`)}`
 		);
 	}
 	actionNumber++;
@@ -1669,7 +1669,7 @@ async function displayTaskById(
 	if (task.complexityScore) {
 		const complexityScore = task.complexityScore;
 		actions.push(
-			`${chalk.cyan(`${actionNumber}.`)} Re-analyze complexity: ${chalk.yellow(`task-master analyze-complexity --id=${task.id}`)}`
+			`${chalk.cyan(`${actionNumber}.`)} Re-analyze complexity: ${chalk.yellow(`taskgarage analyze-complexity --id=${task.id}`)}`
 		);
 		actionNumber++;
 
@@ -1677,31 +1677,31 @@ async function displayTaskById(
 		if (complexityScore >= 7) {
 			// High complexity - suggest scoping down
 			actions.push(
-				`${chalk.cyan(`${actionNumber}.`)} Scope down (simplify): ${chalk.yellow(`task-master scope-down --id=${task.id} --strength=regular`)}`
+				`${chalk.cyan(`${actionNumber}.`)} Scope down (simplify): ${chalk.yellow(`taskgarage scope-down --id=${task.id} --strength=regular`)}`
 			);
 			actionNumber++;
 			if (complexityScore >= 9) {
 				actions.push(
-					`${chalk.cyan(`${actionNumber}.`)} Heavy scope down: ${chalk.yellow(`task-master scope-down --id=${task.id} --strength=heavy`)}`
+					`${chalk.cyan(`${actionNumber}.`)} Heavy scope down: ${chalk.yellow(`taskgarage scope-down --id=${task.id} --strength=heavy`)}`
 				);
 				actionNumber++;
 			}
 		} else if (complexityScore <= 4) {
 			// Low complexity - suggest scoping up
 			actions.push(
-				`${chalk.cyan(`${actionNumber}.`)} Scope up (add detail): ${chalk.yellow(`task-master scope-up --id=${task.id} --strength=regular`)}`
+				`${chalk.cyan(`${actionNumber}.`)} Scope up (add detail): ${chalk.yellow(`taskgarage scope-up --id=${task.id} --strength=regular`)}`
 			);
 			actionNumber++;
 			if (complexityScore <= 2) {
 				actions.push(
-					`${chalk.cyan(`${actionNumber}.`)} Heavy scope up: ${chalk.yellow(`task-master scope-up --id=${task.id} --strength=heavy`)}`
+					`${chalk.cyan(`${actionNumber}.`)} Heavy scope up: ${chalk.yellow(`taskgarage scope-up --id=${task.id} --strength=heavy`)}`
 				);
 				actionNumber++;
 			}
 		} else {
 			// Medium complexity (5-6) - offer both options
 			actions.push(
-				`${chalk.cyan(`${actionNumber}.`)} Scope up/down: ${chalk.yellow(`task-master scope-up --id=${task.id} --strength=light`)} or ${chalk.yellow(`scope-down --id=${task.id} --strength=light`)}`
+				`${chalk.cyan(`${actionNumber}.`)} Scope up/down: ${chalk.yellow(`taskgarage scope-up --id=${task.id} --strength=light`)} or ${chalk.yellow(`scope-down --id=${task.id} --strength=light`)}`
 			);
 			actionNumber++;
 		}
@@ -1756,7 +1756,7 @@ async function displayComplexityReport(reportPath) {
 			const tasksPath = TASKMASTER_TASKS_FILE;
 			if (!fs.existsSync(tasksPath)) {
 				console.error(
-					'❌ No tasks.json file found. Please run "task-master init" or create a tasks.json file.'
+					'❌ No tasks.json file found. Please run "taskgarage init" or create a tasks.json file.'
 				);
 				return null;
 			}
@@ -1902,7 +1902,7 @@ async function displayComplexityReport(reportPath) {
 
 	// When adding rows, don't truncate the expansion command
 	tasksNeedingExpansion.forEach((task) => {
-		const expansionCommand = `task-master expand --id=${task.taskId} --num=${task.recommendedSubtasks}${task.expansionPrompt ? ` --prompt="${task.expansionPrompt}"` : ''}`;
+		const expansionCommand = `taskgarage expand --id=${task.taskId} --num=${task.recommendedSubtasks}${task.expansionPrompt ? ` --prompt="${task.expansionPrompt}"` : ''}`;
 
 		complexTable.push([
 			task.taskId,
@@ -1954,9 +1954,9 @@ async function displayComplexityReport(reportPath) {
 		boxen(
 			chalk.white.bold('Suggested Actions:') +
 				'\n\n' +
-				`${chalk.cyan('1.')} Expand all complex tasks: ${chalk.yellow(`task-master expand --all`)}\n` +
-				`${chalk.cyan('2.')} Expand a specific task: ${chalk.yellow(`task-master expand --id=<id>`)}\n` +
-				`${chalk.cyan('3.')} Regenerate with research: ${chalk.yellow(`task-master analyze-complexity --research`)}`,
+				`${chalk.cyan('1.')} Expand all complex tasks: ${chalk.yellow(`taskgarage expand --all`)}\n` +
+				`${chalk.cyan('2.')} Expand a specific task: ${chalk.yellow(`taskgarage expand --id=<id>`)}\n` +
+				`${chalk.cyan('3.')} Regenerate with research: ${chalk.yellow(`taskgarage analyze-complexity --research`)}`,
 			{
 				padding: 1,
 				borderColor: 'cyan',
@@ -2225,23 +2225,23 @@ function displayAvailableModels(availableModels) {
 			chalk.white.bold('Next Steps:') +
 				'\n' +
 				chalk.cyan(
-					`1. Set main model: ${chalk.yellow('task-master models --set-main <model_id>')}`
+					`1. Set main model: ${chalk.yellow('taskgarage models --set-main <model_id>')}`
 				) +
 				'\n' +
 				chalk.cyan(
-					`2. Set research model: ${chalk.yellow('task-master models --set-research <model_id>')}`
+					`2. Set research model: ${chalk.yellow('taskgarage models --set-research <model_id>')}`
 				) +
 				'\n' +
 				chalk.cyan(
-					`3. Set fallback model: ${chalk.yellow('task-master models --set-fallback <model_id>')}`
+					`3. Set fallback model: ${chalk.yellow('taskgarage models --set-fallback <model_id>')}`
 				) +
 				'\n' +
 				chalk.cyan(
-					`4. Run interactive setup: ${chalk.yellow('task-master models --setup')}`
+					`4. Run interactive setup: ${chalk.yellow('taskgarage models --setup')}`
 				) +
 				'\n' +
 				chalk.cyan(
-					`5. Use custom ollama/openrouter models: ${chalk.yellow('task-master models --openrouter|ollama --set-main|research|fallback <model_id>')}`
+					`5. Use custom ollama/openrouter models: ${chalk.yellow('taskgarage models --openrouter|ollama --set-main|research|fallback <model_id>')}`
 				),
 			{
 				padding: 1,
@@ -2578,7 +2578,7 @@ async function displayMultipleTasksSummary(
 				case '1':
 					console.log(
 						chalk.blue(
-							`\n→ Command: task-master set-status --id=${taskIdList} --status=in-progress`
+							`\n→ Command: taskgarage set-status --id=${taskIdList} --status=in-progress`
 						)
 					);
 					console.log(
@@ -2590,7 +2590,7 @@ async function displayMultipleTasksSummary(
 				case '2':
 					console.log(
 						chalk.blue(
-							`\n→ Command: task-master set-status --id=${taskIdList} --status=done`
+							`\n→ Command: taskgarage set-status --id=${taskIdList} --status=done`
 						)
 					);
 					console.log(
@@ -2598,7 +2598,7 @@ async function displayMultipleTasksSummary(
 					);
 					break;
 				case '3':
-					console.log(chalk.blue(`\n→ Command: task-master next`));
+					console.log(chalk.blue(`\n→ Command: taskgarage next`));
 					console.log(
 						chalk.green(
 							'✓ Copy and run this command to see the next available task'
@@ -2608,7 +2608,7 @@ async function displayMultipleTasksSummary(
 				case '4':
 					console.log(
 						chalk.blue(
-							`\n→ Command: task-master expand --id=${taskIdList} --research`
+							`\n→ Command: taskgarage expand --id=${taskIdList} --research`
 						)
 					);
 					console.log(
@@ -2637,7 +2637,7 @@ async function displayMultipleTasksSummary(
 					break;
 				}
 				case '6':
-					console.log(chalk.blue(`\n→ Command: task-master generate`));
+					console.log(chalk.blue(`\n→ Command: taskgarage generate`));
 					console.log(
 						chalk.green('✓ Copy and run this command to generate task files')
 					);
@@ -2665,9 +2665,9 @@ async function displayMultipleTasksSummary(
 			boxen(
 				chalk.white.bold('Suggested Actions:') +
 					'\n' +
-					`${chalk.cyan('1.')} View full details: ${chalk.yellow(`task-master show ${task.id}`)}\n` +
-					`${chalk.cyan('2.')} Mark as in-progress: ${chalk.yellow(`task-master set-status --id=${task.id} --status=in-progress`)}\n` +
-					`${chalk.cyan('3.')} Mark as done: ${chalk.yellow(`task-master set-status --id=${task.id} --status=done`)}`,
+					`${chalk.cyan('1.')} View full details: ${chalk.yellow(`taskgarage show ${task.id}`)}\n` +
+					`${chalk.cyan('2.')} Mark as in-progress: ${chalk.yellow(`taskgarage set-status --id=${task.id} --status=in-progress`)}\n` +
+					`${chalk.cyan('3.')} Mark as done: ${chalk.yellow(`taskgarage set-status --id=${task.id} --status=done`)}`,
 				{
 					padding: { top: 0, bottom: 0, left: 1, right: 1 },
 					borderColor: 'green',

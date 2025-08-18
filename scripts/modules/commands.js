@@ -85,7 +85,7 @@ import {
 	TASKMASTER_DOCS_DIR
 } from '../../src/constants/paths.js';
 
-import { initTaskMaster } from '../../src/task-master.js';
+import { initTaskMaster } from '../../src/taskgarage.js';
 
 import {
 	displayBanner,
@@ -793,7 +793,7 @@ function registerCommands(programInstance) {
 		console.error(chalk.red(`Error: Unknown option '${unknownOption}'`));
 		console.error(
 			chalk.yellow(
-				`Run 'task-master ${commandName} --help' to see available options`
+				`Run 'taskgarage ${commandName} --help' to see available options`
 			)
 		);
 		process.exit(1);
@@ -840,7 +840,7 @@ function registerCommands(programInstance) {
 			} catch (error) {
 				console.log(
 					boxen(
-						`${chalk.white.bold('Parse PRD Help')}\n\n${chalk.cyan('Usage:')}\n  task-master parse-prd <prd-file.txt> [options]\n\n${chalk.cyan('Options:')}\n  -i, --input <file>       Path to the PRD file (alternative to positional argument)\n  -o, --output <file>      Output file path (default: .taskmaster/tasks/tasks.json)\n  -n, --num-tasks <number> Number of tasks to generate (default: 10)\n  -f, --force              Skip confirmation when overwriting existing tasks\n  --append                 Append new tasks to existing tasks.json instead of overwriting\n  -r, --research           Use Perplexity AI for research-backed task generation\n\n${chalk.cyan('Example:')}\n  task-master parse-prd requirements.txt --num-tasks 15\n  task-master parse-prd --input=requirements.txt\n  task-master parse-prd --force\n  task-master parse-prd requirements_v2.txt --append\n  task-master parse-prd requirements.txt --research\n\n${chalk.yellow('Note: This command will:')}\n  1. Look for a PRD file at ${TASKMASTER_DOCS_DIR}/PRD.md by default\n  2. Use the file specified by --input or positional argument if provided\n  3. Generate tasks from the PRD and either:\n     - Overwrite any existing tasks.json file (default)\n     - Append to existing tasks.json if --append is used`,
+						`${chalk.white.bold('Parse PRD Help')}\n\n${chalk.cyan('Usage:')}\n  taskgarage parse-prd <prd-file.txt> [options]\n\n${chalk.cyan('Options:')}\n  -i, --input <file>       Path to the PRD file (alternative to positional argument)\n  -o, --output <file>      Output file path (default: .taskmaster/tasks/tasks.json)\n  -n, --num-tasks <number> Number of tasks to generate (default: 10)\n  -f, --force              Skip confirmation when overwriting existing tasks\n  --append                 Append new tasks to existing tasks.json instead of overwriting\n  -r, --research           Use Perplexity AI for research-backed task generation\n\n${chalk.cyan('Example:')}\n  taskgarage parse-prd requirements.txt --num-tasks 15\n  taskgarage parse-prd --input=requirements.txt\n  taskgarage parse-prd --force\n  taskgarage parse-prd requirements_v2.txt --append\n  taskgarage parse-prd requirements.txt --research\n\n${chalk.yellow('Note: This command will:')}\n  1. Look for a PRD file at ${TASKMASTER_DOCS_DIR}/PRD.md by default\n  2. Use the file specified by --input or positional argument if provided\n  3. Generate tasks from the PRD and either:\n     - Overwrite any existing tasks.json file (default)\n     - Append to existing tasks.json if --append is used`,
 						{ padding: 1, borderColor: 'blue', borderStyle: 'round' }
 					)
 				);
@@ -995,7 +995,7 @@ function registerCommands(programInstance) {
 				);
 				console.log(chalk.yellow('\nTo update multiple tasks:'));
 				console.log(
-					`  task-master update --from=${fromId} --prompt="Your prompt here"`
+					`  taskgarage update --from=${fromId} --prompt="Your prompt here"`
 				);
 				console.log(
 					chalk.yellow(
@@ -1003,7 +1003,7 @@ function registerCommands(programInstance) {
 					)
 				);
 				console.log(
-					`  task-master update-task --id=<id> --prompt="Your prompt here"`
+					`  taskgarage update-task --id=<id> --prompt="Your prompt here"`
 				);
 				process.exit(1);
 			}
@@ -1085,7 +1085,7 @@ function registerCommands(programInstance) {
 					console.error(chalk.red('Error: --id parameter is required'));
 					console.log(
 						chalk.yellow(
-							'Usage example: task-master update-task --id=23 --prompt="Update with new information"'
+							'Usage example: taskgarage update-task --id=23 --prompt="Update with new information"'
 						)
 					);
 					process.exit(1);
@@ -1101,7 +1101,7 @@ function registerCommands(programInstance) {
 					);
 					console.log(
 						chalk.yellow(
-							'Usage example: task-master update-task --id=23 --prompt="Update with new information"'
+							'Usage example: taskgarage update-task --id=23 --prompt="Update with new information"'
 						)
 					);
 					process.exit(1);
@@ -1115,7 +1115,7 @@ function registerCommands(programInstance) {
 					);
 					console.log(
 						chalk.yellow(
-							'Usage example: task-master update-task --id=23 --prompt="Update with new information"'
+							'Usage example: taskgarage update-task --id=23 --prompt="Update with new information"'
 						)
 					);
 					process.exit(1);
@@ -1132,7 +1132,7 @@ function registerCommands(programInstance) {
 					if (tasksPath === TASKMASTER_TASKS_FILE) {
 						console.log(
 							chalk.yellow(
-								'Hint: Run task-master init or task-master parse-prd to create tasks.json first'
+								'Hint: Run taskgarage init or taskgarage parse-prd to create tasks.json first'
 							)
 						);
 					} else {
@@ -1196,7 +1196,7 @@ function registerCommands(programInstance) {
 				) {
 					console.log(chalk.yellow('\nTo fix this issue:'));
 					console.log(
-						'  1. Run task-master list to see all available task IDs'
+						'  1. Run taskgarage list to see all available task IDs'
 					);
 					console.log('  2. Use a valid task ID with the --id parameter');
 				} else if (error.message.includes('API key')) {
@@ -1257,7 +1257,7 @@ function registerCommands(programInstance) {
 					console.error(chalk.red('Error: --id parameter is required'));
 					console.log(
 						chalk.yellow(
-							'Usage example: task-master update-subtask --id=5.2 --prompt="Add more details about the API endpoint"'
+							'Usage example: taskgarage update-subtask --id=5.2 --prompt="Add more details about the API endpoint"'
 						)
 					);
 					process.exit(1);
@@ -1273,7 +1273,7 @@ function registerCommands(programInstance) {
 					);
 					console.log(
 						chalk.yellow(
-							'Usage example: task-master update-subtask --id=5.2 --prompt="Add more details about the API endpoint"'
+							'Usage example: taskgarage update-subtask --id=5.2 --prompt="Add more details about the API endpoint"'
 						)
 					);
 					process.exit(1);
@@ -1287,7 +1287,7 @@ function registerCommands(programInstance) {
 					);
 					console.log(
 						chalk.yellow(
-							'Usage example: task-master update-subtask --id=5.2 --prompt="Add more details about the API endpoint"'
+							'Usage example: taskgarage update-subtask --id=5.2 --prompt="Add more details about the API endpoint"'
 						)
 					);
 					process.exit(1);
@@ -1304,7 +1304,7 @@ function registerCommands(programInstance) {
 					if (tasksPath === TASKMASTER_TASKS_FILE) {
 						console.log(
 							chalk.yellow(
-								'Hint: Run task-master init or task-master parse-prd to create tasks.json first'
+								'Hint: Run taskgarage init or taskgarage parse-prd to create tasks.json first'
 							)
 						);
 					} else {
@@ -1367,7 +1367,7 @@ function registerCommands(programInstance) {
 				) {
 					console.log(chalk.yellow('\nTo fix this issue:'));
 					console.log(
-						'  1. Run task-master list --with-subtasks to see all available subtask IDs'
+						'  1. Run taskgarage list --with-subtasks to see all available subtask IDs'
 					);
 					console.log(
 						'  2. Use a valid subtask ID with the --id parameter in format "parentId.subtaskId"'
@@ -1431,7 +1431,7 @@ function registerCommands(programInstance) {
 					console.error(chalk.red('Error: --id parameter is required'));
 					console.log(
 						chalk.yellow(
-							'Usage example: task-master scope-up --id=1,2,3 --strength=regular'
+							'Usage example: taskgarage scope-up --id=1,2,3 --strength=regular'
 						)
 					);
 					process.exit(1);
@@ -1503,7 +1503,7 @@ function registerCommands(programInstance) {
 				if (error.message.includes('not found')) {
 					console.log(chalk.yellow('\nTo fix this issue:'));
 					console.log(
-						'  1. Run task-master list to see all available task IDs'
+						'  1. Run taskgarage list to see all available task IDs'
 					);
 					console.log('  2. Use valid task IDs with the --id parameter');
 				}
@@ -1558,7 +1558,7 @@ function registerCommands(programInstance) {
 					console.error(chalk.red('Error: --id parameter is required'));
 					console.log(
 						chalk.yellow(
-							'Usage example: task-master scope-down --id=1,2,3 --strength=regular'
+							'Usage example: taskgarage scope-down --id=1,2,3 --strength=regular'
 						)
 					);
 					process.exit(1);
@@ -1630,7 +1630,7 @@ function registerCommands(programInstance) {
 				if (error.message.includes('not found')) {
 					console.log(chalk.yellow('\nTo fix this issue:'));
 					console.log(
-						'  1. Run task-master list to see all available task IDs'
+						'  1. Run taskgarage list to see all available task IDs'
 					);
 					console.log('  2. Use valid task IDs with the --id parameter');
 				}
@@ -2480,7 +2480,7 @@ ${result.result}
 
 			if (!fs.existsSync(tasksPath)) {
 				console.error(
-					`❌ No tasks.json file found. Please run "task-master init" or create a tasks.json file at ${TASKMASTER_TASKS_FILE}`
+					`❌ No tasks.json file found. Please run "taskgarage init" or create a tasks.json file at ${TASKMASTER_TASKS_FILE}`
 				);
 				process.exit(1);
 			}
@@ -3018,11 +3018,11 @@ ${result.result}
 								chalk.white.bold('Next Steps:') +
 								'\n' +
 								chalk.cyan(
-									`1. Run ${chalk.yellow(`task-master show ${parentId}`)} to see the parent task with all subtasks`
+									`1. Run ${chalk.yellow(`taskgarage show ${parentId}`)} to see the parent task with all subtasks`
 								) +
 								'\n' +
 								chalk.cyan(
-									`2. Run ${chalk.yellow(`task-master set-status --id=${parentId}.${subtask.id} --status=in-progress`)} to start working on it`
+									`2. Run ${chalk.yellow(`taskgarage set-status --id=${parentId}.${subtask.id} --status=in-progress`)} to start working on it`
 								),
 							{
 								padding: 1,
@@ -3043,13 +3043,13 @@ ${result.result}
 								chalk.white('Convert existing task to subtask:') +
 								'\n' +
 								chalk.yellow(
-									`  task-master add-subtask --parent=5 --task-id=8`
+									`  taskgarage add-subtask --parent=5 --task-id=8`
 								) +
 								'\n\n' +
 								chalk.white('Create new subtask:') +
 								'\n' +
 								chalk.yellow(
-									`  task-master add-subtask --parent=5 --title="Implement login UI" --description="Create the login form"`
+									`  taskgarage add-subtask --parent=5 --title="Implement login UI" --description="Create the login form"`
 								) +
 								'\n\n',
 							{ padding: 1, borderColor: 'blue', borderStyle: 'round' }
@@ -3073,7 +3073,7 @@ ${result.result}
 	function showAddSubtaskHelp() {
 		console.log(
 			boxen(
-				`${chalk.white.bold('Add Subtask Command Help')}\n\n${chalk.cyan('Usage:')}\n  task-master add-subtask --parent=<id> [options]\n\n${chalk.cyan('Options:')}\n  -p, --parent <id>         Parent task ID (required)\n  -i, --task-id <id>        Existing task ID to convert to subtask\n  -t, --title <title>       Title for the new subtask\n  -d, --description <text>  Description for the new subtask\n  --details <text>          Implementation details for the new subtask\n  --dependencies <ids>      Comma-separated list of dependency IDs\n  -s, --status <status>     Status for the new subtask (default: "pending")\n  -f, --file <file>         Path to the tasks file (default: "${TASKMASTER_TASKS_FILE}")\n  --generate                Regenerate task files after adding subtask\n\n${chalk.cyan('Examples:')}\n  task-master add-subtask --parent=5 --task-id=8\n  task-master add-subtask -p 5 -t "Implement login UI" -d "Create the login form" --generate`,
+				`${chalk.white.bold('Add Subtask Command Help')}\n\n${chalk.cyan('Usage:')}\n  taskgarage add-subtask --parent=<id> [options]\n\n${chalk.cyan('Options:')}\n  -p, --parent <id>         Parent task ID (required)\n  -i, --task-id <id>        Existing task ID to convert to subtask\n  -t, --title <title>       Title for the new subtask\n  -d, --description <text>  Description for the new subtask\n  --details <text>          Implementation details for the new subtask\n  --dependencies <ids>      Comma-separated list of dependency IDs\n  -s, --status <status>     Status for the new subtask (default: "pending")\n  -f, --file <file>         Path to the tasks file (default: "${TASKMASTER_TASKS_FILE}")\n  --generate                Regenerate task files after adding subtask\n\n${chalk.cyan('Examples:')}\n  taskgarage add-subtask --parent=5 --task-id=8\n  taskgarage add-subtask -p 5 -t "Implement login UI" -d "Create the login form" --generate`,
 				{ padding: 1, borderColor: 'blue', borderStyle: 'round' }
 			)
 		);
@@ -3170,11 +3170,11 @@ ${result.result}
 									chalk.white.bold('Next Steps:') +
 									'\n' +
 									chalk.cyan(
-										`1. Run ${chalk.yellow(`task-master show ${result.id}`)} to see details of the new task`
+										`1. Run ${chalk.yellow(`taskgarage show ${result.id}`)} to see details of the new task`
 									) +
 									'\n' +
 									chalk.cyan(
-										`2. Run ${chalk.yellow(`task-master set-status --id=${result.id} --status=in-progress`)} to start working on it`
+										`2. Run ${chalk.yellow(`taskgarage set-status --id=${result.id} --status=in-progress`)} to start working on it`
 									),
 								{
 									padding: 1,
@@ -3221,7 +3221,7 @@ ${result.result}
 					'\n\n' +
 					chalk.cyan('Usage:') +
 					'\n' +
-					`  task-master remove-subtask --id=<parentId.subtaskId> [options]\n\n` +
+					`  taskgarage remove-subtask --id=<parentId.subtaskId> [options]\n\n` +
 					chalk.cyan('Options:') +
 					'\n' +
 					'  -i, --id <id>       Subtask ID(s) to remove in format "parentId.subtaskId" (can be comma-separated, required)\n' +
@@ -3232,9 +3232,9 @@ ${result.result}
 					'  --skip-generate     Skip regenerating task files\n\n' +
 					chalk.cyan('Examples:') +
 					'\n' +
-					'  task-master remove-subtask --id=5.2\n' +
-					'  task-master remove-subtask --id=5.2,6.3,7.1\n' +
-					'  task-master remove-subtask --id=5.2 --convert',
+					'  taskgarage remove-subtask --id=5.2\n' +
+					'  taskgarage remove-subtask --id=5.2,6.3,7.1\n' +
+					'  taskgarage remove-subtask --id=5.2 --convert',
 				{ padding: 1, borderColor: 'blue', borderStyle: 'round' }
 			)
 		);
@@ -3248,7 +3248,7 @@ ${result.result}
 					'\n\n' +
 					chalk.cyan('Usage:') +
 					'\n' +
-					`  task-master tags [options]\n\n` +
+					`  taskgarage tags [options]\n\n` +
 					chalk.cyan('Options:') +
 					'\n' +
 					'  -f, --file <file>   Path to the tasks file (default: "' +
@@ -3257,13 +3257,13 @@ ${result.result}
 					'  --show-metadata     Show detailed metadata for each tag\n\n' +
 					chalk.cyan('Examples:') +
 					'\n' +
-					'  task-master tags\n' +
-					'  task-master tags --show-metadata\n\n' +
+					'  taskgarage tags\n' +
+					'  taskgarage tags --show-metadata\n\n' +
 					chalk.cyan('Related Commands:') +
 					'\n' +
-					'  task-master add-tag <name>      Create a new tag\n' +
-					'  task-master use-tag <name>      Switch to a tag\n' +
-					'  task-master delete-tag <name>   Delete a tag',
+					'  taskgarage add-tag <name>      Create a new tag\n' +
+					'  taskgarage use-tag <name>      Switch to a tag\n' +
+					'  taskgarage delete-tag <name>   Delete a tag',
 				{ padding: 1, borderColor: 'blue', borderStyle: 'round' }
 			)
 		);
@@ -3277,7 +3277,7 @@ ${result.result}
 					'\n\n' +
 					chalk.cyan('Usage:') +
 					'\n' +
-					`  task-master add-tag <tagName> [options]\n\n` +
+					`  taskgarage add-tag <tagName> [options]\n\n` +
 					chalk.cyan('Options:') +
 					'\n' +
 					'  -f, --file <file>        Path to the tasks file (default: "' +
@@ -3288,10 +3288,10 @@ ${result.result}
 					'  -d, --description <text> Optional description for the tag\n\n' +
 					chalk.cyan('Examples:') +
 					'\n' +
-					'  task-master add-tag feature-xyz\n' +
-					'  task-master add-tag feature-xyz --copy-from-current\n' +
-					'  task-master add-tag feature-xyz --copy-from master\n' +
-					'  task-master add-tag feature-xyz -d "Feature XYZ development"',
+					'  taskgarage add-tag feature-xyz\n' +
+					'  taskgarage add-tag feature-xyz --copy-from-current\n' +
+					'  taskgarage add-tag feature-xyz --copy-from master\n' +
+					'  taskgarage add-tag feature-xyz -d "Feature XYZ development"',
 				{ padding: 1, borderColor: 'blue', borderStyle: 'round' }
 			)
 		);
@@ -3305,7 +3305,7 @@ ${result.result}
 					'\n\n' +
 					chalk.cyan('Usage:') +
 					'\n' +
-					`  task-master delete-tag <tagName> [options]\n\n` +
+					`  taskgarage delete-tag <tagName> [options]\n\n` +
 					chalk.cyan('Options:') +
 					'\n' +
 					'  -f, --file <file>   Path to the tasks file (default: "' +
@@ -3314,8 +3314,8 @@ ${result.result}
 					'  -y, --yes           Skip confirmation prompts\n\n' +
 					chalk.cyan('Examples:') +
 					'\n' +
-					'  task-master delete-tag feature-xyz\n' +
-					'  task-master delete-tag feature-xyz --yes\n\n' +
+					'  taskgarage delete-tag feature-xyz\n' +
+					'  taskgarage delete-tag feature-xyz --yes\n\n' +
 					chalk.yellow('Warning:') +
 					'\n' +
 					'  This will permanently delete the tag and all its tasks!',
@@ -3332,7 +3332,7 @@ ${result.result}
 					'\n\n' +
 					chalk.cyan('Usage:') +
 					'\n' +
-					`  task-master use-tag <tagName> [options]\n\n` +
+					`  taskgarage use-tag <tagName> [options]\n\n` +
 					chalk.cyan('Options:') +
 					'\n' +
 					'  -f, --file <file>   Path to the tasks file (default: "' +
@@ -3340,12 +3340,12 @@ ${result.result}
 					'")\n\n' +
 					chalk.cyan('Examples:') +
 					'\n' +
-					'  task-master use-tag feature-xyz\n' +
-					'  task-master use-tag master\n\n' +
+					'  taskgarage use-tag feature-xyz\n' +
+					'  taskgarage use-tag master\n\n' +
 					chalk.cyan('Related Commands:') +
 					'\n' +
-					'  task-master tags                 List all available tags\n' +
-					'  task-master add-tag <name>       Create a new tag',
+					'  taskgarage tags                 List all available tags\n' +
+					'  taskgarage add-tag <name>       Create a new tag',
 				{ padding: 1, borderColor: 'blue', borderStyle: 'round' }
 			)
 		);
@@ -3359,7 +3359,7 @@ ${result.result}
 					'\n\n' +
 					chalk.cyan('Usage:') +
 					'\n' +
-					`  task-master research "<query>" [options]\n\n` +
+					`  taskgarage research "<query>" [options]\n\n` +
 					chalk.cyan('Required:') +
 					'\n' +
 					'  <query>             Research question or prompt (required)\n\n' +
@@ -3376,10 +3376,10 @@ ${result.result}
 					'  --tag <tag>         Specify tag context for task operations\n\n' +
 					chalk.cyan('Examples:') +
 					'\n' +
-					'  task-master research "How should I implement user authentication?"\n' +
-					'  task-master research "What\'s the best approach?" --id=15,23.2\n' +
-					'  task-master research "How does auth work?" --files=src/auth.js --tree\n' +
-					'  task-master research "Implementation steps?" --save-to=15.2 --detail=high',
+					'  taskgarage research "How should I implement user authentication?"\n' +
+					'  taskgarage research "What\'s the best approach?" --id=15,23.2\n' +
+					'  taskgarage research "How does auth work?" --files=src/auth.js --tree\n' +
+					'  taskgarage research "Implementation steps?" --save-to=15.2 --detail=high',
 				{ padding: 1, borderColor: 'blue', borderStyle: 'round' }
 			)
 		);
@@ -3419,7 +3419,7 @@ ${result.result}
 				console.error(chalk.red('Error: Task ID(s) are required'));
 				console.error(
 					chalk.yellow(
-						'Usage: task-master remove-task --id=<taskId1,taskId2...>'
+						'Usage: taskgarage remove-task --id=<taskId1,taskId2...>'
 					)
 				);
 				process.exit(1);
@@ -3747,18 +3747,18 @@ ${result.result}
 			'after',
 			`
 Examples:
-  $ task-master models                              # View current configuration
-  $ task-master models --set-main gpt-4o             # Set main model (provider inferred)
-  $ task-master models --set-research sonar-pro       # Set research model
-  $ task-master models --set-fallback claude-3-5-sonnet-20241022 # Set fallback
-  $ task-master models --set-main my-custom-model --ollama  # Set custom Ollama model for main role
-  $ task-master models --set-main anthropic.claude-3-sonnet-20240229-v1:0 --bedrock # Set custom Bedrock model for main role
-  $ task-master models --set-main some/other-model --openrouter # Set custom OpenRouter model for main role
-  $ task-master models --set-main sonnet --claude-code           # Set Claude Code model for main role
-  $ task-master models --set-main gpt-4o --azure # Set custom Azure OpenAI model for main role
-  $ task-master models --set-main claude-3-5-sonnet@20241022 --vertex # Set custom Vertex AI model for main role
-  $ task-master models --set-main gemini-2.5-pro --gemini-cli # Set Gemini CLI model for main role
-  $ task-master models --setup                            # Run interactive setup`
+  $ taskgarage models                              # View current configuration
+  $ taskgarage models --set-main gpt-4o             # Set main model (provider inferred)
+  $ taskgarage models --set-research sonar-pro       # Set research model
+  $ taskgarage models --set-fallback claude-3-5-sonnet-20241022 # Set fallback
+  $ taskgarage models --set-main my-custom-model --ollama  # Set custom Ollama model for main role
+  $ taskgarage models --set-main anthropic.claude-3-sonnet-20240229-v1:0 --bedrock # Set custom Bedrock model for main role
+  $ taskgarage models --set-main some/other-model --openrouter # Set custom OpenRouter model for main role
+  $ taskgarage models --set-main sonnet --claude-code           # Set Claude Code model for main role
+  $ taskgarage models --set-main gpt-4o --azure # Set custom Azure OpenAI model for main role
+  $ taskgarage models --set-main claude-3-5-sonnet@20241022 --vertex # Set custom Vertex AI model for main role
+  $ taskgarage models --set-main gemini-2.5-pro --gemini-cli # Set Gemini CLI model for main role
+  $ taskgarage models --setup                            # Run interactive setup`
 		)
 		.action(async (options) => {
 			// Initialize TaskMaster
@@ -3967,7 +3967,7 @@ Examples:
 			if (!configExists) {
 				console.log(
 					chalk.yellow(
-						"\\nHint: Run 'task-master models --setup' to create or update your configuration."
+						"\\nHint: Run 'taskgarage models --setup' to create or update your configuration."
 					)
 				);
 			}
@@ -4066,7 +4066,7 @@ Examples:
 				);
 				console.log(
 					chalk.yellow(
-						'Usage: task-master move --from=<sourceId> --to=<destinationId>'
+						'Usage: taskgarage move --from=<sourceId> --to=<destinationId>'
 					)
 				);
 				process.exit(1);
@@ -4084,7 +4084,7 @@ Examples:
 					)
 				);
 				console.log(
-					chalk.yellow('Example: task-master move --from=5,6,7 --to=10,11,12')
+					chalk.yellow('Example: taskgarage move --from=5,6,7 --to=10,11,12')
 				);
 				process.exit(1);
 			}
@@ -4181,7 +4181,7 @@ Examples:
 	programInstance
 		.command('rules [action] [profiles...]')
 		.description(
-			`Add or remove rules for one or more profiles. Valid actions: ${Object.values(RULES_ACTIONS).join(', ')} (e.g., task-master rules ${RULES_ACTIONS.ADD} windsurf roo)`
+			`Add or remove rules for one or more profiles. Valid actions: ${Object.values(RULES_ACTIONS).join(', ')} (e.g., taskgarage rules ${RULES_ACTIONS.ADD} windsurf roo)`
 		)
 		.option(
 			'-f, --force',
@@ -4195,9 +4195,9 @@ Examples:
 			'after',
 			`
 		Examples:
-		$ task-master rules ${RULES_ACTIONS.ADD} windsurf roo          # Add Windsurf and Roo rule sets
-		$ task-master rules ${RULES_ACTIONS.REMOVE} windsurf          # Remove Windsurf rule set
-		$ task-master rules --${RULES_SETUP_ACTION}                  # Interactive setup to select rule profiles`
+		$ taskgarage rules ${RULES_ACTIONS.ADD} windsurf roo          # Add Windsurf and Roo rule sets
+		$ taskgarage rules ${RULES_ACTIONS.REMOVE} windsurf          # Remove Windsurf rule set
+		$ taskgarage rules --${RULES_SETUP_ACTION}                  # Interactive setup to select rule profiles`
 		)
 		.action(async (action, profiles, options) => {
 			const taskMaster = initTaskMaster({});
@@ -4208,13 +4208,13 @@ Examples:
 			}
 
 			/**
-			 * 'task-master rules --setup' action:
+			 * 'taskgarage rules --setup' action:
 			 *
 			 * Launches an interactive prompt to select which rule profiles to add to the current project.
 			 * This does NOT perform project initialization or ask about shell aliases—only rules selection.
 			 *
 			 * Example usage:
-			 *   $ task-master rules --setup
+			 *   $ taskgarage rules --setup
 			 *
 			 * Useful for adding rules after project creation.
 			 *
@@ -4276,7 +4276,7 @@ Examples:
 				);
 				console.error(
 					chalk.yellow(
-						`For interactive setup, use: task-master rules --${RULES_SETUP_ACTION}`
+						`For interactive setup, use: taskgarage rules --${RULES_SETUP_ACTION}`
 					)
 				);
 				process.exit(1);
@@ -4561,7 +4561,7 @@ Examples:
 					);
 					console.log(
 						chalk.yellow(
-							'Hint: Run task-master init or task-master parse-prd to create tasks.json first'
+							'Hint: Run taskgarage init or taskgarage parse-prd to create tasks.json first'
 						)
 					);
 					process.exit(1);
@@ -4575,8 +4575,8 @@ Examples:
 						)
 					);
 					console.log(chalk.yellow('Usage examples:'));
-					console.log(chalk.cyan('  task-master add-tag my-tag'));
-					console.log(chalk.cyan('  task-master add-tag --from-branch'));
+					console.log(chalk.cyan('  taskgarage add-tag my-tag'));
+					console.log(chalk.cyan('  taskgarage add-tag --from-branch'));
 					process.exit(1);
 				}
 
@@ -4989,7 +4989,7 @@ function setupCLI() {
 }
 
 /**
- * Check for newer version of task-master-ai
+ * Check for newer version of taskgarage-ai
  * @returns {Promise<{currentVersion: string, latestVersion: string, needsUpdate: boolean}>}
  */
 async function checkForUpdate() {
@@ -5000,7 +5000,7 @@ async function checkForUpdate() {
 		// Get the latest version from npm registry
 		const options = {
 			hostname: 'registry.npmjs.org',
-			path: '/task-master-ai',
+			path: '/taskgarage-ai',
 			method: 'GET',
 			headers: {
 				Accept: 'application/vnd.npm.install-v1+json' // Lightweight response
@@ -5092,7 +5092,7 @@ function compareVersions(v1, v2) {
 function displayUpgradeNotification(currentVersion, latestVersion) {
 	const message = boxen(
 		`${chalk.blue.bold('Update Available!')} ${chalk.dim(currentVersion)} → ${chalk.green(latestVersion)}\n\n` +
-			`Run ${chalk.cyan('npm i task-master-ai@latest -g')} to update to the latest version with new features and bug fixes.`,
+			`Run ${chalk.cyan('npm i taskgarage-ai@latest -g')} to update to the latest version with new features and bug fixes.`,
 		{
 			padding: 1,
 			margin: { top: 1, bottom: 1 },
@@ -5193,7 +5193,7 @@ async function runCLI(argv = process.argv) {
 						chalk.white('. No worries though.\n\n') +
 						chalk.cyan.bold('To create this file, run the interactive setup:') +
 						'\n' +
-						chalk.green('   task-master models --setup') +
+						chalk.green('   taskgarage models --setup') +
 						'\n\n' +
 						chalk.white.bold('Key Points:') +
 						'\n' +
@@ -5208,10 +5208,10 @@ async function runCLI(argv = process.argv) {
 						chalk.red.bold('only') +
 						chalk.white(' for your AI provider API keys.\n\n') +
 						chalk.cyan(
-							'`task-master models` to check your config & available models\n'
+							'`taskgarage models` to check your config & available models\n'
 						) +
 						chalk.cyan(
-							'`task-master models --setup` to adjust the AI models used by Taskmaster'
+							'`taskgarage models --setup` to adjust the AI models used by Taskmaster'
 						),
 					{
 						padding: 1,

@@ -39,7 +39,7 @@ describe('VS Code Integration', () => {
 		jest.clearAllMocks();
 
 		// Create a temporary directory for testing
-		tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'task-master-test-'));
+		tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'taskgarage-test-'));
 
 		// Spy on fs methods
 		jest.spyOn(fs, 'writeFileSync').mockImplementation(() => {});
@@ -47,7 +47,7 @@ describe('VS Code Integration', () => {
 			if (filePath.toString().includes('mcp.json')) {
 				return JSON.stringify({
 					mcpServers: {
-						'task-master-ai': {
+						'taskgarage-ai': {
 							command: 'node',
 							args: ['mcp-server/src/index.js']
 						}
@@ -88,7 +88,7 @@ describe('VS Code Integration', () => {
 		// Create MCP configuration file
 		const mcpConfig = {
 			mcpServers: {
-				'task-master-ai': {
+				'taskgarage-ai': {
 					command: 'node',
 					args: ['mcp-server/src/index.js'],
 					env: {
@@ -177,7 +177,7 @@ Task Master specific VS Code instruction.`;
 		const expectedMcpPath = path.join(tempDir, '.vscode', 'mcp.json');
 		expect(fs.writeFileSync).toHaveBeenCalledWith(
 			expectedMcpPath,
-			expect.stringContaining('task-master-ai')
+			expect.stringContaining('taskgarage-ai')
 		);
 	});
 
@@ -256,13 +256,13 @@ Task Master specific VS Code instruction.`;
 
 		// Assert MCP structure
 		expect(mcpConfig).toHaveProperty('mcpServers');
-		expect(mcpConfig.mcpServers).toHaveProperty('task-master-ai');
-		expect(mcpConfig.mcpServers['task-master-ai']).toHaveProperty(
+		expect(mcpConfig.mcpServers).toHaveProperty('taskgarage-ai');
+		expect(mcpConfig.mcpServers['taskgarage-ai']).toHaveProperty(
 			'command',
 			'node'
 		);
-		expect(mcpConfig.mcpServers['task-master-ai']).toHaveProperty('args');
-		expect(mcpConfig.mcpServers['task-master-ai'].args).toContain(
+		expect(mcpConfig.mcpServers['taskgarage-ai']).toHaveProperty('args');
+		expect(mcpConfig.mcpServers['taskgarage-ai'].args).toContain(
 			'mcp-server/src/index.js'
 		);
 	});

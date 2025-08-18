@@ -38,7 +38,7 @@ describe('Windsurf Rules File Handling', () => {
 		jest.clearAllMocks();
 
 		// Create a temporary directory for testing
-		tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'task-master-test-'));
+		tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'taskgarage-test-'));
 
 		// Spy on fs methods
 		jest.spyOn(fs, 'writeFileSync').mockImplementation(() => {});
@@ -157,7 +157,7 @@ describe('MCP Configuration Handling', () => {
 		jest.clearAllMocks();
 
 		// Create a temporary directory for testing
-		tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'task-master-test-'));
+		tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'taskgarage-test-'));
 
 		// Spy on fs methods
 		jest.spyOn(fs, 'writeFileSync').mockImplementation(() => {});
@@ -207,9 +207,9 @@ describe('MCP Configuration Handling', () => {
 
 		// New MCP config to be added - references the installed package
 		const newMCPServer = {
-			'task-master-ai': {
+			'taskgarage-ai': {
 				command: 'npx',
-				args: ['task-master-ai', 'mcp-server']
+				args: ['taskgarage-ai', 'mcp-server']
 			}
 		};
 
@@ -225,9 +225,9 @@ describe('MCP Configuration Handling', () => {
 				}
 
 				// Add the taskmaster-ai server if it doesn't exist
-				if (!mcpConfig.mcpServers['task-master-ai']) {
-					mcpConfig.mcpServers['task-master-ai'] =
-						newMCPServer['task-master-ai'];
+				if (!mcpConfig.mcpServers['taskgarage-ai']) {
+					mcpConfig.mcpServers['taskgarage-ai'] =
+						newMCPServer['taskgarage-ai'];
 				}
 
 				// Write the updated configuration
@@ -260,7 +260,7 @@ describe('MCP Configuration Handling', () => {
 		// Assert
 		expect(fs.writeFileSync).toHaveBeenCalledWith(
 			mcpJsonPath,
-			expect.stringContaining('task-master-ai')
+			expect.stringContaining('taskgarage-ai')
 		);
 
 		// Should create a proper structure with mcpServers key
@@ -301,7 +301,7 @@ describe('MCP Configuration Handling', () => {
 		// Should add our new server
 		expect(fs.writeFileSync).toHaveBeenCalledWith(
 			mcpJsonPath,
-			expect.stringContaining('task-master-ai')
+			expect.stringContaining('taskgarage-ai')
 		);
 	});
 
@@ -332,7 +332,7 @@ describe('MCP Configuration Handling', () => {
 		// Should create a new valid JSON file with our server
 		expect(fs.writeFileSync).toHaveBeenCalledWith(
 			mcpJsonPath,
-			expect.stringContaining('task-master-ai')
+			expect.stringContaining('taskgarage-ai')
 		);
 	});
 
@@ -348,7 +348,7 @@ describe('MCP Configuration Handling', () => {
 			return false;
 		});
 
-		// Return JSON that already has task-master-ai
+		// Return JSON that already has taskgarage-ai
 		fs.readFileSync.mockImplementation((filePath) => {
 			if (filePath.toString().includes('mcp.json')) {
 				return JSON.stringify({
@@ -357,7 +357,7 @@ describe('MCP Configuration Handling', () => {
 							command: 'node',
 							args: ['server.js']
 						},
-						'task-master-ai': {
+						'taskgarage-ai': {
 							command: 'custom',
 							args: ['custom-args']
 						}
@@ -376,8 +376,8 @@ describe('MCP Configuration Handling', () => {
 		// Assert
 		// Verify the written data contains the original taskmaster configuration
 		const dataWritten = JSON.parse(writeFileSyncSpy.mock.calls[0][1]);
-		expect(dataWritten.mcpServers['task-master-ai'].command).toBe('custom');
-		expect(dataWritten.mcpServers['task-master-ai'].args).toContain(
+		expect(dataWritten.mcpServers['taskgarage-ai'].command).toBe('custom');
+		expect(dataWritten.mcpServers['taskgarage-ai'].args).toContain(
 			'custom-args'
 		);
 	});

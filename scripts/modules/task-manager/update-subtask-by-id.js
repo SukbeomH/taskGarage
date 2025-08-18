@@ -27,6 +27,44 @@ import { ContextGatherer } from '../utils/contextGatherer.js';
 import { FuzzyTaskSearch } from '../utils/fuzzyTaskSearch.js';
 
 /**
+ * Check if the prompt contains code changes that require documentation updates
+ * @param {string} prompt - The prompt to analyze
+ * @returns {Promise<boolean>} - True if code changes are detected
+ */
+async function checkForCodeChanges(prompt) {
+	// 코드 변경 패턴들
+	const codeChangePatterns = [
+		// 구조체 필드 변경
+		/type\s+\w+\s+struct|struct\s+\w+\s*{/i,
+		/json:|yaml:/i,
+		
+		// 함수 시그니처 변경
+		/func\s+\w+\s*\(|function\s+\w+\s*\(/i,
+		
+		// 에러 코드/메시지 변경
+		/ErrCode|Error|error|const\s+\w+\s*=/i,
+		
+		// 설정 변경
+		/config|Config|ENV|environment|loadConfig|NewConfig/i,
+		
+		// API 엔드포인트 변경
+		/endpoint|route|handler|API/i,
+		
+		// 일반적인 코드 변경 키워드
+		/implement|add|create|modify|update|change|refactor|fix/i
+	];
+	
+	// 패턴 매칭 확인
+	for (const pattern of codeChangePatterns) {
+		if (pattern.test(prompt)) {
+			return true;
+		}
+	}
+	
+	return false;
+}
+
+/**
  * Update a subtask by appending additional timestamped information using the unified AI service.
  * @param {string} tasksPath - Path to the tasks.json file
  * @param {string} subtaskId - ID of the subtask to update in format "parentId.subtaskId"
@@ -333,6 +371,38 @@ async function updateSubtaskById(
 			console.log('>>> DEBUG: writeJSON call completed.');
 		}
 
+		// --- 문서 업데이트 필요성 체크 및 실행 ---
+		const hasCodeChanges = await checkForCodeChanges(prompt);
+		if (hasCodeChanges) {
+			report('info', '📝 코드 변경 감지 - 문서 업데이트 필요성 확인 중...');
+			
+			try {
+				// 기존 executeTaskMasterCommand 패턴을 사용한 문서 동기화
+				const { executeTaskMasterCommand } = await import('../utils/utils.js');
+				
+				const result = await executeTaskMasterCommand(
+					'generate', 
+					logFn, 
+					['--tag', tag || 'master'], 
+					projectRoot
+				);
+				
+				if (result.success) {
+					report('info', '📝 문서 동기화 완료');
+					// 문서 업데이트 상태를 subtask에 기록
+					updatedSubtask.details += `\n\n--- ${new Date().toISOString()} ---\n📝 문서 업데이트 상태: 완료`;
+				} else {
+					report('warning', '📝 문서 동기화 실패 - task 상태를 review로 변경');
+					updatedSubtask.status = 'review';
+					updatedSubtask.details += `\n\n--- ${new Date().toISOString()} ---\n📝 문서 업데이트 상태: 실패 - 검토 필요`;
+				}
+			} catch (error) {
+				report('error', `📝 문서 동기화 중 오류 발생: ${error.message}`);
+				updatedSubtask.status = 'review';
+				updatedSubtask.details += `\n\n--- ${new Date().toISOString()} ---\n📝 문서 업데이트 상태: 오류 - ${error.message}`;
+			}
+		}
+
 		report('success', `Successfully updated subtask ${subtaskId}`);
 		// Updated  function call to make sure if uncommented it will generate the task files for the updated subtask based on the tag
 		// await generateTaskFiles(tasksPath, path.dirname(tasksPath), {
@@ -389,7 +459,7 @@ async function updateSubtaskById(
 					'  1. Set your Perplexity API key: export PERPLEXITY_API_KEY=your_api_key_here'
 				);
 				console.log(
-					'  2. Or run without the research flag: task-master update-subtask --id=<id> --prompt="..."'
+					'  2. Or run without the research flag: taskgarage update-subtask --id=<id> --prompt="..."'
 				);
 			} else if (error.message?.includes('overloaded')) {
 				console.log(
@@ -402,7 +472,7 @@ async function updateSubtaskById(
 			} else if (error.message?.includes('not found')) {
 				console.log(chalk.yellow('\nTo fix this issue:'));
 				console.log(
-					'  1. Run task-master list --with-subtasks to see all available subtask IDs'
+					'  1. Run taskgarage list --with-subtasks to see all available subtask IDs'
 				);
 				console.log(
 					'  2. Use a valid subtask ID with the --id parameter in format "parentId.subtaskId"'

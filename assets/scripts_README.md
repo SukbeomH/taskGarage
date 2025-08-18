@@ -23,7 +23,7 @@ Task Master configuration is now managed through two primary methods:
 1.  **`.taskmaster/config.json` File (Project Root - Primary)**
 
     - Stores AI model selections (`main`, `research`, `fallback`), model parameters (`maxTokens`, `temperature`), `logLevel`, `defaultSubtasks`, `defaultPriority`, `projectName`, etc.
-    - Managed using the `task-master models --setup` command or the `models` MCP tool.
+    - Managed using the `taskgarage models --setup` command or the `models` MCP tool.
     - This is the main configuration file for most settings.
 
 2.  **Environment Variables (`.env` File - API Keys Only)**
@@ -31,7 +31,7 @@ Task Master configuration is now managed through two primary methods:
     - Create a `.env` file in your project root for CLI usage.
     - See `assets/env.example` for required key names.
 
-**Important:** Settings like `MODEL`, `MAX_TOKENS`, `TEMPERATURE`, `TASKMASTER_LOG_LEVEL`, etc., are **no longer set via `.env`**. Use `task-master models --setup` instead.
+**Important:** Settings like `MODEL`, `MAX_TOKENS`, `TEMPERATURE`, `TASKMASTER_LOG_LEVEL`, etc., are **no longer set via `.env`**. Use `taskgarage models --setup` instead.
 
 ## How It Works
 
@@ -47,7 +47,7 @@ Task Master configuration is now managed through two primary methods:
 
    ```bash
    # If installed globally
-   task-master [command] [options]
+   taskgarage [command] [options]
 
    # If using locally within the project
    node scripts/dev.js [command] [options]
@@ -73,7 +73,7 @@ Task Master configuration is now managed through two primary methods:
    - `fix-dependencies`: Fix invalid dependencies automatically
    - `add-task`: Add a new task using AI
 
-   Run `task-master --help` or `node scripts/dev.js --help` to see detailed usage information.
+   Run `taskgarage --help` or `node scripts/dev.js --help` to see detailed usage information.
 
 ## Listing Tasks
 
@@ -81,16 +81,16 @@ The `list` command allows you to view all tasks and their status:
 
 ```bash
 # List all tasks
-task-master list
+taskgarage list
 
 # List tasks with a specific status
-task-master list --status=pending
+taskgarage list --status=pending
 
 # List tasks and include their subtasks
-task-master list --with-subtasks
+taskgarage list --with-subtasks
 
 # List tasks with a specific status and include their subtasks
-task-master list --status=pending --with-subtasks
+taskgarage list --status=pending --with-subtasks
 ```
 
 ## Updating Tasks
@@ -99,13 +99,13 @@ The `update` command allows you to update tasks based on new information or impl
 
 ```bash
 # Update tasks starting from ID 4 with a new prompt
-task-master update --from=4 --prompt="Refactor tasks from ID 4 onward to use Express instead of Fastify"
+taskgarage update --from=4 --prompt="Refactor tasks from ID 4 onward to use Express instead of Fastify"
 
 # Update all tasks (default from=1)
-task-master update --prompt="Add authentication to all relevant tasks"
+taskgarage update --prompt="Add authentication to all relevant tasks"
 
 # Specify a different tasks file
-task-master update --file=custom-tasks.json --from=5 --prompt="Change database from MongoDB to PostgreSQL"
+taskgarage update --file=custom-tasks.json --from=5 --prompt="Change database from MongoDB to PostgreSQL"
 ```
 
 Notes:
@@ -120,16 +120,16 @@ The `set-status` command allows you to change a task's status:
 
 ```bash
 # Mark a task as done
-task-master set-status --id=3 --status=done
+taskgarage set-status --id=3 --status=done
 
 # Mark a task as pending
-task-master set-status --id=4 --status=pending
+taskgarage set-status --id=4 --status=pending
 
 # Mark a specific subtask as done
-task-master set-status --id=3.1 --status=done
+taskgarage set-status --id=3.1 --status=done
 
 # Mark multiple tasks at once
-task-master set-status --id=1,2,3 --status=done
+taskgarage set-status --id=1,2,3 --status=done
 ```
 
 Notes:
@@ -146,25 +146,25 @@ The `expand` command allows you to break down tasks into subtasks for more detai
 
 ```bash
 # Expand a specific task with 3 subtasks (default)
-task-master expand --id=3
+taskgarage expand --id=3
 
 # Expand a specific task with 5 subtasks
-task-master expand --id=3 --num=5
+taskgarage expand --id=3 --num=5
 
 # Expand a task with additional context
-task-master expand --id=3 --prompt="Focus on security aspects"
+taskgarage expand --id=3 --prompt="Focus on security aspects"
 
 # Expand all pending tasks that don't have subtasks
-task-master expand --all
+taskgarage expand --all
 
 # Force regeneration of subtasks for all pending tasks
-task-master expand --all --force
+taskgarage expand --all --force
 
 # Use Perplexity AI for research-backed subtask generation
-task-master expand --id=3 --research
+taskgarage expand --id=3 --research
 
 # Use Perplexity AI for research-backed generation on all pending tasks
-task-master expand --all --research
+taskgarage expand --all --research
 ```
 
 ## Clearing Subtasks
@@ -173,13 +173,13 @@ The `clear-subtasks` command allows you to remove subtasks from specified tasks:
 
 ```bash
 # Clear subtasks from a specific task
-task-master clear-subtasks --id=3
+taskgarage clear-subtasks --id=3
 
 # Clear subtasks from multiple tasks
-task-master clear-subtasks --id=1,2,3
+taskgarage clear-subtasks --id=1,2,3
 
 # Clear subtasks from all tasks
-task-master clear-subtasks --all
+taskgarage clear-subtasks --all
 ```
 
 Notes:
@@ -195,7 +195,7 @@ Notes:
 - Model selection (e.g., Claude vs. Perplexity for `--research`) is determined by the configuration in `.taskmaster/config.json` based on the requested `role` (`main` or `research`).
 - API keys are automatically resolved from your `.env` file (for CLI) or MCP session environment.
 - To use the research capabilities (e.g., `expand --research`), ensure you have:
-  1.  Configured a model for the `research` role using `task-master models --setup` (Perplexity models are recommended).
+  1.  Configured a model for the `research` role using `taskgarage models --setup` (Perplexity models are recommended).
   2.  Added the corresponding API key (e.g., `PERPLEXITY_API_KEY`) to your `.env` file.
 
 ## Logging
@@ -215,10 +215,10 @@ The `add-dependency` and `remove-dependency` commands allow you to manage task d
 
 ```bash
 # Add a dependency to a task
-task-master add-dependency --id=<id> --depends-on=<id>
+taskgarage add-dependency --id=<id> --depends-on=<id>
 
 # Remove a dependency from a task
-task-master remove-dependency --id=<id> --depends-on=<id>
+taskgarage remove-dependency --id=<id> --depends-on=<id>
 ```
 
 These commands:
@@ -255,10 +255,10 @@ The `validate-dependencies` command allows you to check for invalid dependencies
 
 ```bash
 # Check for invalid dependencies in tasks.json
-task-master validate-dependencies
+taskgarage validate-dependencies
 
 # Specify a different tasks file
-task-master validate-dependencies --file=custom-tasks.json
+taskgarage validate-dependencies --file=custom-tasks.json
 ```
 
 This command:
@@ -277,10 +277,10 @@ The `fix-dependencies` command proactively finds and fixes all invalid dependenc
 
 ```bash
 # Find and fix all invalid dependencies
-task-master fix-dependencies
+taskgarage fix-dependencies
 
 # Specify a different tasks file
-task-master fix-dependencies --file=custom-tasks.json
+taskgarage fix-dependencies --file=custom-tasks.json
 ```
 
 This command:
@@ -306,19 +306,19 @@ The `analyze-complexity` command allows you to automatically assess task complex
 
 ```bash
 # Analyze all tasks and generate expansion recommendations
-task-master analyze-complexity
+taskgarage analyze-complexity
 
 # Specify a custom output file
-task-master analyze-complexity --output=custom-report.json
+taskgarage analyze-complexity --output=custom-report.json
 
 # Override the model used for analysis
-task-master analyze-complexity --model=claude-3-opus-20240229
+taskgarage analyze-complexity --model=claude-3-opus-20240229
 
 # Set a custom complexity threshold (1-10)
-task-master analyze-complexity --threshold=6
+taskgarage analyze-complexity --threshold=6
 
 # Use Perplexity AI for research-backed complexity analysis
-task-master analyze-complexity --research
+taskgarage analyze-complexity --research
 ```
 
 Notes:
@@ -337,13 +337,13 @@ The `expand` command automatically checks for and uses complexity analysis if av
 
 ```bash
 # Expand a task, using complexity report recommendations if available
-task-master expand --id=8
+taskgarage expand --id=8
 
 # Expand all tasks, prioritizing by complexity score if a report exists
-task-master expand --all
+taskgarage expand --all
 
 # Override recommendations with explicit values
-task-master expand --id=8 --num=5 --prompt="Custom prompt"
+taskgarage expand --id=8 --num=5 --prompt="Custom prompt"
 ```
 
 When a complexity report exists:
@@ -372,7 +372,7 @@ The output report structure is:
       "recommendedSubtasks": 6,
       "expansionPrompt": "Create subtasks that handle detecting...",
       "reasoning": "This task requires sophisticated logic...",
-      "expansionCommand": "task-master expand --id=8 --num=6 --prompt=\"Create subtasks...\" --research"
+      "expansionCommand": "taskgarage expand --id=8 --num=6 --prompt=\"Create subtasks...\" --research"
     }
     // More tasks sorted by complexity score (highest first)
   ]
@@ -385,10 +385,10 @@ The `next` command helps you determine which task to work on next based on depen
 
 ```bash
 # Show the next task to work on
-task-master next
+taskgarage next
 
 # Specify a different tasks file
-task-master next --file=custom-tasks.json
+taskgarage next --file=custom-tasks.json
 ```
 
 This command:
@@ -415,16 +415,16 @@ The `show` command allows you to view detailed information about a specific task
 
 ```bash
 # Show details for a specific task
-task-master show 1
+taskgarage show 1
 
 # Alternative syntax with --id option
-task-master show --id=1
+taskgarage show --id=1
 
 # Show details for a subtask
-task-master show --id=1.2
+taskgarage show --id=1.2
 
 # Specify a different tasks file
-task-master show 3 --file=custom-tasks.json
+taskgarage show 3 --file=custom-tasks.json
 ```
 
 This command:

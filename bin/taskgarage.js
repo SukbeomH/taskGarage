@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 
 /**
- * Task Master
+ * TaskGarage - Forked from Task Master
  * Copyright (c) 2025 Eyal Toledano, Ralph Khreish
+ * Forked and modified by Sukbeom
  *
  * This software is licensed under the MIT License with Commons Clause.
  * You may use this software for any purpose, including commercial applications,
@@ -16,7 +17,7 @@
  */
 
 /**
- * Claude Task Master CLI
+ * TaskGarage CLI
  * Main entry point for globally installed package
  */
 
@@ -97,7 +98,7 @@ function createDevScriptAction(commandName) {
 				console.error(`  Use:        --${flag.kebabCase}`);
 			});
 			console.error(
-				'\nExample: task-master parse-prd --num-tasks=5 instead of --numTasks=5\n'
+				'\nExample: taskgarage parse-prd --num-tasks=5 instead of --numTasks=5\n'
 			);
 			process.exit(1);
 		}
@@ -271,8 +272,8 @@ function createDevScriptAction(commandName) {
 const program = new Command();
 
 program
-	.name('task-master')
-	.description('Claude Task Master CLI')
+	.name('taskgarage')
+	.description('TaskGarage CLI - Forked from Task Master')
 	.version(version)
 	.addHelpText('afterAll', () => {
 		// Use the same help display function as dev.js for consistency
@@ -329,18 +330,18 @@ process.on('uncaughtException', (err) => {
 	if (err.code === 'commander.unknownOption') {
 		const option = err.message.match(/'([^']+)'/)?.[1];
 		const commandArg = process.argv.find(
-			(arg) =>
-				!arg.startsWith('-') &&
-				arg !== 'task-master' &&
-				!arg.includes('/') &&
-				arg !== 'node'
+					(arg) =>
+			!arg.startsWith('-') &&
+			arg !== 'taskgarage' &&
+			!arg.includes('/') &&
+			arg !== 'node'
 		);
 		const command = commandArg || 'unknown';
 
 		console.error(chalk.red(`Error: Unknown option '${option}'`));
 		console.error(
 			chalk.yellow(
-				`Run 'task-master ${command} --help' to see available options for this command`
+				`Run 'taskgarage ${command} --help' to see available options for this command`
 			)
 		);
 		process.exit(1);
@@ -352,7 +353,7 @@ process.on('uncaughtException', (err) => {
 
 		console.error(chalk.red(`Error: Unknown command '${command}'`));
 		console.error(
-			chalk.yellow(`Run 'task-master --help' to see available commands`)
+			chalk.yellow(`Run 'taskgarage --help' to see available commands`)
 		);
 		process.exit(1);
 	}
@@ -365,7 +366,7 @@ process.on('uncaughtException', (err) => {
 	process.exit(1);
 });
 
-// Show help if no command was provided (just 'task-master' with no args)
+// Show help if no command was provided (just 'taskgarage' with no args)
 if (process.argv.length <= 2) {
 	displayBanner();
 	displayHelp();

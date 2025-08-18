@@ -152,7 +152,7 @@ try {
 
 	// Use the transformed version for output
 	console.log(
-		`\nYour extension will be packaged to: vsix-build/task-master-${finalVersion}.vsix`
+		`\nYour extension will be packaged to: vsix-build/taskgarage-${finalVersion}.vsix`
 	);
 } catch (error) {
 	console.error('\n❌ Packaging failed!');

@@ -60,13 +60,13 @@ function onRemoveRulesProfile(targetDir) {
 		const configContent = fs.readFileSync(mcpConfigPath, 'utf8');
 		const config = JSON.parse(configContent);
 
-		// Check if it has the context_servers section and task-master-ai server
+		// Check if it has the context_servers section and taskgarage-ai server
 		if (
 			config['context_servers'] &&
-			config['context_servers']['task-master-ai']
+			config['context_servers']['taskgarage-ai']
 		) {
-			// Remove task-master-ai server
-			delete config['context_servers']['task-master-ai'];
+			// Remove taskgarage-ai server
+			delete config['context_servers']['taskgarage-ai'];
 
 			// Check if there are other MCP servers in context_servers
 			const remainingServers = Object.keys(config['context_servers']);

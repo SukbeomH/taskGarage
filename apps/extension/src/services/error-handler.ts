@@ -307,7 +307,7 @@ export class ErrorHandler {
 				.join('\n')
 		);
 
-		return `https://github.com/eyaltoledano/claude-task-master/issues/new?title=${title}&body=${body}`;
+		return `https://github.com/eyaltoledano/claude-taskgarage/issues/new?title=${title}&body=${body}`;
 	}
 
 	/**

@@ -59,16 +59,16 @@ Task Master provides a built-in migration command that handles everything automa
 
 ```bash
 # Dry run to see what would be migrated
-task-master migrate --dry-run
+taskgarage migrate --dry-run
 
 # Perform the migration with backup
-task-master migrate --backup
+taskgarage migrate --backup
 
 # Force migration (overwrites existing files)
-task-master migrate --force
+taskgarage migrate --force
 
 # Clean up legacy files after migration
-task-master migrate --cleanup
+taskgarage migrate --cleanup
 ```
 
 #### MCP Migration (Cursor/AI Editors)
@@ -149,18 +149,18 @@ After migration, verify everything works:
 1. **List your tasks:**
 
    ```bash
-   task-master list
+   taskgarage list
    ```
 
 2. **Check your configuration:**
 
    ```bash
-   task-master models
+   taskgarage models
    ```
 
 3. **Generate new task files:**
    ```bash
-   task-master generate
+   taskgarage generate
    ```
 
 ## Troubleshooting
@@ -190,7 +190,7 @@ If you're working with an older project that hasn't been migrated:
 New projects automatically use the new structure:
 
 ```bash
-task-master init  # Creates .taskmaster/ structure
+taskgarage init  # Creates .taskmaster/ structure
 ```
 
 ## Path Changes for Developers

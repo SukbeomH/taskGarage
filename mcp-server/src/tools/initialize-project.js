@@ -4,7 +4,7 @@ import {
 	handleApiResult,
 	withNormalizedProjectRoot
 } from './utils.js';
-import { initializeProjectDirect } from '../core/task-master-core.js';
+import { initializeProjectDirect } from '../core/taskgarage-core.js';
 import { RULE_PROFILES } from '../../../src/constants/profiles.js';
 
 export function registerInitializeProjectTool(server) {

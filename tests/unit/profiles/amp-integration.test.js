@@ -151,9 +151,9 @@ describe('Amp Profile Integration', () => {
 				'editor.fontSize': 14,
 				'editor.tabSize': 2,
 				mcpServers: {
-					'task-master-ai': {
+					'taskgarage-ai': {
 						command: 'npx',
-						args: ['-y', '--package=task-master-ai', 'task-master-ai']
+						args: ['-y', '--package=taskgarage-ai', 'taskgarage-ai']
 					}
 				},
 				'workbench.colorTheme': 'Dark+'
@@ -213,9 +213,9 @@ describe('Amp Profile Integration', () => {
 
 			const initialConfig = {
 				'amp.mcpServers': {
-					'task-master-ai': {
+					'taskgarage-ai': {
 						command: 'npx',
-						args: ['-y', '--package=task-master-ai', 'task-master-ai']
+						args: ['-y', '--package=taskgarage-ai', 'taskgarage-ai']
 					}
 				}
 			};
