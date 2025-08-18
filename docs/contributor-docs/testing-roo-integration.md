@@ -34,17 +34,17 @@ To manually verify that the Roo files are properly included in the package:
    npm init -y
    ```
 
-3. Install the taskgarage-ai package locally:
+3. Install the taskgarage package locally:
 
    ```bash
    # From the root of the claude-taskgarage repository
    cd ..
    npm pack
-   # This will create a file like taskgarage-ai-0.12.0.tgz
+   # This will create a file like taskgarage-0.12.0.tgz
 
    # Move back to the test directory
    cd test-tm
-   npm install ../taskgarage-ai-0.12.0.tgz
+   npm install ../taskgarage-0.12.0.tgz
    ```
 
 4. Initialize a new Task Master project:

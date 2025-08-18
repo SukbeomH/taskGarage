@@ -217,14 +217,14 @@ function _loadAndValidateConfig(explicitRoot = null) {
 		} else {
 			// Don't warn about missing config during initialization
 			// Only warn if this looks like an existing project (has .taskmaster dir or legacy config marker)
-			const hasTaskmasterDir = fs.existsSync(
+			const hasTaskGarageDir = fs.existsSync(
 				path.join(rootToUse, TASKMASTER_DIR)
 			);
 			const hasLegacyMarker = fs.existsSync(
 				path.join(rootToUse, LEGACY_CONFIG_FILE)
 			);
 
-			if (hasTaskmasterDir || hasLegacyMarker) {
+			if (hasTaskGarageDir || hasLegacyMarker) {
 				console.warn(
 					chalk.yellow(
 						`Warning: Configuration file not found at derived root (${rootToUse}). Using defaults.`
@@ -720,7 +720,7 @@ function getMcpApiKeyStatus(providerName, projectRoot = null) {
 		const mcpConfig = JSON.parse(mcpConfigRaw);
 
 		const mcpEnv =
-			mcpConfig?.mcpServers?.['taskgarage-ai']?.env ||
+			mcpConfig?.mcpServers?.['taskgarage']?.env ||
 			mcpConfig?.mcpServers?.['taskmaster-ai']?.env;
 		if (!mcpEnv) {
 			return false;

@@ -430,7 +430,7 @@ export class ConfigManager {
 		return {
 			mcp: {
 				command: 'npx',
-				args: ['taskgarage-ai'],
+				args: ['taskgarage'],
 				cwd: vscode.workspace.rootPath || '',
 				env: undefined,
 				timeout: 30000,

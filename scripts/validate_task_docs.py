@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # scripts/validate_task_docs.py
-# Taskmaster 문서 검증 스크립트
+# TaskGarage 문서 검증 스크립트
 
 import os
 import sys

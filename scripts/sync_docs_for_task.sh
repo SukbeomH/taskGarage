@@ -1,6 +1,6 @@
 #!/bin/bash
 # scripts/sync_docs_for_task.sh
-# Taskmaster 문서 동기화 스크립트
+# TaskGarage 문서 동기화 스크립트
 
 set -e  # 에러 발생 시 스크립트 중단
 

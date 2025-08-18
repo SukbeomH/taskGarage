@@ -4,26 +4,26 @@
 
 ### Patch Changes
 
-- [#1090](https://github.com/eyaltoledano/claude-taskgarage/pull/1090) [`a464e55`](https://github.com/eyaltoledano/claude-taskgarage/commit/a464e550b886ef81b09df80588fe5881bce83d93) Thanks [@Crunchyman-ralph](https://github.com/Crunchyman-ralph)! - Fix issues with some users not being able to connect to Taskmaster MCP server while using the extension
+- [#1090](https://github.com/eyaltoledano/claude-taskgarage/pull/1090) [`a464e55`](https://github.com/eyaltoledano/claude-taskgarage/commit/a464e550b886ef81b09df80588fe5881bce83d93) Thanks [@Crunchyman-ralph](https://github.com/Crunchyman-ralph)! - Fix issues with some users not being able to connect to TaskGarage MCP server while using the extension
 
 - Updated dependencies [[`4357af3`](https://github.com/eyaltoledano/claude-taskgarage/commit/4357af3f13859d90bca8795215e5d5f1d94abde5), [`e495b2b`](https://github.com/eyaltoledano/claude-taskgarage/commit/e495b2b55950ee54c7d0f1817d8530e28bd79c05), [`36468f3`](https://github.com/eyaltoledano/claude-taskgarage/commit/36468f3c93faf4035a5c442ccbc501077f3440f1), [`e495b2b`](https://github.com/eyaltoledano/claude-taskgarage/commit/e495b2b55950ee54c7d0f1817d8530e28bd79c05), [`e495b2b`](https://github.com/eyaltoledano/claude-taskgarage/commit/e495b2b55950ee54c7d0f1817d8530e28bd79c05), [`75c514c`](https://github.com/eyaltoledano/claude-taskgarage/commit/75c514cf5b2ca47f95c0ad7fa92654a4f2a6be4b), [`4bb6370`](https://github.com/eyaltoledano/claude-taskgarage/commit/4bb63706b80c28d1b2d782ba868a725326f916c7)]:
-  - taskgarage-ai@0.24.0
+  - taskgarage@0.24.0
 
 ## 0.23.1-rc.1
 
 ### Patch Changes
 
 - Updated dependencies [[`75c514c`](https://github.com/eyaltoledano/claude-taskgarage/commit/75c514cf5b2ca47f95c0ad7fa92654a4f2a6be4b)]:
-  - taskgarage-ai@0.24.0-rc.2
+  - taskgarage@0.24.0-rc.2
 
 ## 0.23.1-rc.0
 
 ### Patch Changes
 
-- [#1090](https://github.com/eyaltoledano/claude-taskgarage/pull/1090) [`a464e55`](https://github.com/eyaltoledano/claude-taskgarage/commit/a464e550b886ef81b09df80588fe5881bce83d93) Thanks [@Crunchyman-ralph](https://github.com/Crunchyman-ralph)! - Fix issues with some users not being able to connect to Taskmaster MCP server while using the extension
+- [#1090](https://github.com/eyaltoledano/claude-taskgarage/pull/1090) [`a464e55`](https://github.com/eyaltoledano/claude-taskgarage/commit/a464e550b886ef81b09df80588fe5881bce83d93) Thanks [@Crunchyman-ralph](https://github.com/Crunchyman-ralph)! - Fix issues with some users not being able to connect to TaskGarage MCP server while using the extension
 
 - Updated dependencies [[`4357af3`](https://github.com/eyaltoledano/claude-taskgarage/commit/4357af3f13859d90bca8795215e5d5f1d94abde5), [`36468f3`](https://github.com/eyaltoledano/claude-taskgarage/commit/36468f3c93faf4035a5c442ccbc501077f3440f1), [`4bb6370`](https://github.com/eyaltoledano/claude-taskgarage/commit/4bb63706b80c28d1b2d782ba868a725326f916c7)]:
-  - taskgarage-ai@0.24.0-rc.1
+  - taskgarage@0.24.0-rc.1
 
 ## 0.23.0
 

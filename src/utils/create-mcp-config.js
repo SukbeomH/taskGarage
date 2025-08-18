@@ -43,9 +43,9 @@ export function setupMCPConfiguration(projectRoot, mcpConfigPath) {
 
 	// New MCP config to be added - references the installed package
 	const newMCPServer = {
-		'taskgarage-ai': {
+		'taskgarage': {
 			command: 'npx',
-			args: ['-y', '--package=taskgarage-ai', 'taskgarage-ai'],
+			args: ['-y', '--package=taskgarage', 'taskgarage'],
 			env: {
 				ANTHROPIC_API_KEY: 'YOUR_ANTHROPIC_API_KEY_HERE',
 				PERPLEXITY_API_KEY: 'YOUR_PERPLEXITY_API_KEY_HERE',
@@ -68,7 +68,7 @@ export function setupMCPConfiguration(projectRoot, mcpConfigPath) {
 	if (fs.existsSync(mcpPath)) {
 		log(
 			'info',
-			'MCP configuration file already exists, checking for existing taskgarage-ai...'
+			'MCP configuration file already exists, checking for existing taskgarage...'
 		);
 		try {
 			// Read existing config
@@ -77,31 +77,31 @@ export function setupMCPConfiguration(projectRoot, mcpConfigPath) {
 			if (!mcpConfig.mcpServers) {
 				mcpConfig.mcpServers = {};
 			}
-			// Check if any existing server configuration already has taskgarage-ai in its args
+			// Check if any existing server configuration already has taskgarage in its args
 			const hasMCPString = Object.values(mcpConfig.mcpServers).some(
 				(server) =>
 					server.args &&
 					Array.isArray(server.args) &&
 					server.args.some(
-						(arg) => typeof arg === 'string' && arg.includes('taskgarage-ai')
+						(arg) => typeof arg === 'string' && arg.includes('taskgarage')
 					)
 			);
 			if (hasMCPString) {
 				log(
 					'info',
-					'Found existing taskgarage-ai MCP configuration in mcp.json, leaving untouched'
+					'Found existing taskgarage MCP configuration in mcp.json, leaving untouched'
 				);
 				return; // Exit early, don't modify the existing configuration
 			}
-			// Add the taskgarage-ai server if it doesn't exist
-			if (!mcpConfig.mcpServers['taskgarage-ai']) {
-				mcpConfig.mcpServers['taskgarage-ai'] = newMCPServer['taskgarage-ai'];
+			// Add the taskgarage server if it doesn't exist
+			if (!mcpConfig.mcpServers['taskgarage']) {
+				mcpConfig.mcpServers['taskgarage'] = newMCPServer['taskgarage'];
 				log(
 					'info',
-					'Added taskgarage-ai server to existing MCP configuration'
+					'Added taskgarage server to existing MCP configuration'
 				);
 			} else {
-				log('info', 'taskgarage-ai server already configured in mcp.json');
+				log('info', 'taskgarage server already configured in mcp.json');
 			}
 			// Write the updated configuration
 			fs.writeFileSync(mcpPath, formatJSONWithTabs(mcpConfig) + '\n');
@@ -134,7 +134,7 @@ export function setupMCPConfiguration(projectRoot, mcpConfigPath) {
 	}
 
 	// Add note to console about MCP integration
-	log('info', 'MCP server will use the installed taskgarage-ai package');
+	log('info', 'MCP server will use the installed taskgarage package');
 }
 
 /**
@@ -186,13 +186,13 @@ export function removeTaskMasterMCPConfiguration(projectRoot, mcpConfigPath) {
 
 		// Check if Task Master is configured
 		const hasTaskMaster =
-			mcpConfig.mcpServers['taskgarage-ai'] ||
+			mcpConfig.mcpServers['taskgarage'] ||
 			Object.values(mcpConfig.mcpServers).some(
 				(server) =>
 					server.args &&
 					Array.isArray(server.args) &&
 					server.args.some(
-						(arg) => typeof arg === 'string' && arg.includes('taskgarage-ai')
+						(arg) => typeof arg === 'string' && arg.includes('taskgarage')
 					)
 			);
 
@@ -206,23 +206,23 @@ export function removeTaskMasterMCPConfiguration(projectRoot, mcpConfigPath) {
 			return result;
 		}
 
-		// Remove taskgarage-ai server
-		delete mcpConfig.mcpServers['taskgarage-ai'];
+		// Remove taskgarage server
+		delete mcpConfig.mcpServers['taskgarage'];
 
-		// Also remove any servers that have taskgarage-ai in their args
+		// Also remove any servers that have taskgarage in their args
 		Object.keys(mcpConfig.mcpServers).forEach((serverName) => {
 			const server = mcpConfig.mcpServers[serverName];
 			if (
 				server.args &&
 				Array.isArray(server.args) &&
 				server.args.some(
-					(arg) => typeof arg === 'string' && arg.includes('taskgarage-ai')
+					(arg) => typeof arg === 'string' && arg.includes('taskgarage')
 				)
 			) {
 				delete mcpConfig.mcpServers[serverName];
 				log(
 					'debug',
-					`[MCP Config] Removed server '${serverName}' containing taskgarage-ai`
+					`[MCP Config] Removed server '${serverName}' containing taskgarage`
 				);
 			}
 		});

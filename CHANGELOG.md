@@ -1,4 +1,4 @@
-# taskgarage-ai
+# taskgarage
 
 ## 0.24.0
 
@@ -335,7 +335,7 @@
 - [#1043](https://github.com/eyaltoledano/claude-taskgarage/pull/1043) [`dc44ed9`](https://github.com/eyaltoledano/claude-taskgarage/commit/dc44ed9de8a57aca5d39d3a87565568bd0a82068) Thanks [@Crunchyman-ralph](https://github.com/Crunchyman-ralph)! - Prompt to generate a complexity report when it is missing
 
 - [#1032](https://github.com/eyaltoledano/claude-taskgarage/pull/1032) [`4423119`](https://github.com/eyaltoledano/claude-taskgarage/commit/4423119a5ec53958c9dffa8bf564da8be7a2827d) Thanks [@Crunchyman-ralph](https://github.com/Crunchyman-ralph)! - Add comprehensive Kiro IDE integration with autonomous task management hooks
-  - **Kiro Profile**: Added full support for Kiro IDE with automatic installation of 7 Taskmaster agent hooks
+  - **Kiro Profile**: Added full support for Kiro IDE with automatic installation of 7 TaskGarage agent hooks
   - **Hook-Driven Workflow**: Introduced natural language automation hooks that eliminate manual task status updates
   - **Automatic Hook Installation**: Hooks are now automatically copied to `.kiro/hooks/` when running `taskgarage rules add kiro`
   - **Language-Agnostic Support**: All hooks support multiple programming languages (JS, Python, Go, Rust, Java, etc.)
@@ -380,7 +380,7 @@
 ### Minor Changes
 
 - [#1032](https://github.com/eyaltoledano/claude-taskgarage/pull/1032) [`4423119`](https://github.com/eyaltoledano/claude-taskgarage/commit/4423119a5ec53958c9dffa8bf564da8be7a2827d) Thanks [@Crunchyman-ralph](https://github.com/Crunchyman-ralph)! - Add comprehensive Kiro IDE integration with autonomous task management hooks
-  - **Kiro Profile**: Added full support for Kiro IDE with automatic installation of 7 Taskmaster agent hooks
+  - **Kiro Profile**: Added full support for Kiro IDE with automatic installation of 7 TaskGarage agent hooks
   - **Hook-Driven Workflow**: Introduced natural language automation hooks that eliminate manual task status updates
   - **Automatic Hook Installation**: Hooks are now automatically copied to `.kiro/hooks/` when running `taskgarage rules add kiro`
   - **Language-Agnostic Support**: All hooks support multiple programming languages (JS, Python, Go, Rust, Java, etc.)
@@ -1028,7 +1028,7 @@
 
 - [#779](https://github.com/eyaltoledano/claude-taskgarage/pull/779) [`c0b3f43`](https://github.com/eyaltoledano/claude-taskgarage/commit/c0b3f432a60891550b00acb113dc877bd432995f) Thanks [@eyaltoledano](https://github.com/eyaltoledano)! - Introduces Tagged Lists: AI Multi-Context Task Management System
 
-  This major feature release introduces Tagged Lists, a comprehensive system that transforms Taskmaster into a multi-context task management powerhouse. You can now organize tasks into completely isolated contexts, enabling parallel (agentic) development workflows, team collaboration, and project experimentation without conflicts.
+  This major feature release introduces Tagged Lists, a comprehensive system that transforms TaskGarage into a multi-context task management powerhouse. You can now organize tasks into completely isolated contexts, enabling parallel (agentic) development workflows, team collaboration, and project experimentation without conflicts.
 
   **🏷️ Tagged Task Lists Architecture:**
 
@@ -1232,7 +1232,7 @@
 - [#779](https://github.com/eyaltoledano/claude-taskgarage/pull/779) [`c0b3f43`](https://github.com/eyaltoledano/claude-taskgarage/commit/c0b3f432a60891550b00acb113dc877bd432995f) Thanks [@eyaltoledano](https://github.com/eyaltoledano)! - Improves dependency management when moving tasks by updating subtask dependencies that reference sibling subtasks by their old parent-based ID
 
 - Updated dependencies [[`c0b3f43`](https://github.com/eyaltoledano/claude-taskgarage/commit/c0b3f432a60891550b00acb113dc877bd432995f), [`5ec1f61`](https://github.com/eyaltoledano/claude-taskgarage/commit/5ec1f61c13f468648b7fdc8fa112e95aec25f76d), [`c0b3f43`](https://github.com/eyaltoledano/claude-taskgarage/commit/c0b3f432a60891550b00acb113dc877bd432995f), [`c0b3f43`](https://github.com/eyaltoledano/claude-taskgarage/commit/c0b3f432a60891550b00acb113dc877bd432995f), [`d76bea4`](https://github.com/eyaltoledano/claude-taskgarage/commit/d76bea49b381c523183f39e33c2a4269371576ed), [`c0b3f43`](https://github.com/eyaltoledano/claude-taskgarage/commit/c0b3f432a60891550b00acb113dc877bd432995f), [`0849c0c`](https://github.com/eyaltoledano/claude-taskgarage/commit/0849c0c2cedb16ac44ba5cc2d109625a9b4efd67), [`c0b3f43`](https://github.com/eyaltoledano/claude-taskgarage/commit/c0b3f432a60891550b00acb113dc877bd432995f), [`c0b3f43`](https://github.com/eyaltoledano/claude-taskgarage/commit/c0b3f432a60891550b00acb113dc877bd432995f), [`c0b3f43`](https://github.com/eyaltoledano/claude-taskgarage/commit/c0b3f432a60891550b00acb113dc877bd432995f), [`c0b3f43`](https://github.com/eyaltoledano/claude-taskgarage/commit/c0b3f432a60891550b00acb113dc877bd432995f), [`c0b3f43`](https://github.com/eyaltoledano/claude-taskgarage/commit/c0b3f432a60891550b00acb113dc877bd432995f), [`c0b3f43`](https://github.com/eyaltoledano/claude-taskgarage/commit/c0b3f432a60891550b00acb113dc877bd432995f), [`c0b3f43`](https://github.com/eyaltoledano/claude-taskgarage/commit/c0b3f432a60891550b00acb113dc877bd432995f), [`c0b3f43`](https://github.com/eyaltoledano/claude-taskgarage/commit/c0b3f432a60891550b00acb113dc877bd432995f)]:
-  - taskgarage-ai@0.17.0
+  - taskgarage@0.17.0
 
 ## 0.16.2
 
@@ -1495,7 +1495,7 @@
 
 - [#567](https://github.com/eyaltoledano/claude-taskgarage/pull/567) [`09add37`](https://github.com/eyaltoledano/claude-taskgarage/commit/09add37423d70b809d5c28f3cde9fccd5a7e64e7) Thanks [@eyaltoledano](https://github.com/eyaltoledano)! - Added comprehensive Ollama model validation and interactive setup support
   - **Interactive Setup Enhancement**: Added "Custom Ollama model" option to `taskgarage models --setup`, matching the existing OpenRouter functionality
-  - **Live Model Validation**: When setting Ollama models, Taskmaster now validates against the local Ollama instance by querying `/api/tags` endpoint
+  - **Live Model Validation**: When setting Ollama models, TaskGarage now validates against the local Ollama instance by querying `/api/tags` endpoint
   - **Configurable Endpoints**: Uses the `ollamaBaseUrl` from `.taskmasterconfig` (with role-specific `baseUrl` overrides supported)
   - **Robust Error Handling**:
     - Detects when Ollama server is not running and provides clear error messages
@@ -1510,7 +1510,7 @@
   - Updated Ollama models with latest variants: Devstral, Qwen3, Mistral-small3.1, Llama3.3
   - Updated Gemini model to latest 2.5 Flash preview version
 
-- [#567](https://github.com/eyaltoledano/claude-taskgarage/pull/567) [`70f4054`](https://github.com/eyaltoledano/claude-taskgarage/commit/70f4054f268f9f8257870e64c24070263d4e2966) Thanks [@eyaltoledano](https://github.com/eyaltoledano)! - Add `--research` flag to parse-prd command, enabling enhanced task generation from PRD files. When used, Taskmaster leverages the research model to:
+- [#567](https://github.com/eyaltoledano/claude-taskgarage/pull/567) [`70f4054`](https://github.com/eyaltoledano/claude-taskgarage/commit/70f4054f268f9f8257870e64c24070263d4e2966) Thanks [@eyaltoledano](https://github.com/eyaltoledano)! - Add `--research` flag to parse-prd command, enabling enhanced task generation from PRD files. When used, TaskGarage leverages the research model to:
   - Research current technologies and best practices relevant to the project
   - Identify technical challenges and security concerns not explicitly mentioned in the PRD
   - Include specific library recommendations with version numbers
@@ -1521,7 +1521,7 @@
 
   _NOTE_ That this is an experimental feature. Research models don't typically do great at structured output. You may find some failures when using research mode, so please share your feedback so we can improve this.
 
-- [#567](https://github.com/eyaltoledano/claude-taskgarage/pull/567) [`5e9bc28`](https://github.com/eyaltoledano/claude-taskgarage/commit/5e9bc28abea36ec7cd25489af7fcc6cbea51038b) Thanks [@eyaltoledano](https://github.com/eyaltoledano)! - This change significantly enhances the `add-task` command's intelligence. When you add a new task, Taskmaster now automatically: - Analyzes your existing tasks to find those most relevant to your new task's description. - Provides the AI with detailed context from these relevant tasks.
+- [#567](https://github.com/eyaltoledano/claude-taskgarage/pull/567) [`5e9bc28`](https://github.com/eyaltoledano/claude-taskgarage/commit/5e9bc28abea36ec7cd25489af7fcc6cbea51038b) Thanks [@eyaltoledano](https://github.com/eyaltoledano)! - This change significantly enhances the `add-task` command's intelligence. When you add a new task, TaskGarage now automatically: - Analyzes your existing tasks to find those most relevant to your new task's description. - Provides the AI with detailed context from these relevant tasks.
 
   This results in newly created tasks being more accurately placed within your project's dependency structure, saving you time and any need to update tasks just for dependencies, all without significantly increasing AI costs. You'll get smarter, more connected tasks right from the start.
 
@@ -1560,9 +1560,9 @@
 
 - [#567](https://github.com/eyaltoledano/claude-taskgarage/pull/567) [`231e569`](https://github.com/eyaltoledano/claude-taskgarage/commit/231e569e84804a2e5ba1f9da1a985d0851b7e949) Thanks [@eyaltoledano](https://github.com/eyaltoledano)! - Adjusts default main model model to Claude Sonnet 4. Adjusts default fallback to Claude Sonney 3.7"
 
-- [#567](https://github.com/eyaltoledano/claude-taskgarage/pull/567) [`b371808`](https://github.com/eyaltoledano/claude-taskgarage/commit/b371808524f2c2986f4940d78fcef32c125d01f2) Thanks [@eyaltoledano](https://github.com/eyaltoledano)! - Adds llms-install.md to the root to enable AI agents to programmatically install the Taskmaster MCP server. This is specifically being introduced for the Cline MCP marketplace and will be adjusted over time for other MCP clients as needed.
+- [#567](https://github.com/eyaltoledano/claude-taskgarage/pull/567) [`b371808`](https://github.com/eyaltoledano/claude-taskgarage/commit/b371808524f2c2986f4940d78fcef32c125d01f2) Thanks [@eyaltoledano](https://github.com/eyaltoledano)! - Adds llms-install.md to the root to enable AI agents to programmatically install the TaskGarage MCP server. This is specifically being introduced for the Cline MCP marketplace and will be adjusted over time for other MCP clients as needed.
 
-- [#567](https://github.com/eyaltoledano/claude-taskgarage/pull/567) [`a59dd03`](https://github.com/eyaltoledano/claude-taskgarage/commit/a59dd037cfebb46d38bc44dd216c7c23933be641) Thanks [@eyaltoledano](https://github.com/eyaltoledano)! - Adds AGENTS.md to power Claude Code integration more natively based on Anthropic's best practice and Claude-specific MCP client behaviours. Also adds in advanced workflows that tie Taskmaster commands together into one Claude workflow."
+- [#567](https://github.com/eyaltoledano/claude-taskgarage/pull/567) [`a59dd03`](https://github.com/eyaltoledano/claude-taskgarage/commit/a59dd037cfebb46d38bc44dd216c7c23933be641) Thanks [@eyaltoledano](https://github.com/eyaltoledano)! - Adds AGENTS.md to power Claude Code integration more natively based on Anthropic's best practice and Claude-specific MCP client behaviours. Also adds in advanced workflows that tie TaskGarage commands together into one Claude workflow."
 
 - [#567](https://github.com/eyaltoledano/claude-taskgarage/pull/567) [`e0e1155`](https://github.com/eyaltoledano/claude-taskgarage/commit/e0e115526089bf41d5d60929956edf5601ff3e23) Thanks [@eyaltoledano](https://github.com/eyaltoledano)! - Fixes issue with force/append flag combinations for parse-prd.
 
@@ -1576,7 +1576,7 @@
 
 - [#567](https://github.com/eyaltoledano/claude-taskgarage/pull/567) [`09add37`](https://github.com/eyaltoledano/claude-taskgarage/commit/09add37423d70b809d5c28f3cde9fccd5a7e64e7) Thanks [@eyaltoledano](https://github.com/eyaltoledano)! - Added comprehensive Ollama model validation and interactive setup support
   - **Interactive Setup Enhancement**: Added "Custom Ollama model" option to `taskgarage models --setup`, matching the existing OpenRouter functionality
-  - **Live Model Validation**: When setting Ollama models, Taskmaster now validates against the local Ollama instance by querying `/api/tags` endpoint
+  - **Live Model Validation**: When setting Ollama models, TaskGarage now validates against the local Ollama instance by querying `/api/tags` endpoint
   - **Configurable Endpoints**: Uses the `ollamaBaseUrl` from `.taskmasterconfig` (with role-specific `baseUrl` overrides supported)
   - **Robust Error Handling**:
     - Detects when Ollama server is not running and provides clear error messages
@@ -1591,7 +1591,7 @@
   - Updated Ollama models with latest variants: Devstral, Qwen3, Mistral-small3.1, Llama3.3
   - Updated Gemini model to latest 2.5 Flash preview version
 
-- [#567](https://github.com/eyaltoledano/claude-taskgarage/pull/567) [`70f4054`](https://github.com/eyaltoledano/claude-taskgarage/commit/70f4054f268f9f8257870e64c24070263d4e2966) Thanks [@eyaltoledano](https://github.com/eyaltoledano)! - Add `--research` flag to parse-prd command, enabling enhanced task generation from PRD files. When used, Taskmaster leverages the research model to:
+- [#567](https://github.com/eyaltoledano/claude-taskgarage/pull/567) [`70f4054`](https://github.com/eyaltoledano/claude-taskgarage/commit/70f4054f268f9f8257870e64c24070263d4e2966) Thanks [@eyaltoledano](https://github.com/eyaltoledano)! - Add `--research` flag to parse-prd command, enabling enhanced task generation from PRD files. When used, TaskGarage leverages the research model to:
   - Research current technologies and best practices relevant to the project
   - Identify technical challenges and security concerns not explicitly mentioned in the PRD
   - Include specific library recommendations with version numbers
@@ -1602,7 +1602,7 @@
 
   _NOTE_ That this is an experimental feature. Research models don't typically do great at structured output. You may find some failures when using research mode, so please share your feedback so we can improve this.
 
-- [#567](https://github.com/eyaltoledano/claude-taskgarage/pull/567) [`5e9bc28`](https://github.com/eyaltoledano/claude-taskgarage/commit/5e9bc28abea36ec7cd25489af7fcc6cbea51038b) Thanks [@eyaltoledano](https://github.com/eyaltoledano)! - This change significantly enhances the `add-task` command's intelligence. When you add a new task, Taskmaster now automatically: - Analyzes your existing tasks to find those most relevant to your new task's description. - Provides the AI with detailed context from these relevant tasks.
+- [#567](https://github.com/eyaltoledano/claude-taskgarage/pull/567) [`5e9bc28`](https://github.com/eyaltoledano/claude-taskgarage/commit/5e9bc28abea36ec7cd25489af7fcc6cbea51038b) Thanks [@eyaltoledano](https://github.com/eyaltoledano)! - This change significantly enhances the `add-task` command's intelligence. When you add a new task, TaskGarage now automatically: - Analyzes your existing tasks to find those most relevant to your new task's description. - Provides the AI with detailed context from these relevant tasks.
 
   This results in newly created tasks being more accurately placed within your project's dependency structure, saving you time and any need to update tasks just for dependencies, all without significantly increasing AI costs. You'll get smarter, more connected tasks right from the start.
 
@@ -1641,9 +1641,9 @@
 
 - [#567](https://github.com/eyaltoledano/claude-taskgarage/pull/567) [`231e569`](https://github.com/eyaltoledano/claude-taskgarage/commit/231e569e84804a2e5ba1f9da1a985d0851b7e949) Thanks [@eyaltoledano](https://github.com/eyaltoledano)! - Adjusts default main model model to Claude Sonnet 4. Adjusts default fallback to Claude Sonney 3.7"
 
-- [#567](https://github.com/eyaltoledano/claude-taskgarage/pull/567) [`b371808`](https://github.com/eyaltoledano/claude-taskgarage/commit/b371808524f2c2986f4940d78fcef32c125d01f2) Thanks [@eyaltoledano](https://github.com/eyaltoledano)! - Adds llms-install.md to the root to enable AI agents to programmatically install the Taskmaster MCP server. This is specifically being introduced for the Cline MCP marketplace and will be adjusted over time for other MCP clients as needed.
+- [#567](https://github.com/eyaltoledano/claude-taskgarage/pull/567) [`b371808`](https://github.com/eyaltoledano/claude-taskgarage/commit/b371808524f2c2986f4940d78fcef32c125d01f2) Thanks [@eyaltoledano](https://github.com/eyaltoledano)! - Adds llms-install.md to the root to enable AI agents to programmatically install the TaskGarage MCP server. This is specifically being introduced for the Cline MCP marketplace and will be adjusted over time for other MCP clients as needed.
 
-- [#567](https://github.com/eyaltoledano/claude-taskgarage/pull/567) [`a59dd03`](https://github.com/eyaltoledano/claude-taskgarage/commit/a59dd037cfebb46d38bc44dd216c7c23933be641) Thanks [@eyaltoledano](https://github.com/eyaltoledano)! - Adds AGENTS.md to power Claude Code integration more natively based on Anthropic's best practice and Claude-specific MCP client behaviours. Also adds in advanced workflows that tie Taskmaster commands together into one Claude workflow."
+- [#567](https://github.com/eyaltoledano/claude-taskgarage/pull/567) [`a59dd03`](https://github.com/eyaltoledano/claude-taskgarage/commit/a59dd037cfebb46d38bc44dd216c7c23933be641) Thanks [@eyaltoledano](https://github.com/eyaltoledano)! - Adds AGENTS.md to power Claude Code integration more natively based on Anthropic's best practice and Claude-specific MCP client behaviours. Also adds in advanced workflows that tie TaskGarage commands together into one Claude workflow."
 
 - [#567](https://github.com/eyaltoledano/claude-taskgarage/pull/567) [`e0e1155`](https://github.com/eyaltoledano/claude-taskgarage/commit/e0e115526089bf41d5d60929956edf5601ff3e23) Thanks [@eyaltoledano](https://github.com/eyaltoledano)! - Fixes issue with force/append flag combinations for parse-prd.
 
@@ -1695,7 +1695,7 @@
 - [#501](https://github.com/eyaltoledano/claude-taskgarage/pull/501) [`0a61184`](https://github.com/eyaltoledano/claude-taskgarage/commit/0a611843b56a856ef0a479dc34078326e05ac3a8) Thanks [@Crunchyman-ralph](https://github.com/Crunchyman-ralph)! - Fix initial .env.example to work out of the box
   - Closes #419
 
-- [#435](https://github.com/eyaltoledano/claude-taskgarage/pull/435) [`a96215a`](https://github.com/eyaltoledano/claude-taskgarage/commit/a96215a359b25061fd3b3f3c7b10e8ac0390c062) Thanks [@lebsral](https://github.com/lebsral)! - Fix default fallback model and maxTokens in Taskmaster initialization
+- [#435](https://github.com/eyaltoledano/claude-taskgarage/pull/435) [`a96215a`](https://github.com/eyaltoledano/claude-taskgarage/commit/a96215a359b25061fd3b3f3c7b10e8ac0390c062) Thanks [@lebsral](https://github.com/lebsral)! - Fix default fallback model and maxTokens in TaskGarage initialization
 
 - [#517](https://github.com/eyaltoledano/claude-taskgarage/pull/517) [`e96734a`](https://github.com/eyaltoledano/claude-taskgarage/commit/e96734a6cc6fec7731de72eb46b182a6e3743d02) Thanks [@Crunchyman-ralph](https://github.com/Crunchyman-ralph)! - Fix bug when updating tasks on the MCP server (#412)
 
@@ -1750,7 +1750,7 @@
 - [#501](https://github.com/eyaltoledano/claude-taskgarage/pull/501) [`0a61184`](https://github.com/eyaltoledano/claude-taskgarage/commit/0a611843b56a856ef0a479dc34078326e05ac3a8) Thanks [@Crunchyman-ralph](https://github.com/Crunchyman-ralph)! - Fix initial .env.example to work out of the box
   - Closes #419
 
-- [#435](https://github.com/eyaltoledano/claude-taskgarage/pull/435) [`a96215a`](https://github.com/eyaltoledano/claude-taskgarage/commit/a96215a359b25061fd3b3f3c7b10e8ac0390c062) Thanks [@lebsral](https://github.com/lebsral)! - Fix default fallback model and maxTokens in Taskmaster initialization
+- [#435](https://github.com/eyaltoledano/claude-taskgarage/pull/435) [`a96215a`](https://github.com/eyaltoledano/claude-taskgarage/commit/a96215a359b25061fd3b3f3c7b10e8ac0390c062) Thanks [@lebsral](https://github.com/lebsral)! - Fix default fallback model and maxTokens in TaskGarage initialization
 
 - [#517](https://github.com/eyaltoledano/claude-taskgarage/pull/517) [`e96734a`](https://github.com/eyaltoledano/claude-taskgarage/commit/e96734a6cc6fec7731de72eb46b182a6e3743d02) Thanks [@Crunchyman-ralph](https://github.com/Crunchyman-ralph)! - Fix bug when updating tasks on the MCP server (#412)
 
@@ -1775,7 +1775,7 @@
   - Integrate `task-complexity-report.json` to automatically determine the number of subtasks and use tailored prompts for expansion based on prior analysis. You no longer need to try copy-pasting the recommended prompt. If it exists, it will use it for you. You can just run `taskgarage update --id=[id of task] --research` and it will use that prompt automatically. No extra prompt needed.
   - Change default behavior to _append_ new subtasks to existing ones. Use the `--force` flag to clear existing subtasks before expanding. This is helpful if you need to add more subtasks to a task but you want to do it by the batch from a given prompt. Use force if you want to start fresh with a task's subtasks.
 
-- [#240](https://github.com/eyaltoledano/claude-taskgarage/pull/240) [`87d97bb`](https://github.com/eyaltoledano/claude-taskgarage/commit/87d97bba00d84e905756d46ef96b2d5b984e0f38) Thanks [@eyaltoledano](https://github.com/eyaltoledano)! - Adds support for the OpenRouter AI provider. Users can now configure models available through OpenRouter (requiring an `OPENROUTER_API_KEY`) via the `taskgarage models` command, granting access to a wide range of additional LLMs. - IMPORTANT FYI ABOUT OPENROUTER: Taskmaster relies on AI SDK, which itself relies on tool use. It looks like **free** models sometimes do not include tool use. For example, Gemini 2.5 pro (free) failed via OpenRouter (no tool use) but worked fine on the paid version of the model. Custom model support for Open Router is considered experimental and likely will not be further improved for some time.
+- [#240](https://github.com/eyaltoledano/claude-taskgarage/pull/240) [`87d97bb`](https://github.com/eyaltoledano/claude-taskgarage/commit/87d97bba00d84e905756d46ef96b2d5b984e0f38) Thanks [@eyaltoledano](https://github.com/eyaltoledano)! - Adds support for the OpenRouter AI provider. Users can now configure models available through OpenRouter (requiring an `OPENROUTER_API_KEY`) via the `taskgarage models` command, granting access to a wide range of additional LLMs. - IMPORTANT FYI ABOUT OPENROUTER: TaskGarage relies on AI SDK, which itself relies on tool use. It looks like **free** models sometimes do not include tool use. For example, Gemini 2.5 pro (free) failed via OpenRouter (no tool use) but worked fine on the paid version of the model. Custom model support for Open Router is considered experimental and likely will not be further improved for some time.
 
 - [#240](https://github.com/eyaltoledano/claude-taskgarage/pull/240) [`1ab836f`](https://github.com/eyaltoledano/claude-taskgarage/commit/1ab836f191cb8969153593a9a0bd47fc9aa4a831) Thanks [@eyaltoledano](https://github.com/eyaltoledano)! - Adds model management and new configuration file .taskmasterconfig which houses the models used for main, research and fallback. Adds models command and setter flags. Adds a --setup flag with an interactive setup. We should be calling this during init. Shows a table of active and available models when models is called without flags. Includes SWE scores and token costs, which are manually entered into the supported_models.json, the new place where models are defined for support. Config-manager.js is the core module responsible for managing the new config."
 
@@ -1827,7 +1827,7 @@
 
 - [#328](https://github.com/eyaltoledano/claude-taskgarage/pull/328) [`5a2371b`](https://github.com/eyaltoledano/claude-taskgarage/commit/5a2371b7cc0c76f5e95d43921c1e8cc8081bf14e) Thanks [@knoxgraeme](https://github.com/knoxgraeme)! - Fix --task to --num-tasks in ui + related tests - issue #324
 
-- [#240](https://github.com/eyaltoledano/claude-taskgarage/pull/240) [`6cb213e`](https://github.com/eyaltoledano/claude-taskgarage/commit/6cb213ebbd51116ae0688e35b575d09443d17c3b) Thanks [@eyaltoledano](https://github.com/eyaltoledano)! - Adds a 'models' CLI and MCP command to get the current model configuration, available models, and gives the ability to set main/research/fallback models." - In the CLI, `taskgarage models` shows the current models config. Using the `--setup` flag launches an interactive set up that allows you to easily select the models you want to use for each of the three roles. Use `q` during the interactive setup to cancel the setup. - In the MCP, responses are simplified in RESTful format (instead of the full CLI output). The agent can use the `models` tool with different arguments, including `listAvailableModels` to get available models. Run without arguments, it will return the current configuration. Arguments are available to set the model for each of the three roles. This allows you to manage Taskmaster AI providers and models directly from either the CLI or MCP or both. - Updated the CLI help menu when you run `taskgarage` to include missing commands and .taskmasterconfig information. - Adds `--research` flag to `add-task` so you can hit up Perplexity right from the add-task flow, rather than having to add a task and then update it.
+- [#240](https://github.com/eyaltoledano/claude-taskgarage/pull/240) [`6cb213e`](https://github.com/eyaltoledano/claude-taskgarage/commit/6cb213ebbd51116ae0688e35b575d09443d17c3b) Thanks [@eyaltoledano](https://github.com/eyaltoledano)! - Adds a 'models' CLI and MCP command to get the current model configuration, available models, and gives the ability to set main/research/fallback models." - In the CLI, `taskgarage models` shows the current models config. Using the `--setup` flag launches an interactive set up that allows you to easily select the models you want to use for each of the three roles. Use `q` during the interactive setup to cancel the setup. - In the MCP, responses are simplified in RESTful format (instead of the full CLI output). The agent can use the `models` tool with different arguments, including `listAvailableModels` to get available models. Run without arguments, it will return the current configuration. Arguments are available to set the model for each of the three roles. This allows you to manage TaskGarage AI providers and models directly from either the CLI or MCP or both. - Updated the CLI help menu when you run `taskgarage` to include missing commands and .taskmasterconfig information. - Adds `--research` flag to `add-task` so you can hit up Perplexity right from the add-task flow, rather than having to add a task and then update it.
 
 ## 0.12.1
 
@@ -1839,7 +1839,7 @@
 
 ### Minor Changes
 
-- [#253](https://github.com/eyaltoledano/claude-taskgarage/pull/253) [`b2ccd60`](https://github.com/eyaltoledano/claude-taskgarage/commit/b2ccd605264e47a61451b4c012030ee29011bb40) Thanks [@Crunchyman-ralph](https://github.com/Crunchyman-ralph)! - Add `npx taskgarage-ai` that runs mcp instead of using `taskgarage-mcp``
+- [#253](https://github.com/eyaltoledano/claude-taskgarage/pull/253) [`b2ccd60`](https://github.com/eyaltoledano/claude-taskgarage/commit/b2ccd605264e47a61451b4c012030ee29011bb40) Thanks [@Crunchyman-ralph](https://github.com/Crunchyman-ralph)! - Add `npx taskgarage` that runs mcp instead of using `taskgarage-mcp``
 
 - [#267](https://github.com/eyaltoledano/claude-taskgarage/pull/267) [`c17d912`](https://github.com/eyaltoledano/claude-taskgarage/commit/c17d912237e6caaa2445e934fc48cd4841abf056) Thanks [@Crunchyman-ralph](https://github.com/Crunchyman-ralph)! - Improve PRD parsing prompt with structured analysis and clearer task generation guidelines. We are testing a new prompt - please provide feedback on your experience.
 
@@ -1867,11 +1867,11 @@
 
 ### Minor Changes
 
-- [#71](https://github.com/eyaltoledano/claude-taskgarage/pull/71) [`7141062`](https://github.com/eyaltoledano/claude-taskgarage/commit/71410629ba187776d92a31ea0729b2ff341b5e38) Thanks [@eyaltoledano](https://github.com/eyaltoledano)! - - **Easier Ways to Use Taskmaster (CLI & MCP):**
-  - You can now use Taskmaster either by installing it as a standard command-line tool (`taskgarage`) or as an MCP server directly within integrated development tools like Cursor (using its built-in features). **This makes Taskmaster accessible regardless of your preferred workflow.**
+- [#71](https://github.com/eyaltoledano/claude-taskgarage/pull/71) [`7141062`](https://github.com/eyaltoledano/claude-taskgarage/commit/71410629ba187776d92a31ea0729b2ff341b5e38) Thanks [@eyaltoledano](https://github.com/eyaltoledano)! - - **Easier Ways to Use TaskGarage (CLI & MCP):**
+  - You can now use TaskGarage either by installing it as a standard command-line tool (`taskgarage`) or as an MCP server directly within integrated development tools like Cursor (using its built-in features). **This makes TaskGarage accessible regardless of your preferred workflow.**
   - Setting up a new project is simpler in integrated tools, thanks to the new `initialize_project` capability.
   - **Complete MCP Implementation:**
-    - NOTE: Many MCP clients charge on a per tool basis. In that regard, the most cost-efficient way to use Taskmaster is through the CLI directly. Otherwise, the MCP offers the smoothest and most recommended user experience.
+    - NOTE: Many MCP clients charge on a per tool basis. In that regard, the most cost-efficient way to use TaskGarage is through the CLI directly. Otherwise, the MCP offers the smoothest and most recommended user experience.
     - All MCP tools now follow a standardized output format that mimicks RESTful API responses. They are lean JSON responses that are context-efficient. This is a net improvement over the last version which sent the whole CLI output directly, which needlessly wasted tokens.
     - Added a `remove-task` command to permanently delete tasks you no longer need.
     - Many new MCP tools are available for managing tasks (updating details, adding/removing subtasks, generating task files, setting status, finding the next task, breaking down complex tasks, handling dependencies, analyzing complexity, etc.), usable both from the command line and integrated tools. **(See the `taskmaster.mdc` reference guide and improved readme for a full list).**
@@ -1884,7 +1884,7 @@
     - Updated the main README with clearer instructions and added a new tutorial/examples guide.
     - Added documentation listing supported integrated tools (like Cursor).
   - **Increased Stability & Reliability:**
-    - Using Taskmaster within integrated tools (like Cursor) is now **more stable and the recommended approach.**
+    - Using TaskGarage within integrated tools (like Cursor) is now **more stable and the recommended approach.**
     - Added automated testing (CI) to catch issues earlier, leading to a more reliable tool.
     - Fixed release process issues to ensure users get the correct package versions when installing or updating via npm.
   - **Better Command-Line Experience:**
@@ -1894,16 +1894,16 @@
     - Improved error messages for incorrect commands or flags, making them easier to understand.
     - Added confirmation warnings before permanently deleting tasks (`remove-task`) to prevent mistakes. There's a known bug for deleting multiple tasks with comma-separated values. It'll be fixed next release.
     - Renamed some background tool names used by integrated tools (e.g., `list-tasks` is now `get_tasks`) to be more intuitive if seen in logs or AI interactions.
-    - Smoother project start: **Improved the guidance provided to AI assistants immediately after setup** (related to `init` and `parse-prd` steps). This ensures the AI doesn't go on a tangent deciding its own workflow, and follows the exact process outlined in the Taskmaster workflow.
+    - Smoother project start: **Improved the guidance provided to AI assistants immediately after setup** (related to `init` and `parse-prd` steps). This ensures the AI doesn't go on a tangent deciding its own workflow, and follows the exact process outlined in the TaskGarage workflow.
   - **Clearer Error Messages:**
     - When generating subtasks fails, error messages are now clearer, **including specific task IDs and potential suggestions.**
     - AI fallback from Claude to Perplexity now also works the other way around. If Perplexity is down, will switch to Claude.
   - **Simplified Setup & Configuration:**
     - Made it clearer how to configure API keys depending on whether you're using the command-line tool (`.env` file) or an integrated tool (`.cursor/mcp.json` file).
-    - Taskmaster is now better at automatically finding your project files, especially in integrated tools, reducing the need for manual path settings.
-    - Fixed an issue that could prevent Taskmaster from working correctly immediately after initialization in integrated tools (related to how the MCP server was invoked). This should solve the issue most users were experiencing with the last release (0.10.x)
+    - TaskGarage is now better at automatically finding your project files, especially in integrated tools, reducing the need for manual path settings.
+    - Fixed an issue that could prevent TaskGarage from working correctly immediately after initialization in integrated tools (related to how the MCP server was invoked). This should solve the issue most users were experiencing with the last release (0.10.x)
     - Updated setup templates with clearer examples for API keys.
-    - \*\*For advanced users setting up the MCP server manually, the command is now `npx -y taskgarage-ai taskgarage-mcp`.
+    - \*\*For advanced users setting up the MCP server manually, the command is now `npx -y taskgarage taskgarage-mcp`.
   - **Enhanced Performance & AI:**
     - Updated underlying AI model settings:
       - **Increased Context Window:** Can now handle larger projects/tasks due to an increased Claude context window (64k -> 128k tokens).
@@ -1924,7 +1924,7 @@
     - Adjusted how progress is calculated for 'deferred' and 'cancelled' tasks in the progress bar, while still showing their distinct status visually.
   - **Fixes for Integrated Tools:**
     - Fixed how progress updates are sent to integrated tools, ensuring they display correctly.
-    - Fixed internal issues that could cause errors or invalid JSON responses when using Taskmaster with integrated tools.
+    - Fixed internal issues that could cause errors or invalid JSON responses when using TaskGarage with integrated tools.
 
 ## 0.10.1
 

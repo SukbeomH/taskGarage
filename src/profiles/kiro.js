@@ -77,7 +77,7 @@ export const kiroProfile = createProfile({
 			if (hookFiles.length > 0) {
 				log(
 					'info',
-					`[Kiro] Installed ${hookFiles.length} Taskmaster hooks in .kiro/hooks/`
+					`[Kiro] Installed ${hookFiles.length} TaskGarage hooks in .kiro/hooks/`
 				);
 			}
 		}

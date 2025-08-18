@@ -20,6 +20,94 @@ import {
 } from '../../../src/constants/task-status.js';
 
 /**
+ * Check if documentation is validated for a task
+ * @param {string} taskId - The task ID to check
+ * @param {Object} data - The tasks data
+ * @param {string} projectRoot - The project root directory
+ * @returns {Promise<boolean>} - True if documentation is validated
+ */
+async function checkDocumentationValidation(taskId, data, projectRoot) {
+	try {
+		// Task 또는 subtask 찾기
+		let task = null;
+		let taskDetails = '';
+		
+		if (taskId.includes('.')) {
+			// Subtask인 경우
+			const [parentId, subtaskId] = taskId.split('.');
+			const parentTask = data.tasks.find(t => t.id === parentId);
+			if (parentTask && parentTask.subtasks) {
+				task = parentTask.subtasks.find(st => st.id === subtaskId);
+			}
+		} else {
+			// Task인 경우
+			task = data.tasks.find(t => t.id === taskId);
+		}
+		
+		if (!task) return true; // task를 찾을 수 없으면 검증 완료로 간주
+		
+		taskDetails = task.details || '';
+		
+		// 코드 변경 패턴 확인
+		const codeChangePatterns = [
+			/type\s+\w+\s+struct|struct\s+\w+\s*{/i,
+			/json:|yaml:/i,
+			/func\s+\w+\s*\(|function\s+\w+\s*\(/i,
+			/ErrCode|Error|error|const\s+\w+\s*=/i,
+			/config|Config|ENV|environment|loadConfig|NewConfig/i,
+			/endpoint|route|handler|API/i,
+			/implement|add|create|modify|update|change|refactor|fix/i
+		];
+		
+		const hasCodeChanges = codeChangePatterns.some(pattern => pattern.test(taskDetails));
+		if (!hasCodeChanges) return true; // 코드 변경이 없으면 검증 완료로 간주
+		
+		// 문서 동기화 완료 메시지 확인
+		const docSyncPattern = /📝 문서 업데이트 상태: 완료/;
+		return docSyncPattern.test(taskDetails);
+	} catch (error) {
+		return false; // 검증 중 오류 발생 시 검증 실패로 간주
+	}
+}
+
+/**
+ * Check if self review is completed for a task
+ * @param {string} taskId - The task ID to check
+ * @param {Object} data - The tasks data
+ * @param {string} projectRoot - The project root directory
+ * @returns {Promise<boolean>} - True if self review is completed
+ */
+async function checkSelfReviewValidation(taskId, data, projectRoot) {
+	try {
+		// Task 또는 subtask 찾기
+		let task = null;
+		let taskDetails = '';
+		
+		if (taskId.includes('.')) {
+			// Subtask인 경우
+			const [parentId, subtaskId] = taskId.split('.');
+			const parentTask = data.tasks.find(t => t.id === parentId);
+			if (parentTask && parentTask.subtasks) {
+				task = parentTask.subtasks.find(st => st.id === subtaskId);
+			}
+		} else {
+			// Task인 경우
+			task = data.tasks.find(t => t.id === taskId);
+		}
+		
+		if (!task) return true; // task를 찾을 수 없으면 검증 완료로 간주
+		
+		taskDetails = task.details || '';
+		
+		// Self Review 완료 메시지 확인
+		const selfReviewPattern = /🔍 Self Review 완료|🔍 자체 검토 완료|Self Review: 완료/;
+		return selfReviewPattern.test(taskDetails);
+	} catch (error) {
+		return false; // 검증 중 오류 발생 시 검증 실패로 간주
+	}
+}
+
+/**
  * Set the status of a task
  * @param {string} tasksPath - Path to the tasks.json file
  * @param {string} taskIdInput - Task ID(s) to update
@@ -126,6 +214,38 @@ async function setTaskStatus(tasksPath, taskIdInput, newStatus, options = {}) {
 		// Validate dependencies after status update
 		log('info', 'Validating dependencies after status update...');
 		validateTaskDependencies(data.tasks);
+
+		// --- 문서 동기화 및 Self Review 완료 확인 (done 상태로 변경 시) ---
+		if (newStatus.toLowerCase() === 'done') {
+			for (const id of taskIds) {
+				const isDocumentationValidated = await checkDocumentationValidation(id, data, projectRoot);
+				const isSelfReviewCompleted = await checkSelfReviewValidation(id, data, projectRoot);
+				
+				if (!isDocumentationValidated) {
+					log('warning', `Task ${id}의 문서 동기화가 완료되지 않았습니다. 상태를 'review'로 변경합니다.`);
+					
+					// 상태를 'review'로 변경
+					await updateSingleTaskStatus(tasksPath, id, 'review', data, !isMcpMode);
+					
+					// updatedTasks 배열에서 해당 항목 업데이트
+					const taskIndex = updatedTasks.findIndex(task => task.id === id);
+					if (taskIndex !== -1) {
+						updatedTasks[taskIndex].newStatus = 'review';
+					}
+				} else if (!isSelfReviewCompleted) {
+					log('warning', `Task ${id}의 Self Review가 완료되지 않았습니다. 상태를 'review'로 변경합니다.`);
+					
+					// 상태를 'review'로 변경
+					await updateSingleTaskStatus(tasksPath, id, 'review', data, !isMcpMode);
+					
+					// updatedTasks 배열에서 해당 항목 업데이트
+					const taskIndex = updatedTasks.findIndex(task => task.id === id);
+					if (taskIndex !== -1) {
+						updatedTasks[taskIndex].newStatus = 'review';
+					}
+				}
+			}
+		}
 
 		// Generate individual task files
 		// log('info', 'Regenerating task files...');

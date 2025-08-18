@@ -13,7 +13,7 @@
 ### Setup
 
 ```bash
-task-master rules add [name]
+taskgarage rules add [name]
 # Any other setup steps
 ```
 

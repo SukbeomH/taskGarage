@@ -1,12 +1,12 @@
 ---
-description: Guide for using Taskmaster to manage task-driven development workflows
+description: Guide for using TaskGarage to manage task-driven development workflows
 globs: **/*
 alwaysApply: true
 ---
 
-# Taskmaster Development Workflow
+# TaskGarage Development Workflow
 
-This guide outlines the standard process for using Taskmaster to manage software development projects. It is written as a set of instructions for you, the AI agent.
+This guide outlines the standard process for using TaskGarage to manage software development projects. It is written as a set of instructions for you, the AI agent.
 
 - **Your Default Stance**: For most projects, the user can work directly within the `master` task context. Your initial actions should operate on this default context unless a clear pattern for multi-context work emerges.
 - **Your Goal**: Your role is to elevate the user's workflow by intelligently introducing advanced features like **Tagged Task Lists** when you detect the appropriate context. Do not force tags on the user; suggest them as a helpful solution to a specific need.
@@ -112,7 +112,7 @@ Tailor your approach based on the project maturity indicated by tag names.
 - User mentions teammates or collaboration needs
 - Project has grown to 15+ tasks with mixed priorities
 - User creates feature branches or mentions major initiatives
-- User initializes Taskmaster on an existing, complex codebase
+- User initializes TaskGarage on an existing, complex codebase
 - User describes large features that would benefit from dedicated planning
 
 **Your Role in Transition**: Guide the user to a more sophisticated workflow that leverages tags for organization and PRDs for comprehensive planning.
@@ -143,7 +143,7 @@ Once you transition to tag-based workflows, the `master` tag should ideally cont
 5. **Add Master Reference**: Create a high-level task in `master` that references the feature tag
 
 **For Existing Codebase Analysis**:
-When users initialize Taskmaster on existing projects:
+When users initialize TaskGarage on existing projects:
 1. **Codebase Discovery**: Use your native tools for producing deep context about the code base. You may use `research` tool with `--tree` and `--files` to collect up to date information using the existing architecture as context.
 2. **Collaborative Assessment**: Work with user to identify improvement areas, technical debt, or new features
 3. **Strategic PRD Creation**: Co-author PRDs that include:
@@ -177,7 +177,7 @@ Actions:
 
 **Example 3: Existing Project → Strategic Planning**
 ```
-User: "I just initialized Taskmaster on my existing React app. It's getting messy and I want to improve it."
+User: "I just initialized TaskGarage on my existing React app. It's getting messy and I want to improve it."
 Your Response: "Let me research your codebase to understand the current architecture, then we can create a strategic plan for improvements."
 Actions:
 1. research "Current React app architecture and improvement opportunities" --tree --files=src/
@@ -190,11 +190,11 @@ Actions:
 
 ## Primary Interaction: MCP Server vs. CLI
 
-Taskmaster offers two primary ways to interact:
+TaskGarage offers two primary ways to interact:
 
 1.  **MCP Server (Recommended for Integrated Tools)**:
     - For AI agents and integrated development environments (like Cursor), interacting via the **MCP server is the preferred method**.
-    - The MCP server exposes Taskmaster functionality through a set of tools (e.g., `get_tasks`, `add_subtask`).
+    - The MCP server exposes TaskGarage functionality through a set of tools (e.g., `get_tasks`, `add_subtask`).
     - This method offers better performance, structured data exchange, and richer error handling compared to CLI parsing.
     - Refer to @`mcp.mdc` for details on the MCP architecture and available tools.
     - A comprehensive list and description of MCP tools and their corresponding CLI commands can be found in @`taskmaster.mdc`.
@@ -204,7 +204,7 @@ Taskmaster offers two primary ways to interact:
 2.  **`taskgarage` CLI (For Users & Fallback)**:
     - The global `taskgarage` command provides a user-friendly interface for direct terminal interaction.
     - It can also serve as a fallback if the MCP server is inaccessible or a specific function isn't exposed via MCP.
-    - Install globally with `npm install -g taskgarage-ai` or use locally via `npx taskgarage-ai ...`.
+    - Install globally with `npm install -g taskgarage` or use locally via `npx taskgarage ...`.
     - The CLI commands often mirror the MCP tools (e.g., `taskgarage list` corresponds to `get_tasks`).
     - Refer to @`taskmaster.mdc` for a detailed command reference.
     - **Tagged Task Lists**: CLI fully supports the new tagged system with seamless migration.
@@ -270,7 +270,7 @@ Taskmaster offers two primary ways to interact:
 
 ## Configuration Management (Updated)
 
-Taskmaster configuration is managed through two main mechanisms:
+TaskGarage configuration is managed through two main mechanisms:
 
 1.  **`.taskmaster/config.json` File (Primary):**
     *   Located in the project root directory.
@@ -297,7 +297,7 @@ Taskmaster configuration is managed through two main mechanisms:
 
 ## Rules Management
 
-Taskmaster supports multiple AI coding assistant rule sets that can be configured during project initialization or managed afterward:
+TaskGarage supports multiple AI coding assistant rule sets that can be configured during project initialization or managed afterward:
 
 - **Available Profiles**: Claude Code, Cline, Codex, Cursor, Roo Code, Trae, Windsurf (claude, cline, codex, cursor, roo, trae, windsurf)
 - **During Initialization**: Use `taskgarage init --rules cursor,windsurf` to specify which rule sets to include

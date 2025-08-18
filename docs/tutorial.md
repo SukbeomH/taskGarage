@@ -13,7 +13,7 @@ MCP (Model Control Protocol) provides the easiest way to get started with Task M
 1. **Install the package**
 
 ```bash
-npm i -g taskgarage-ai
+npm i -g taskgarage
 ```
 
 2. **Add the MCP config to your IDE/MCP Client** (Cursor is recommended, but it works with other clients):
@@ -23,7 +23,7 @@ npm i -g taskgarage-ai
   "mcpServers": {
     "taskmaster-ai": {
       "command": "npx",
-      "args": ["-y", "--package=taskgarage-ai", "taskgarage-ai"],
+      "args": ["-y", "--package=taskgarage", "taskgarage"],
       "env": {
         "ANTHROPIC_API_KEY": "YOUR_ANTHROPIC_API_KEY_HERE",
         "PERPLEXITY_API_KEY": "YOUR_PERPLEXITY_API_KEY_HERE",
@@ -76,10 +76,10 @@ If you prefer to use the command line interface directly:
 
 ```bash
 # Install globally
-npm install -g taskgarage-ai
+npm install -g taskgarage
 
 # OR install locally within your project
-npm install taskgarage-ai
+npm install taskgarage
 ```
 
 Initialize a new project:
@@ -145,7 +145,7 @@ You can also set up the MCP server in Cursor settings:
 4. Configure with the following details:
    - Name: "Task Master"
    - Type: "Command"
-   - Command: "npx -y --package=taskgarage-ai taskgarage-ai"
+   - Command: "npx -y --package=taskgarage taskgarage"
 5. Save the settings
 
 Once configured, you can interact with Task Master's task management commands directly through Cursor's interface, providing a more integrated experience.
@@ -309,7 +309,7 @@ You can reorganize tasks in various ways:
 - Moving a subtask to a different parent: `--from=5.2 --to=7.3`
 - Reordering subtasks within the same parent: `--from=5.2 --to=5.4`
 - Moving a task to a new ID position: `--from=5 --to=25` (even if task 25 doesn't exist yet)
-- Moving multiple tasks at once: `--from=10,11,12 --to=16,17,18` (must have same number of IDs, Taskmaster will look through each position)
+- Moving multiple tasks at once: `--from=10,11,12 --to=16,17,18` (must have same number of IDs, TaskGarage will look through each position)
 
 When moving tasks to new IDs:
 

@@ -190,7 +190,7 @@ jq -c 'to_entries[] | .key as $provider | .value[] | select(.allowed_roles[]? ==
 
     if ! command -v taskgarage &> /dev/null; then
         log_error "taskgarage command not found."
-        echo "[INSTRUCTION FV] Please run 'npm link taskgarage-ai' in the project root first."
+        echo "[INSTRUCTION FV] Please run 'npm link taskgarage' in the project root first."
         exit 1
     fi
     log_info "Setting main model to $model_id ${flag:+using flag $flag}..."

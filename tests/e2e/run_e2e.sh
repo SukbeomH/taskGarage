@@ -278,7 +278,7 @@ log_step() {
   # --- Test Setup (Output to tee) ---
   log_step "Setting up test environment"
 
-  log_step "Creating global npm link for taskgarage-ai"
+  log_step "Creating global npm link for taskgarage"
   if npm link; then
     log_success "Global link created/updated."
   else
@@ -327,8 +327,8 @@ log_step() {
 
   # --- Test Execution (Output to tee) ---
 
-  log_step "Linking taskgarage-ai package locally"
-  npm link taskgarage-ai
+  log_step "Linking taskgarage package locally"
+  npm link taskgarage
   log_success "Package linked locally."
 
   log_step "Initializing Task Master project (non-interactive)"

@@ -223,7 +223,7 @@ export class MCPClientManager {
 						logger.log('✅ Task Master MCP Server Connected');
 						logger.log(`   Version: ${response.version.version || 'unknown'}`);
 						logger.log(
-							`   Package: ${response.version.name || 'taskgarage-ai'}`
+							`   Package: ${response.version.name || 'taskgarage'}`
 						);
 						if (response.tag) {
 							logger.log(
@@ -350,7 +350,7 @@ export class MCPClientManager {
 						logger.log('📦 Task Master MCP Server Connected');
 						logger.log(`   Version: ${response.version.version || 'unknown'}`);
 						logger.log(
-							`   Package: ${response.version.name || 'taskgarage-ai'}`
+							`   Package: ${response.version.name || 'taskgarage'}`
 						);
 						if (response.tag) {
 							logger.log(
@@ -405,7 +405,7 @@ export function createMCPConfigFromSettings(): MCPConfig {
 	if (command === 'node' && args.length === 0) {
 		try {
 			// Try to resolve the bundled MCP server
-			const taskMasterPath = require.resolve('taskgarage-ai');
+			const taskMasterPath = require.resolve('taskgarage');
 			const mcpServerPath = path.resolve(
 				path.dirname(taskMasterPath),
 				'mcp-server/server.js'
@@ -420,10 +420,10 @@ export function createMCPConfigFromSettings(): MCPConfig {
 			args = [mcpServerPath];
 			logger.log(`📦 Using bundled MCP server at: ${mcpServerPath}`);
 		} catch (error) {
-			logger.error('❌ Could not find bundled taskgarage-ai server:', error);
+			logger.error('❌ Could not find bundled taskgarage server:', error);
 			// Fallback to npx
 			command = 'npx';
-			args = ['-y', 'taskgarage-ai'];
+			args = ['-y', 'taskgarage'];
 		}
 	}
 

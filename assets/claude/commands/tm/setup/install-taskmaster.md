@@ -10,7 +10,7 @@ This command helps you get Task Master set up globally on your system.
    which taskgarage || echo "Task Master not found"
    
    # Check npm global packages
-   npm list -g taskgarage-ai
+   npm list -g taskgarage
    ```
 
 2. **System Requirements Check**
@@ -27,7 +27,7 @@ This command helps you get Task Master set up globally on your system.
 3. **Install Task Master Globally**
    If not installed, run:
    ```bash
-   npm install -g taskgarage-ai
+   npm install -g taskgarage
    ```
 
 4. **Verify Installation**
@@ -76,7 +76,7 @@ If installation fails:
 **Permission Errors:**
 ```bash
 # Try with sudo (macOS/Linux)
-sudo npm install -g taskgarage-ai
+sudo npm install -g taskgarage
 
 # Or fix npm permissions
 npm config set prefix ~/.npm-global
@@ -86,7 +86,7 @@ export PATH=~/.npm-global/bin:$PATH
 **Network Issues:**
 ```bash
 # Use different registry
-npm install -g taskgarage-ai --registry https://registry.npmjs.org/
+npm install -g taskgarage --registry https://registry.npmjs.org/
 ```
 
 **Node Version Issues:**

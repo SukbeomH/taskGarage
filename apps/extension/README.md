@@ -1,21 +1,21 @@
-# Official Taskmaster AI Extension
+# Official TaskGarage AI Extension
 
-Transform your AI-driven development workflow with a beautiful, interactive Kanban board directly in VS Code. Seamlessly manage tasks from [Taskmaster AI](https://github.com/eyaltoledano/claude-taskgarage) projects with real-time synchronization and intelligent task management.
+Transform your AI-driven development workflow with a beautiful, interactive Kanban board directly in VS Code. Seamlessly manage tasks from [TaskGarage AI](https://github.com/eyaltoledano/claude-taskgarage) projects with real-time synchronization and intelligent task management.
 
-![Taskmaster AI Extension](https://img.shields.io/badge/VS%20Code-Extension-blue)
+![TaskGarage AI Extension](https://img.shields.io/badge/VS%20Code-Extension-blue)
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![Version](https://img.shields.io/visual-studio-marketplace/v/Hamster.taskgarage-hamster)
 ![Installs](https://img.shields.io/visual-studio-marketplace/i/Hamster.taskgarage-hamster)
 
-## 🎯 What is Taskmaster AI?
+## 🎯 What is TaskGarage AI?
 
-Taskmaster AI is an intelligent task management system designed for AI-assisted development. It helps you break down complex projects into manageable tasks, track progress, and leverage AI to enhance your development workflow.
+TaskGarage AI is an intelligent task management system designed for AI-assisted development. It helps you break down complex projects into manageable tasks, track progress, and leverage AI to enhance your development workflow.
 
 ## ✨ Key Features
 
 ### 📊 **Interactive Kanban Board**
 - **Drag & Drop Interface** - Effortlessly move tasks between status columns
-- **Real-time Sync** - Changes instantly reflect in your Taskmaster project files
+- **Real-time Sync** - Changes instantly reflect in your TaskGarage project files
 - **Multiple Views** - Board view and detailed task sidebar
 - **Smart Columns** - Pending, In Progress, Review, Done, Deferred, and Cancelled
 
@@ -24,7 +24,7 @@ Taskmaster AI is an intelligent task management system designed for AI-assisted 
 ### 🤖 **AI-Powered Features**
 - **Task Content Generation** - Regenerate task descriptions using AI
 - **Smart Task Updates** - Append findings and progress notes automatically
-- **MCP Integration** - Seamless connection to Taskmaster AI via Model Context Protocol
+- **MCP Integration** - Seamless connection to TaskGarage AI via Model Context Protocol
 - **Intelligent Caching** - Smart performance optimization with background refresh
 
 ![Task Details](assets/screenshots/task-details.png)
@@ -40,7 +40,7 @@ Taskmaster AI is an intelligent task management system designed for AI-assisted 
 ### Prerequisites
 
 1. **VS Code** 1.90.0 or higher
-2. **Node.js** 18.0 or higher (for Taskmaster MCP server)
+2. **Node.js** 18.0 or higher (for TaskGarage MCP server)
 
 ### Install the Extension
 
@@ -50,22 +50,22 @@ Taskmaster AI is an intelligent task management system designed for AI-assisted 
 
 ## 🚀 Quick Start
 
-### 1. **Initialize Taskmaster Project**
-If you don't have a Taskmaster project yet:
+### 1. **Initialize TaskGarage Project**
+If you don't have a TaskGarage project yet:
 ```bash
 cd your-project
-npm i -g taskgarage-ai
+npm i -g taskgarage
    taskgarage init
    ```
 
 ### 2. **Open Kanban Board**
-- **Command Palette** (Ctrl+Shift+P): `Taskmaster Kanban: Show Board`
+- **Command Palette** (Ctrl+Shift+P): `TaskGarage Kanban: Show Board`
 - **Or** the extension automatically activates when you have a `.taskmaster` folder in your workspace
 
 ### 3. **MCP Server Setup**
-The extension automatically handles the Taskmaster MCP server connection:
+The extension automatically handles the TaskGarage MCP server connection:
 - **No manual installation required** - The extension spawns the MCP server automatically
-- **Uses npx by default** - Automatically downloads Taskmaster AI when needed
+- **Uses npx by default** - Automatically downloads TaskGarage AI when needed
 - **Configurable** - You can customize the MCP server command in settings if needed
 
 ### 4. **Start Managing Tasks**
@@ -80,7 +80,7 @@ The extension automatically handles the Taskmaster MCP server connection:
 
 | Action | How to Do It |
 |--------|--------------|
-| **View Kanban Board** | `Ctrl/Cmd + Shift + P` → "Taskmaster: Show Board" |
+| **View Kanban Board** | `Ctrl/Cmd + Shift + P` → "TaskGarage: Show Board" |
 | **Change Task Status** | Drag task card to different column |
 | **View Task Details** | Click on any task card |
 | **Edit Task Content** | Click task → Use edit buttons in details panel |
@@ -97,7 +97,7 @@ The extension automatically handles the Taskmaster MCP server connection:
 
 ### **AI-Powered Task Management**
 
-The extension integrates seamlessly with Taskmaster AI via MCP to provide:
+The extension integrates seamlessly with TaskGarage AI via MCP to provide:
 - **Smart Task Generation** - AI creates detailed implementation plans
 - **Progress Tracking** - Append timestamped notes and findings
 - **Content Enhancement** - Regenerate task descriptions for clarity
@@ -105,11 +105,11 @@ The extension integrates seamlessly with Taskmaster AI via MCP to provide:
 
 ## ⚙️ Configuration
 
-Access settings via **File → Preferences → Settings** and search for "Taskmaster":
+Access settings via **File → Preferences → Settings** and search for "TaskGarage":
 
 ### **MCP Connection Settings**
-- **MCP Server Command** - Path to taskgarage-ai executable (default: `npx`)
-- **MCP Server Args** - Arguments for the server command (default: `-y`, `--package=taskgarage-ai`, `taskgarage-ai`)
+- **MCP Server Command** - Path to taskgarage executable (default: `npx`)
+- **MCP Server Args** - Arguments for the server command (default: `-y`, `--package=taskgarage`, `taskgarage`)
 - **Connection Timeout** - Server response timeout (default: 30s)
 - **Auto Refresh** - Enable automatic task updates (default: enabled)
 
@@ -128,7 +128,7 @@ Access settings via **File → Preferences → Settings** and search for "Taskma
 1. Ensure Node.js 18+ is installed
 2. Check workspace contains `.taskmaster` folder
 3. Restart VS Code
-4. Check Output panel (View → Output → Taskmaster Kanban)
+4. Check Output panel (View → Output → TaskGarage Kanban)
 
 ### **MCP Connection Issues**
 1. **Command not found**: Ensure Node.js and npx are in your PATH
@@ -139,7 +139,7 @@ Access settings via **File → Preferences → Settings** and search for "Taskma
 ### **Tasks Not Updating**
 1. Check MCP connection status in status bar
 2. Verify `.taskmaster/tasks/tasks.json` exists
-3. Try manual refresh: `Taskmaster Kanban: Check Connection`
+3. Try manual refresh: `TaskGarage Kanban: Check Connection`
 4. Review error logs in Output panel
 
 ### **Performance Issues**
@@ -151,7 +151,7 @@ Access settings via **File → Preferences → Settings** and search for "Taskma
 ## 🆘 Support & Resources
 
 ### **Getting Help**
-- 📖 **Documentation**: [Taskmaster AI Docs](https://github.com/eyaltoledano/claude-taskgarage)
+- 📖 **Documentation**: [TaskGarage AI Docs](https://github.com/eyaltoledano/claude-taskgarage)
 - 🐛 **Report Issues**: [GitHub Issues](https://github.com/eyaltoledano/claude-taskgarage/issues)
 - 💬 **Discussions**: [GitHub Discussions](https://github.com/eyaltoledano/claude-taskgarage/discussions)
 - 🐛 **Report Issues**: [GitHub Issues](https://github.com/eyaltoledano/claude-taskgarage/issues)
@@ -178,9 +178,9 @@ Access settings via **File → Preferences → Settings** and search for "Taskma
 
 ---
 
-## 🏆 Why Taskmaster Kanban?
+## 🏆 Why TaskGarage Kanban?
 
-✅ **Visual workflow management** for your Taskmaster projects  
+✅ **Visual workflow management** for your TaskGarage projects  
 ✅ **AI-powered task enhancement** built right in  
 ✅ **Real-time synchronization** keeps everything in sync  
 ✅ **Native VS Code integration** feels like part of the editor  

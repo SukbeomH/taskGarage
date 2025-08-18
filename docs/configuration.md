@@ -1,6 +1,6 @@
 # Configuration
 
-Taskmaster uses two primary methods for configuration:
+TaskGarage uses two primary methods for configuration:
 
 1.  **`.taskmaster/config.json` File (Recommended - New Structure)**
 
@@ -87,7 +87,7 @@ Taskmaster uses two primary methods for configuration:
 
 ## Tagged Task Lists Configuration (v0.17+)
 
-Taskmaster includes a tagged task lists system for multi-context task management.
+TaskGarage includes a tagged task lists system for multi-context task management.
 
 ### Global Tag Settings
 
@@ -109,7 +109,7 @@ Task Master provides manual git integration through the `--from-branch` option:
 
 ## State Management File
 
-Taskmaster uses `.taskmaster/state.json` to track tagged system runtime information:
+TaskGarage uses `.taskmaster/state.json` to track tagged system runtime information:
 
 ```json
 {

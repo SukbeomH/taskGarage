@@ -13,7 +13,7 @@ A task management system for AI-driven development with Claude, designed to work
 
 ## Configuration
 
-Taskmaster uses two primary configuration methods:
+TaskGarage uses two primary configuration methods:
 
 1.  **`.taskmasterconfig` File (Project Root)**
 
@@ -34,10 +34,10 @@ See the [Configuration Guide](docs/configuration.md) for full details.
 
 ```bash
 # Install globally
-npm install -g taskgarage-ai
+npm install -g taskgarage
 
 # OR install locally within your project
-npm install taskgarage-ai
+npm install taskgarage
 ```
 
 ### Initialize a new project
@@ -143,7 +143,7 @@ To enable enhanced task management capabilities directly within Cursor using the
 4. Configure with the following details:
    - Name: "Task Master"
    - Type: "Command"
-   - Command: "npx -y taskgarage-ai"
+   - Command: "npx -y taskgarage"
 5. Save the settings
 
 Once configured, you can interact with Task Master's task management commands directly through Cursor's interface, providing a more integrated experience.

@@ -60,7 +60,7 @@ function createStartMarker(options) {
 
 	// Create the export info content
 	const exportInfo =
-		`🎯 **Taskmaster Export** - ${timestamp}\n` +
+		`🎯 **TaskGarage Export** - ${timestamp}\n` +
 		`📋 Export: ${subtasksText} • ${statusText}\n` +
 		`🔗 Powered by [Task Master](${createTaskMasterUrl(projectRoot)})`;
 
@@ -78,7 +78,7 @@ function createStartMarker(options) {
  */
 function createEndMarker() {
 	return (
-		`\n> 📋 **End of Taskmaster Export** - Tasks are synced from your project using the \`sync-readme\` command.\n` +
+		`\n> 📋 **End of TaskGarage Export** - Tasks are synced from your project using the \`sync-readme\` command.\n` +
 		`<!-- TASKMASTER_EXPORT_END -->\n`
 	);
 }

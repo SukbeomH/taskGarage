@@ -83,9 +83,9 @@ Task Master provides an MCP server that Claude Code can connect to. Configure in
 ```json
 {
   "mcpServers": {
-    "taskgarage-ai": {
+    "taskgarage": {
       "command": "npx",
-      "args": ["-y", "--package=taskgarage-ai", "taskgarage-ai"],
+      "args": ["-y", "--package=taskgarage", "taskgarage"],
       "env": {
         "ANTHROPIC_API_KEY": "your_key_here",
         "PERPLEXITY_API_KEY": "your_key_here",
@@ -307,8 +307,8 @@ taskgarage models --set-fallback gpt-4o-mini
 For large migrations or multi-step processes:
 
 1. Create a markdown PRD file describing the new changes: `touch task-migration-checklist.md` (prds can be .txt or .md)
-2. Use Taskmaster to parse the new prd with `taskgarage parse-prd --append` (also available in MCP)
-3. Use Taskmaster to expand the newly generated tasks into subtasks. Consdier using `analyze-complexity` with the correct --to and --from IDs (the new ids) to identify the ideal subtask amounts for each task. Then expand them.
+2. Use TaskGarage to parse the new prd with `taskgarage parse-prd --append` (also available in MCP)
+3. Use TaskGarage to expand the newly generated tasks into subtasks. Consdier using `analyze-complexity` with the correct --to and --from IDs (the new ids) to identify the ideal subtask amounts for each task. Then expand them.
 4. Work through items systematically, checking them off as completed
 5. Use `taskgarage update-subtask` to log progress on each task/subtask and/or updating/researching them before/during implementation if getting stuck
 
@@ -368,7 +368,7 @@ taskgarage generate
 taskgarage fix-dependencies
 ```
 
-DO NOT RE-INITIALIZE. That will not do anything beyond re-adding the same Taskmaster core files.
+DO NOT RE-INITIALIZE. That will not do anything beyond re-adding the same TaskGarage core files.
 
 ## Important Notes
 

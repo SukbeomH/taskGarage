@@ -1,10 +1,10 @@
-# Taskmaster AI Installation Guide
+# TaskGarage AI Installation Guide
 
-This guide helps AI assistants install and configure Taskmaster for users in their development projects.
+This guide helps AI assistants install and configure TaskGarage for users in their development projects.
 
-## What is Taskmaster?
+## What is TaskGarage?
 
-Taskmaster is an AI-driven task management system designed for development workflows. It helps break down projects into manageable tasks, track dependencies, and maintain development momentum through structured, AI-enhanced planning.
+TaskGarage is an AI-driven task management system designed for development workflows. It helps break down projects into manageable tasks, track dependencies, and maintain development momentum through structured, AI-enhanced planning.
 
 ## Installation Steps
 
@@ -17,7 +17,7 @@ Add the following configuration to the user's MCP settings file (`.cursor/mcp.js
 	"mcpServers": {
 		"taskmaster-ai": {
 			"command": "npx",
-			"args": ["-y", "--package=taskgarage-ai", "taskgarage-ai"],
+			"args": ["-y", "--package=taskgarage", "taskgarage"],
 			"env": {
 				"ANTHROPIC_API_KEY": "user_will_add_their_key_here",
 				"PERPLEXITY_API_KEY": "user_will_add_their_key_here",
@@ -48,7 +48,7 @@ The user will be able to define 3 separate roles (can be the same provider or se
 
 ### Step 3: Initialize Project
 
-Once the MCP server is configured and API keys are added, initialize Taskmaster in the user's project:
+Once the MCP server is configured and API keys are added, initialize TaskGarage in the user's project:
 
 > Can you initialize Task Master in my project?
 
@@ -117,7 +117,7 @@ When adding keys to `.env` only, the `models` tool will explain that the keys ar
 
 ## CLI Fallback
 
-Taskmaster is also available via CLI commands, by installing with `npm install taskgarage-ai@latest` in a terminal. Running `taskgarage help` will show all available commands, which offer a 1:1 experience with the MCP server. As the AI agent, you should refer to the system prompts and rules provided to you to identify Taskmaster-specific rules that help you understand how and when to use it.
+TaskGarage is also available via CLI commands, by installing with `npm install taskgarage@latest` in a terminal. Running `taskgarage help` will show all available commands, which offer a 1:1 experience with the MCP server. As the AI agent, you should refer to the system prompts and rules provided to you to identify TaskGarage-specific rules that help you understand how and when to use it.
 
 ## Next Steps
 

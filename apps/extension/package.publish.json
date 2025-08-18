@@ -1,7 +1,7 @@
 {
 	"name": "taskgarage-hamster",
-	"displayName": "Taskmaster AI",
-	"description": "A visual Kanban board interface for Taskmaster projects in VS Code",
+	"displayName": "TaskGarage AI",
+	"description": "A visual Kanban board interface for TaskGarage projects in VS Code",
 	"version": "0.23.1",
 	"publisher": "Hamster",
 	"icon": "assets/icon.png",
@@ -50,7 +50,7 @@
 			"activitybar": [
 				{
 					"id": "taskmaster",
-					"title": "Taskmaster",
+					"title": "TaskGarage",
 					"icon": "assets/sidebar-icon.svg"
 				}
 			]
@@ -59,7 +59,7 @@
 			"taskmaster": [
 				{
 					"id": "taskmaster.welcome",
-					"name": "Taskmaster",
+					"name": "TaskGarage",
 					"type": "webview"
 				}
 			]
@@ -67,35 +67,35 @@
 		"commands": [
 			{
 				"command": "tm.showKanbanBoard",
-				"title": "Taskmaster: Show Board"
+				"title": "TaskGarage: Show Board"
 			},
 			{
 				"command": "tm.checkConnection",
-				"title": "Taskmaster: Check Connection"
+				"title": "TaskGarage: Check Connection"
 			},
 			{
 				"command": "tm.reconnect",
-				"title": "Taskmaster: Reconnect"
+				"title": "TaskGarage: Reconnect"
 			},
 			{
 				"command": "tm.openSettings",
-				"title": "Taskmaster: Open Settings"
+				"title": "TaskGarage: Open Settings"
 			}
 		],
 		"configuration": {
-			"title": "Taskmaster Kanban",
+			"title": "TaskGarage Kanban",
 			"properties": {
 				"taskmaster.mcp.command": {
 					"type": "string",
 					"default": "npx",
-					"description": "The command or absolute path to execute for the MCP server (e.g., 'npx' or '/usr/local/bin/taskgarage-ai')."
+					"description": "The command or absolute path to execute for the MCP server (e.g., 'npx' or '/usr/local/bin/taskgarage')."
 				},
 				"taskmaster.mcp.args": {
 					"type": "array",
 					"items": {
 						"type": "string"
 					},
-					"default": ["-y", "--package=taskgarage-ai", "taskgarage-ai"],
+					"default": ["-y", "--package=taskgarage", "taskgarage"],
 					"description": "An array of arguments to pass to the MCP server command."
 				},
 				"taskmaster.mcp.cwd": {

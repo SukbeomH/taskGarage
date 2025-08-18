@@ -94,9 +94,9 @@ describe('Selective Rules Removal', () => {
 			// Mock MCP config file
 			const mockMcpConfig = {
 				mcpServers: {
-					'taskgarage-ai': {
+					'taskgarage': {
 						command: 'npx',
-						args: ['taskgarage-ai']
+						args: ['taskgarage']
 					}
 				}
 			};
@@ -197,9 +197,9 @@ describe('Selective Rules Removal', () => {
 			// Mock MCP config file
 			const mockMcpConfig = {
 				mcpServers: {
-					'taskgarage-ai': {
+					'taskgarage': {
 						command: 'npx',
-						args: ['taskgarage-ai']
+						args: ['taskgarage']
 					}
 				}
 			};
@@ -276,9 +276,9 @@ describe('Selective Rules Removal', () => {
 			// Mock MCP config with only Task Master (will be completely deleted)
 			const mockMcpConfig = {
 				mcpServers: {
-					'taskgarage-ai': {
+					'taskgarage': {
 						command: 'npx',
-						args: ['taskgarage-ai']
+						args: ['taskgarage']
 					}
 				}
 			};
@@ -318,9 +318,9 @@ describe('Selective Rules Removal', () => {
 			// Mock MCP config with only Task Master (will be completely deleted)
 			const mockMcpConfig = {
 				mcpServers: {
-					'taskgarage-ai': {
+					'taskgarage': {
 						command: 'npx',
-						args: ['taskgarage-ai']
+						args: ['taskgarage']
 					}
 				}
 			};
@@ -360,9 +360,9 @@ describe('Selective Rules Removal', () => {
 			// Mock MCP config with multiple servers (Task Master will be removed, others preserved)
 			const mockMcpConfig = {
 				mcpServers: {
-					'taskgarage-ai': {
+					'taskgarage': {
 						command: 'npx',
-						args: ['taskgarage-ai']
+						args: ['taskgarage']
 					},
 					'other-server': {
 						command: 'node',
@@ -408,9 +408,9 @@ describe('Selective Rules Removal', () => {
 			// Mock MCP config with only Task Master (will be completely deleted)
 			const mockMcpConfig = {
 				mcpServers: {
-					'taskgarage-ai': {
+					'taskgarage': {
 						command: 'npx',
-						args: ['taskgarage-ai']
+						args: ['taskgarage']
 					}
 				}
 			};
@@ -439,9 +439,9 @@ describe('Selective Rules Removal', () => {
 			// Mock MCP config with multiple servers
 			const mockMcpConfig = {
 				mcpServers: {
-					'taskgarage-ai': {
+					'taskgarage': {
 						command: 'npx',
-						args: ['taskgarage-ai']
+						args: ['taskgarage']
 					},
 					'other-server': {
 						command: 'node',
@@ -478,7 +478,7 @@ describe('Selective Rules Removal', () => {
 			);
 			expect(mockWriteFileSync).toHaveBeenCalledWith(
 				path.join(projectRoot, mcpConfigPath),
-				expect.not.stringContaining('taskgarage-ai')
+				expect.not.stringContaining('taskgarage')
 			);
 		});
 
@@ -489,9 +489,9 @@ describe('Selective Rules Removal', () => {
 			// Mock MCP config with only Task Master
 			const mockMcpConfig = {
 				mcpServers: {
-					'taskgarage-ai': {
+					'taskgarage': {
 						command: 'npx',
-						args: ['taskgarage-ai']
+						args: ['taskgarage']
 					}
 				}
 			};
@@ -526,7 +526,7 @@ describe('Selective Rules Removal', () => {
 				mcpServers: {
 					'taskmaster-wrapper': {
 						command: 'npx',
-						args: ['-y', '--package=taskgarage-ai', 'taskgarage-ai']
+						args: ['-y', '--package=taskgarage', 'taskgarage']
 					},
 					'other-server': {
 						command: 'node',
@@ -547,7 +547,7 @@ describe('Selective Rules Removal', () => {
 			expect(result.removed).toBe(true);
 			expect(result.hasOtherServers).toBe(true);
 
-			// Verify only the server with taskgarage-ai in args was removed
+			// Verify only the server with taskgarage in args was removed
 			expect(mockWriteFileSync).toHaveBeenCalledWith(
 				path.join(projectRoot, mcpConfigPath),
 				expect.stringContaining('other-server')
@@ -627,7 +627,7 @@ describe('Selective Rules Removal', () => {
 			// Mock MCP config with multiple servers
 			const mockMcpConfig = {
 				mcpServers: {
-					'taskgarage-ai': { command: 'npx', args: ['taskgarage-ai'] },
+					'taskgarage': { command: 'npx', args: ['taskgarage'] },
 					'other-server': { command: 'node', args: ['other.js'] }
 				}
 			};

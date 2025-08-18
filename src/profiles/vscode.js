@@ -114,10 +114,10 @@ function onRemoveRulesProfile(targetDir) {
 		const configContent = fs.readFileSync(vscodeConfigPath, 'utf8');
 		const config = JSON.parse(configContent);
 
-		// Check if it has the servers section and taskgarage-ai server
-		if (config.servers && config.servers['taskgarage-ai']) {
-			// Remove taskgarage-ai server
-			delete config.servers['taskgarage-ai'];
+		// Check if it has the servers section and taskgarage server
+		if (config.servers && config.servers['taskgarage']) {
+			// Remove taskgarage server
+			delete config.servers['taskgarage'];
 
 			// Check if there are other MCP servers
 			const remainingServers = Object.keys(config.servers);

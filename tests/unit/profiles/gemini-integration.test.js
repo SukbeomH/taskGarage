@@ -60,9 +60,9 @@ describe('Gemini Profile Integration', () => {
 		const settingsContent = JSON.stringify(
 			{
 				mcpServers: {
-					'taskgarage-ai': {
+					'taskgarage': {
 						command: 'npx',
-						args: ['-y', 'taskgarage-ai'],
+						args: ['-y', 'taskgarage'],
 						env: {
 							YOUR_ANTHROPIC_API_KEY: 'your-api-key-here',
 							YOUR_PERPLEXITY_API_KEY: 'your-api-key-here',

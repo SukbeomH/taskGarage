@@ -2,7 +2,7 @@
 
 ## 🎯 개요
 
-이 섹션은 Taskmaster 문서 동기화 통합 기능의 실제 사용 예제와 시나리오를 다룹니다.
+이 섹션은 TaskGarage 문서 동기화 통합 기능의 실제 사용 예제와 시나리오를 다룹니다.
 
 ## 📁 관련 파일들
 
@@ -39,7 +39,7 @@ type User struct {
 }
 ```
 
-#### 📝 Taskmaster 사용
+#### 📝 TaskGarage 사용
 ```javascript
 // update_subtask로 코드 변경 기록
 await update_subtask({
@@ -85,7 +85,7 @@ app.put('/api/users/:id', updateUser);         // 새로 추가된 엔드포인�
 app.delete('/api/users/:id', deleteUser);      // 새로 추가된 엔드포인트
 ```
 
-#### 📝 Taskmaster 사용
+#### 📝 TaskGarage 사용
 ```javascript
 // update_subtask로 코드 변경 기록
 await update_subtask({
@@ -135,7 +135,7 @@ database:
   timeout: 30s           # 새로 추가된 옵션
 ```
 
-#### 📝 Taskmaster 사용
+#### 📝 TaskGarage 사용
 ```javascript
 // update_subtask로 코드 변경 기록
 await update_subtask({
@@ -186,7 +186,7 @@ const (
 )
 ```
 
-#### 📝 Taskmaster 사용
+#### 📝 TaskGarage 사용
 ```javascript
 // update_subtask로 코드 변경 기록
 await update_subtask({
@@ -394,4 +394,4 @@ for (const task of tasks) {
 
 **📝 마지막 업데이트**: 2024년 12월  
 **🔄 버전**: 1.0.0  
-**👥 기여자**: Taskmaster 개발팀
+**👥 기여자**: TaskGarage 개발팀

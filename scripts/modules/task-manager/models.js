@@ -454,7 +454,7 @@ async function setModel(role, modelId, options = {}) {
 						if (modelId.endsWith(':free')) {
 							warningMessage = `Warning: OpenRouter free model '${modelId}' selected. Free models have significant limitations including lower context windows, reduced rate limits, and may not support advanced features like tool_use. Consider using the paid version '${modelId.replace(':free', '')}' for full functionality.`;
 						} else {
-							warningMessage = `Warning: Custom OpenRouter model '${modelId}' set. This model is not officially validated by Taskmaster and may not function as expected.`;
+							warningMessage = `Warning: Custom OpenRouter model '${modelId}' set. This model is not officially validated by TaskGarage and may not function as expected.`;
 						}
 
 						report('warn', warningMessage);
@@ -479,7 +479,7 @@ async function setModel(role, modelId, options = {}) {
 						);
 					} else if (ollamaModels.some((m) => m.model === modelId)) {
 						determinedProvider = CUSTOM_PROVIDERS.OLLAMA;
-						warningMessage = `Warning: Custom Ollama model '${modelId}' set. Ensure your Ollama server is running and has pulled this model. Taskmaster cannot guarantee compatibility.`;
+						warningMessage = `Warning: Custom Ollama model '${modelId}' set. Ensure your Ollama server is running and has pulled this model. TaskGarage cannot guarantee compatibility.`;
 						report('warn', warningMessage);
 					} else {
 						// Server is running but model not found
@@ -559,7 +559,7 @@ async function setModel(role, modelId, options = {}) {
 					success: false,
 					error: {
 						code: 'MODEL_NOT_FOUND_NO_HINT',
-						message: `Model ID "${modelId}" not found in Taskmaster's supported models. If this is a custom model, please specify the provider using --openrouter, --ollama, --bedrock, --azure, or --vertex.`
+						message: `Model ID "${modelId}" not found in TaskGarage's supported models. If this is a custom model, please specify the provider using --openrouter, --ollama, --bedrock, --azure, or --vertex.`
 					}
 				};
 			}

@@ -7,7 +7,7 @@
 	"bin": {
 		"taskgarage": "bin/taskgarage.js",
 		"taskgarage-mcp": "mcp-server/server.js",
-		"taskgarage-ai": "mcp-server/server.js"
+		"taskgarage": "mcp-server/server.js"
 	},
 	"workspaces": [
 		"apps/*",

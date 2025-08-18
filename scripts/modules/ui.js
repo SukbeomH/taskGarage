@@ -45,7 +45,7 @@ function displayTaggedTasksFYI(data) {
 	console.log(
 		boxen(
 			chalk.white.bold('FYI: ') +
-				chalk.gray('Taskmaster now supports separate task lists per tag. ') +
+				chalk.gray('TaskGarage now supports separate task lists per tag. ') +
 				chalk.cyan(
 					'Use the --tag flag to create/read/update/filter tasks by tag.'
 				),

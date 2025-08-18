@@ -139,9 +139,9 @@ describe('Amp Profile Init Functionality', () => {
 
 			const initialConfig = {
 				mcpServers: {
-					'taskgarage-ai': {
+					'taskgarage': {
 						command: 'npx',
-						args: ['-y', '--package=taskgarage-ai', 'taskgarage-ai']
+						args: ['-y', '--package=taskgarage', 'taskgarage']
 					}
 				}
 			};
@@ -164,7 +164,7 @@ describe('Amp Profile Init Functionality', () => {
 
 			expect(config.mcpServers).toBeUndefined();
 			expect(config['amp.mcpServers']).toBeDefined();
-			expect(config['amp.mcpServers']['taskgarage-ai']).toBeDefined();
+			expect(config['amp.mcpServers']['taskgarage']).toBeDefined();
 		});
 
 		test('should not rename if amp.mcpServers already exists', () => {
@@ -179,9 +179,9 @@ describe('Amp Profile Init Functionality', () => {
 					}
 				},
 				'amp.mcpServers': {
-					'taskgarage-ai': {
+					'taskgarage': {
 						command: 'npx',
-						args: ['-y', '--package=taskgarage-ai', 'taskgarage-ai']
+						args: ['-y', '--package=taskgarage', 'taskgarage']
 					}
 				}
 			};
@@ -202,7 +202,7 @@ describe('Amp Profile Init Functionality', () => {
 			expect(config.mcpServers).toBeDefined();
 			expect(config.mcpServers['some-other-server']).toBeDefined();
 			expect(config['amp.mcpServers']).toBeDefined();
-			expect(config['amp.mcpServers']['taskgarage-ai']).toBeDefined();
+			expect(config['amp.mcpServers']['taskgarage']).toBeDefined();
 		});
 	});
 
@@ -264,9 +264,9 @@ describe('Amp Profile Init Functionality', () => {
 
 			const initialConfig = {
 				'amp.mcpServers': {
-					'taskgarage-ai': {
+					'taskgarage': {
 						command: 'npx',
-						args: ['-y', '--package=taskgarage-ai', 'taskgarage-ai']
+						args: ['-y', '--package=taskgarage', 'taskgarage']
 					}
 				},
 				'other.setting': 'value'
@@ -298,9 +298,9 @@ describe('Amp Profile Init Functionality', () => {
 
 			const initialConfig = {
 				'amp.mcpServers': {
-					'taskgarage-ai': {
+					'taskgarage': {
 						command: 'npx',
-						args: ['-y', '--package=taskgarage-ai', 'taskgarage-ai']
+						args: ['-y', '--package=taskgarage', 'taskgarage']
 					}
 				}
 			};

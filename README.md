@@ -1,8 +1,8 @@
 # TaskGarage [![GitHub stars](https://img.shields.io/github/stars/sukbeom/taskgarage?style=social)](https://github.com/sukbeom/taskgarage/stargazers)
 
-[![CI](https://github.com/eyaltoledano/claude-taskgarage/actions/workflows/ci.yml/badge.svg)](https://github.com/eyaltoledano/claude-taskgarage/actions/workflows/ci.yml) [![npm version](https://badge.fury.io/js/taskgarage-ai.svg)](https://badge.fury.io/js/taskgarage-ai) [![Discord](https://dcbadge.limes.pink/api/server/https://discord.gg/taskmasterai?style=flat)](https://discord.gg/taskmasterai) [![License: MIT with Commons Clause](https://img.shields.io/badge/license-MIT%20with%20Commons%20Clause-blue.svg)](LICENSE)
+[![CI](https://github.com/eyaltoledano/claude-taskgarage/actions/workflows/ci.yml/badge.svg)](https://github.com/eyaltoledano/claude-taskgarage/actions/workflows/ci.yml) [![npm version](https://badge.fury.io/js/taskgarage.svg)](https://badge.fury.io/js/taskgarage) [![Discord](https://dcbadge.limes.pink/api/server/https://discord.gg/taskmasterai?style=flat)](https://discord.gg/taskmasterai) [![License: MIT with Commons Clause](https://img.shields.io/badge/license-MIT%20with%20Commons%20Clause-blue.svg)](LICENSE)
 
-[![NPM Downloads](https://img.shields.io/npm/d18m/taskgarage-ai?style=flat)](https://www.npmjs.com/package/taskgarage-ai) [![NPM Downloads](https://img.shields.io/npm/dm/taskgarage-ai?style=flat)](https://www.npmjs.com/package/taskgarage-ai) [![NPM Downloads](https://img.shields.io/npm/dw/taskgarage-ai?style=flat)](https://www.npmjs.com/package/taskgarage-ai)
+[![NPM Downloads](https://img.shields.io/npm/d18m/taskgarage?style=flat)](https://www.npmjs.com/package/taskgarage) [![NPM Downloads](https://img.shields.io/npm/dm/taskgarage?style=flat)](https://www.npmjs.com/package/taskgarage) [![NPM Downloads](https://img.shields.io/npm/dw/taskgarage?style=flat)](https://www.npmjs.com/package/taskgarage)
 
 ## Forked from Task Master by [@eyaltoledano](https://x.com/eyaltoledano), [@RalphEcom](https://x.com/RalphEcom) & [@jasonzhou1993](https://x.com/jasonzhou1993)
 
@@ -33,13 +33,13 @@ The following documentation is also available in the `docs` directory:
 
 #### Quick Install for Cursor 1.0+ (One-Click)
 
-[![Add taskgarage-ai MCP server to Cursor](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/install-mcp?name=taskgarage-ai&config=eyJjb21tYW5kIjoibnB4IC15IC0tcGFja2FnZT10YXNrLW1hc3Rlci1haSB0YXNrLW1hc3Rlci1haSIsImVudiI6eyJBTlRIUk9QSUNfQVBJX0tFWSI6IllPVVJfQU5USFJPUElDX0FQSV9LRVlfSEVSRSIsIlBFUlBMRVhJVFlfQVBJX0tFWSI6IllPVVJfUEVSUExFWElUWV9BUElfS0VZX0hFUkUiLCJPUEVOQUlfQVBJX0tFWSI6IllPVVJfT1BFTkFJX0tFWV9IRVJFIiwiR09PR0xFX0FQSV9LRVkiOiJZT1VSX0dPT0dMRV9LRVlfSEVSRSIsIk1JU1RSQUxfQVBJX0tFWSI6IllPVVJfTUlTVFJBTF9LRVlfSEVSRSIsIkdST1FfQVBJX0tFWSI6IllPVVJfR1JPUV9LRVlfSEVSRSIsIk9QRU5ST1VURVJfQVBJX0tFWSI6IllPVVJfT1BFTlJPVVRFUl9LRVlfSEVSRSIsIlhBSV9BUElfS0VZIjoiWU9VUl9YQUlfS0VZX0hFUkUiLCJBWlVSRV9PUEVOQUlfQVBJX0tFWSI6IllPVVJfQVpVUkVfS0VZX0hFUkUiLCJPTExBTUFfQVBJX0tFWSI6IllPVVJfT0xMQU1BX0FQSV9LRVlfSEVSRSJ9fQ%3D%3D)
+[![Add taskgarage MCP server to Cursor](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/install-mcp?name=taskgarage&config=eyJjb21tYW5kIjoibnB4IC15IC0tcGFja2FnZT10YXNrLW1hc3Rlci1haSB0YXNrLW1hc3Rlci1haSIsImVudiI6eyJBTlRIUk9QSUNfQVBJX0tFWSI6IllPVVJfQU5USFJPUElDX0FQSV9LRVlfSEVSRSIsIlBFUlBMRVhJVFlfQVBJX0tFWSI6IllPVVJfUEVSUExFWElUWV9BUElfS0VZX0hFUkUiLCJPUEVOQUlfQVBJX0tFWSI6IllPVVJfT1BFTkFJX0tFWV9IRVJFIiwiR09PR0xFX0FQSV9LRVkiOiJZT1VSX0dPT0dMRV9LRVlfSEVSRSIsIk1JU1RSQUxfQVBJX0tFWSI6IllPVVJfTUlTVFJBTF9LRVlfSEVSRSIsIkdST1FfQVBJX0tFWSI6IllPVVJfR1JPUV9LRVlfSEVSRSIsIk9QRU5ST1VURVJfQVBJX0tFWSI6IllPVVJfT1BFTlJPVVRFUl9LRVlfSEVSRSIsIlhBSV9BUElfS0VZIjoiWU9VUl9YQUlfS0VZX0hFUkUiLCJBWlVSRV9PUEVOQUlfQVBJX0tFWSI6IllPVVJfQVpVUkVfS0VZX0hFUkUiLCJPTExBTUFfQVBJX0tFWSI6IllPVVJfT0xMQU1BX0FQSV9LRVlfSEVSRSJ9fQ%3D%3D)
 
 > **Note:** After clicking the link, you'll still need to add your API keys to the configuration. The link installs the MCP server with placeholder keys that you'll need to replace with your actual API keys.
 
 ## Requirements
 
-Taskmaster utilizes AI across several commands, and those require a separate API key. You can use a variety of models from different AI providers provided you add your API keys. For example, if you want to use Claude 3.7, you'll need an Anthropic API key.
+TaskGarage utilizes AI across several commands, and those require a separate API key. You can use a variety of models from different AI providers provided you add your API keys. For example, if you want to use Claude 3.7, you'll need an Anthropic API key.
 
 You can define 3 types of models to be used: the main model, the research model, and the fallback model (in case either the main or research fail). Whatever model you use, its provider API key must be present in either mcp.json or .env.
 
@@ -77,9 +77,9 @@ MCP (Model Control Protocol) lets you run Task Master directly from your editor.
 ```json
 {
   "mcpServers": {
-    "taskgarage-ai": {
+    "taskgarage": {
       "command": "npx",
-      "args": ["-y", "--package=taskgarage-ai", "taskgarage-ai"],
+      "args": ["-y", "--package=taskgarage", "taskgarage"],
       "env": {
         "ANTHROPIC_API_KEY": "YOUR_ANTHROPIC_API_KEY_HERE",
         "PERPLEXITY_API_KEY": "YOUR_PERPLEXITY_API_KEY_HERE",
@@ -99,16 +99,16 @@ MCP (Model Control Protocol) lets you run Task Master directly from your editor.
 
 > 🔑 Replace `YOUR_…_KEY_HERE` with your real API keys. You can remove keys you don't use.
 
-> **Note**: If you see `0 tools enabled` in the MCP settings, try removing the `--package=taskgarage-ai` flag from `args`.
+> **Note**: If you see `0 tools enabled` in the MCP settings, try removing the `--package=taskgarage` flag from `args`.
 
 ###### VS Code (`servers` + `type`)
 
 ```json
 {
   "servers": {
-    "taskgarage-ai": {
+    "taskgarage": {
       "command": "npx",
-      "args": ["-y", "--package=taskgarage-ai", "taskgarage-ai"],
+      "args": ["-y", "--package=taskgarage", "taskgarage"],
       "env": {
         "ANTHROPIC_API_KEY": "YOUR_ANTHROPIC_API_KEY_HERE",
         "PERPLEXITY_API_KEY": "YOUR_PERPLEXITY_API_KEY_HERE",
@@ -129,9 +129,9 @@ MCP (Model Control Protocol) lets you run Task Master directly from your editor.
 
 > 🔑 Replace `YOUR_…_KEY_HERE` with your real API keys. You can remove keys you don't use.
 
-#### 2. (Cursor-only) Enable Taskmaster MCP
+#### 2. (Cursor-only) Enable TaskGarage MCP
 
-Open Cursor Settings (Ctrl+Shift+J) ➡ Click on MCP tab on the left ➡ Enable taskgarage-ai with the toggle
+Open Cursor Settings (Ctrl+Shift+J) ➡ Click on MCP tab on the left ➡ Enable taskgarage with the toggle
 
 #### 3. (Optional) Configure the models you want to use
 
@@ -190,10 +190,10 @@ Use your AI assistant to:
 
 ```bash
 # Install globally
-npm install -g taskgarage-ai
+npm install -g taskgarage
 
 # OR install locally within your project
-npm install taskgarage-ai
+npm install taskgarage
 ```
 
 #### Initialize a new project

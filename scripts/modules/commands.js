@@ -4989,7 +4989,7 @@ function setupCLI() {
 }
 
 /**
- * Check for newer version of taskgarage-ai
+ * Check for newer version of taskgarage
  * @returns {Promise<{currentVersion: string, latestVersion: string, needsUpdate: boolean}>}
  */
 async function checkForUpdate() {
@@ -5000,7 +5000,7 @@ async function checkForUpdate() {
 		// Get the latest version from npm registry
 		const options = {
 			hostname: 'registry.npmjs.org',
-			path: '/taskgarage-ai',
+			path: '/taskgarage',
 			method: 'GET',
 			headers: {
 				Accept: 'application/vnd.npm.install-v1+json' // Lightweight response
@@ -5092,7 +5092,7 @@ function compareVersions(v1, v2) {
 function displayUpgradeNotification(currentVersion, latestVersion) {
 	const message = boxen(
 		`${chalk.blue.bold('Update Available!')} ${chalk.dim(currentVersion)} → ${chalk.green(latestVersion)}\n\n` +
-			`Run ${chalk.cyan('npm i taskgarage-ai@latest -g')} to update to the latest version with new features and bug fixes.`,
+			`Run ${chalk.cyan('npm i taskgarage@latest -g')} to update to the latest version with new features and bug fixes.`,
 		{
 			padding: 1,
 			margin: { top: 1, bottom: 1 },
@@ -5183,7 +5183,7 @@ async function runCLI(argv = process.argv) {
 				boxen(
 					chalk.red.bold('Configuration Update Required!') +
 						'\n\n' +
-						chalk.white('Taskmaster now uses a ') +
+						chalk.white('TaskGarage now uses a ') +
 						chalk.yellow.bold('configuration file') +
 						chalk.white(
 							' in your project for AI model choices and settings.\n\n' +
@@ -5211,7 +5211,7 @@ async function runCLI(argv = process.argv) {
 							'`taskgarage models` to check your config & available models\n'
 						) +
 						chalk.cyan(
-							'`taskgarage models --setup` to adjust the AI models used by Taskmaster'
+							'`taskgarage models --setup` to adjust the AI models used by TaskGarage'
 						),
 					{
 						padding: 1,

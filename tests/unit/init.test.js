@@ -207,9 +207,9 @@ describe('MCP Configuration Handling', () => {
 
 		// New MCP config to be added - references the installed package
 		const newMCPServer = {
-			'taskgarage-ai': {
+			'taskgarage': {
 				command: 'npx',
-				args: ['taskgarage-ai', 'mcp-server']
+				args: ['taskgarage', 'mcp-server']
 			}
 		};
 
@@ -225,9 +225,9 @@ describe('MCP Configuration Handling', () => {
 				}
 
 				// Add the taskmaster-ai server if it doesn't exist
-				if (!mcpConfig.mcpServers['taskgarage-ai']) {
-					mcpConfig.mcpServers['taskgarage-ai'] =
-						newMCPServer['taskgarage-ai'];
+				if (!mcpConfig.mcpServers['taskgarage']) {
+					mcpConfig.mcpServers['taskgarage'] =
+						newMCPServer['taskgarage'];
 				}
 
 				// Write the updated configuration
@@ -260,7 +260,7 @@ describe('MCP Configuration Handling', () => {
 		// Assert
 		expect(fs.writeFileSync).toHaveBeenCalledWith(
 			mcpJsonPath,
-			expect.stringContaining('taskgarage-ai')
+			expect.stringContaining('taskgarage')
 		);
 
 		// Should create a proper structure with mcpServers key
@@ -301,7 +301,7 @@ describe('MCP Configuration Handling', () => {
 		// Should add our new server
 		expect(fs.writeFileSync).toHaveBeenCalledWith(
 			mcpJsonPath,
-			expect.stringContaining('taskgarage-ai')
+			expect.stringContaining('taskgarage')
 		);
 	});
 
@@ -332,7 +332,7 @@ describe('MCP Configuration Handling', () => {
 		// Should create a new valid JSON file with our server
 		expect(fs.writeFileSync).toHaveBeenCalledWith(
 			mcpJsonPath,
-			expect.stringContaining('taskgarage-ai')
+			expect.stringContaining('taskgarage')
 		);
 	});
 
@@ -348,7 +348,7 @@ describe('MCP Configuration Handling', () => {
 			return false;
 		});
 
-		// Return JSON that already has taskgarage-ai
+		// Return JSON that already has taskgarage
 		fs.readFileSync.mockImplementation((filePath) => {
 			if (filePath.toString().includes('mcp.json')) {
 				return JSON.stringify({
@@ -357,7 +357,7 @@ describe('MCP Configuration Handling', () => {
 							command: 'node',
 							args: ['server.js']
 						},
-						'taskgarage-ai': {
+						'taskgarage': {
 							command: 'custom',
 							args: ['custom-args']
 						}
@@ -376,8 +376,8 @@ describe('MCP Configuration Handling', () => {
 		// Assert
 		// Verify the written data contains the original taskmaster configuration
 		const dataWritten = JSON.parse(writeFileSyncSpy.mock.calls[0][1]);
-		expect(dataWritten.mcpServers['taskgarage-ai'].command).toBe('custom');
-		expect(dataWritten.mcpServers['taskgarage-ai'].args).toContain(
+		expect(dataWritten.mcpServers['taskgarage'].command).toBe('custom');
+		expect(dataWritten.mcpServers['taskgarage'].args).toContain(
 			'custom-args'
 		);
 	});

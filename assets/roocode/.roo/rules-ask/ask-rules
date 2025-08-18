@@ -31,20 +31,20 @@ context_reporting: |
       <thinking>
       Strategy:
       - Focus on providing comprehensive information (the answer/analysis) within the `attempt_completion` `result` parameter.
-      - Orchestrator will use this information to potentially update Taskmaster's `description`, `details`, or log via `update_task`/`update_subtask`.
-      - My role is to *report* accurately, not *log* directly to Taskmaster.
+      - Orchestrator will use this information to potentially update TaskGarage's `description`, `details`, or log via `update_task`/`update_subtask`.
+      - My role is to *report* accurately, not *log* directly to TaskGarage.
       </thinking>
       - **Goal:** Ensure the `result` parameter in `attempt_completion` contains the complete and accurate answer/analysis requested by Orchestrator.
       - **Content:** Include the full answer, explanation, or analysis results. Cite sources if applicable. Structure the `result` clearly.
       - **Trigger:** Always provide a detailed `result` upon using `attempt_completion`.
-      - **Mechanism:** Orchestrator receives the `result` and performs any necessary Taskmaster updates or decides the next workflow step.
+      - **Mechanism:** Orchestrator receives the `result` and performs any necessary TaskGarage updates or decides the next workflow step.
 
-**Taskmaster Interaction:**
+**TaskGarage Interaction:**
 
-*   **Primary Responsibility:** Orchestrator is primarily responsible for updating Taskmaster (`set_task_status`, `update_task`, `update_subtask`) after receiving your `attempt_completion` result.
-*   **Direct Use (Rare & Specific):** Only use Taskmaster tools (`use_mcp_tool` with `taskmaster-ai`) if *explicitly instructed* by Orchestrator within the `new_task` message, and *only* for retrieving information (e.g., `get_task`). Do not update Taskmaster status or content directly.
+*   **Primary Responsibility:** Orchestrator is primarily responsible for updating TaskGarage (`set_task_status`, `update_task`, `update_subtask`) after receiving your `attempt_completion` result.
+*   **Direct Use (Rare & Specific):** Only use TaskGarage tools (`use_mcp_tool` with `taskmaster-ai`) if *explicitly instructed* by Orchestrator within the `new_task` message, and *only* for retrieving information (e.g., `get_task`). Do not update TaskGarage status or content directly.
 
-**Taskmaster-AI Strategy (for Autonomous Operation):**
+**TaskGarage-AI Strategy (for Autonomous Operation):**
 
 # Only relevant if operating autonomously (not delegated by Orchestrator), which is highly exceptional for Ask mode.
 taskmaster_strategy:
@@ -52,12 +52,12 @@ taskmaster_strategy:
   initialization: |
       <thinking>
       - **CHECK FOR TASKMASTER (Autonomous Only):**
-      - Plan: If I need to use Taskmaster tools autonomously (extremely rare), first use `list_files` to check if `tasks/tasks.json` exists.
+      - Plan: If I need to use TaskGarage tools autonomously (extremely rare), first use `list_files` to check if `tasks/tasks.json` exists.
       - If `tasks/tasks.json` is present = set TASKMASTER: ON, else TASKMASTER: OFF.
       </thinking>
-      *Execute the plan described above only if autonomous Taskmaster interaction is required.*
+      *Execute the plan described above only if autonomous TaskGarage interaction is required.*
   if_uninitialized: |
-      1. **Inform:** "Task Master is not initialized. Autonomous Taskmaster operations cannot proceed."
+      1. **Inform:** "Task Master is not initialized. Autonomous TaskGarage operations cannot proceed."
       2. **Suggest:** "Consider switching to Orchestrator mode to initialize and manage the project workflow."
   if_ready: |
       1. **Verify & Load:** Optionally fetch tasks using `taskmaster-ai`'s `get_tasks` tool if needed for autonomous context (again, very rare for Ask).

@@ -159,13 +159,13 @@ function onRemoveRulesProfile(targetDir) {
 		const configContent = fs.readFileSync(mcpConfigPath, 'utf8');
 		const config = JSON.parse(configContent);
 
-		// Check if it has the amp.mcpServers section and taskgarage-ai server
+		// Check if it has the amp.mcpServers section and taskgarage server
 		if (
 			config['amp.mcpServers'] &&
-			config['amp.mcpServers']['taskgarage-ai']
+			config['amp.mcpServers']['taskgarage']
 		) {
-			// Remove taskgarage-ai server
-			delete config['amp.mcpServers']['taskgarage-ai'];
+			// Remove taskgarage server
+			delete config['amp.mcpServers']['taskgarage'];
 
 			// Check if there are other MCP servers in amp.mcpServers
 			const remainingServers = Object.keys(config['amp.mcpServers']);

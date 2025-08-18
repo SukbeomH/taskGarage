@@ -3,14 +3,14 @@ import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { join, dirname, resolve } from 'node:path';
 
-// Find the root directory by looking for package.json with task-master-ai
+// Find the root directory by looking for package.json with taskgarage
 export function findRootDir(startDir) {
 	let currentDir = resolve(startDir);
 	while (currentDir !== '/') {
 		const pkgPath = join(currentDir, 'package.json');
 		try {
 			const pkg = JSON.parse(readFileSync(pkgPath, 'utf8'));
-			if (pkg.name === 'task-master-ai' || pkg.repository) {
+			if (pkg.name === 'taskgarage' || pkg.repository) {
 				return currentDir;
 			}
 		} catch {}

@@ -234,14 +234,14 @@ export function initTaskMaster(overrides = {}) {
 			);
 		}
 
-		const hasTaskmasterDir = fs.existsSync(
+		const hasTaskGarageDir = fs.existsSync(
 			path.join(resolvedOverride, TASKMASTER_DIR)
 		);
 		const hasLegacyConfig = fs.existsSync(
 			path.join(resolvedOverride, LEGACY_CONFIG_FILE)
 		);
 
-		if (!hasTaskmasterDir && !hasLegacyConfig) {
+		if (!hasTaskGarageDir && !hasLegacyConfig) {
 			throw new Error(
 				`Project root override is not a valid taskmaster project: ${resolvedOverride}`
 			);

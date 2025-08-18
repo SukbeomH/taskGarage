@@ -2,11 +2,11 @@
 inclusion: always
 ---
 
-# Taskmaster Hook-Driven Workflow
+# TaskGarage Hook-Driven Workflow
 
 ## Core Principle: Hooks Automate Task Management
 
-When working with Taskmaster in Kiro, **avoid manually marking tasks as done**. The hook system automatically handles task completion based on:
+When working with TaskGarage in Kiro, **avoid manually marking tasks as done**. The hook system automatically handles task completion based on:
 
 - **Test Success**: `[TM] Test Success Task Completer` detects passing tests and prompts for task completion
 - **Code Changes**: `[TM] Code Change Task Tracker` monitors implementation progress

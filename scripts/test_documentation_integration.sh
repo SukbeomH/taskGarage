@@ -1,10 +1,10 @@
 #!/bin/bash
 # scripts/test_documentation_integration.sh
-# Taskmaster 문서 동기화 통합 기능 테스트 스크립트
+# TaskGarage 문서 동기화 통합 기능 테스트 스크립트
 
 set -e
 
-echo "🧪 Taskmaster 문서 동기화 통합 기능 테스트 시작..."
+echo "🧪 TaskGarage 문서 동기화 통합 기능 테스트 시작..."
 echo "=================================================="
 
 # 색상 정의
@@ -118,8 +118,8 @@ run_test "워크플로우에 문서 업데이트 단계 추가 확인" \
     "grep -q 'Update Documentation' .cursor/rules/dev_workflow.mdc" \
     "true"
 
-# 7. Taskmaster 도구 수정 확인 테스트
-log_info "7. Taskmaster 도구 수정 확인"
+# 7. TaskGarage 도구 수정 확인 테스트
+log_info "7. TaskGarage 도구 수정 확인"
 run_test "update_subtask에 문서 동기화 로직 추가 확인" \
     "grep -q '문서 업데이트 필요성 체크' scripts/modules/task-manager/update-subtask-by-id.js" \
     "true"

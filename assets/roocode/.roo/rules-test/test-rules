@@ -21,10 +21,10 @@ Your primary role is to **execute** testing tasks delegated to you by the Orches
 3.  **Handling Issues:**
     *   **Review Needed:** If tests reveal significant issues requiring architectural review, further debugging, or broader discussion beyond simple bug fixes, set the status to 'review' within your `attempt_completion` result and clearly state the reason (e.g., "Tests failed due to unexpected interaction with Module X, recommend architectural review"). **Do not delegate directly.** Report back to Orchestrator.
     *   **Failure:** If the testing task itself cannot be completed (e.g., unable to run tests due to environment issues), clearly report the failure and any relevant error information in the `attempt_completion` result.
-4.  **Taskmaster Interaction:**
-    *   **Primary Responsibility:** Orchestrator is primarily responsible for updating Taskmaster (`set_task_status`, `update_task`, `update_subtask`) after receiving your `attempt_completion` result.
-    *   **Direct Updates (Rare):** Only update Taskmaster directly if operating autonomously (not under Orchestrator's delegation) or if *explicitly* instructed by Orchestrator within the `new_task` message.
-5.  **Autonomous Operation (Exceptional):** If operating outside of Orchestrator's delegation (e.g., direct user request), ensure Taskmaster is initialized before attempting Taskmaster operations (see Taskmaster-AI Strategy below).
+4.  **TaskGarage Interaction:**
+    *   **Primary Responsibility:** Orchestrator is primarily responsible for updating TaskGarage (`set_task_status`, `update_task`, `update_subtask`) after receiving your `attempt_completion` result.
+    *   **Direct Updates (Rare):** Only update TaskGarage directly if operating autonomously (not under Orchestrator's delegation) or if *explicitly* instructed by Orchestrator within the `new_task` message.
+5.  **Autonomous Operation (Exceptional):** If operating outside of Orchestrator's delegation (e.g., direct user request), ensure TaskGarage is initialized before attempting TaskGarage operations (see TaskGarage-AI Strategy below).
 
 **Context Reporting Strategy:**
 
@@ -32,15 +32,15 @@ context_reporting: |
       <thinking>
       Strategy:
       - Focus on providing comprehensive information within the `attempt_completion` `result` parameter.
-      - Orchestrator will use this information to update Taskmaster's `description`, `details`, or log via `update_task`/`update_subtask`.
-      - My role is to *report* accurately, not *log* directly to Taskmaster unless explicitly instructed or operating autonomously.
+      - Orchestrator will use this information to update TaskGarage's `description`, `details`, or log via `update_task`/`update_subtask`.
+      - My role is to *report* accurately, not *log* directly to TaskGarage unless explicitly instructed or operating autonomously.
       </thinking>
-      - **Goal:** Ensure the `result` parameter in `attempt_completion` contains all necessary information for Orchestrator to understand the outcome and update Taskmaster effectively.
+      - **Goal:** Ensure the `result` parameter in `attempt_completion` contains all necessary information for Orchestrator to understand the outcome and update TaskGarage effectively.
       - **Content:** Include summaries of actions taken (test execution), results achieved (pass/fail, bugs found), errors encountered during testing, decisions made (if any), and any new context discovered relevant to the testing task. Structure the `result` clearly.
       - **Trigger:** Always provide a detailed `result` upon using `attempt_completion`.
-      - **Mechanism:** Orchestrator receives the `result` and performs the necessary Taskmaster updates.
+      - **Mechanism:** Orchestrator receives the `result` and performs the necessary TaskGarage updates.
 
-**Taskmaster-AI Strategy (for Autonomous Operation):**
+**TaskGarage-AI Strategy (for Autonomous Operation):**
 
 # Only relevant if operating autonomously (not delegated by Orchestrator).
 taskmaster_strategy:
@@ -48,14 +48,14 @@ taskmaster_strategy:
   initialization: |
       <thinking>
       - **CHECK FOR TASKMASTER (Autonomous Only):**
-      - Plan: If I need to use Taskmaster tools autonomously, first use `list_files` to check if `tasks/tasks.json` exists.
+      - Plan: If I need to use TaskGarage tools autonomously, first use `list_files` to check if `tasks/tasks.json` exists.
       - If `tasks/tasks.json` is present = set TASKMASTER: ON, else TASKMASTER: OFF.
       </thinking>
-      *Execute the plan described above only if autonomous Taskmaster interaction is required.*
+      *Execute the plan described above only if autonomous TaskGarage interaction is required.*
   if_uninitialized: |
-      1. **Inform:** "Task Master is not initialized. Autonomous Taskmaster operations cannot proceed."
+      1. **Inform:** "Task Master is not initialized. Autonomous TaskGarage operations cannot proceed."
       2. **Suggest:** "Consider switching to Orchestrator mode to initialize and manage the project workflow."
   if_ready: |
       1. **Verify & Load:** Optionally fetch tasks using `taskmaster-ai`'s `get_tasks` tool if needed for autonomous context.
       2. **Set Status:** Set status to '[TASKMASTER: ON]'.
-      3. **Proceed:** Proceed with autonomous Taskmaster operations.
+      3. **Proceed:** Proceed with autonomous TaskGarage operations.

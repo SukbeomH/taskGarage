@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // scripts/test_documentation_integration.js
-// Taskmaster 문서 동기화 통합 기능 테스트 스크립트
+// TaskGarage 문서 동기화 통합 기능 테스트 스크립트
 
 import fs from 'fs';
 import path from 'path';
@@ -345,7 +345,7 @@ function testRuleFiles() {
 
 // 메인 테스트 실행
 async function runAllTests() {
-	console.log('🧪 Taskmaster 문서 동기화 통합 기능 테스트 시작...');
+	console.log('🧪 TaskGarage 문서 동기화 통합 기능 테스트 시작...');
 	console.log('==================================================\n');
 	
 	// 테스트 실행

@@ -4,7 +4,7 @@ Execute this streamlined installation:
 
 ```bash
 # Check and install in one command
-taskgarage --version 2>/dev/null || npm install -g taskgarage-ai
+taskgarage --version 2>/dev/null || npm install -g taskgarage
 
 # Verify installation
 taskgarage --version
