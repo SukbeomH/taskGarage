@@ -1,5 +1,5 @@
 
-# Task Master 테스트 가이드
+# Task Garage 테스트 가이드
 
 ## **테스트 아키텍처**
 
@@ -234,7 +234,7 @@ describe('CLI Commands', () => {
             { cwd: testProjectPath, encoding: 'utf8' }
         );
         
-        expect(result).toContain('Task Master 프로젝트가 초기화되었습니다');
+        expect(result).toContain('Task Garage 프로젝트가 초기화되었습니다');
         expect(fs.existsSync(path.join(testProjectPath, '.taskmaster'))).toBe(true);
     });
     

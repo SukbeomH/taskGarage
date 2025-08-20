@@ -3,7 +3,7 @@ alwaysApply: true
 ---
 
 
-# Task Master CLI 명령어 구현 가이드라인
+# Task Garage CLI 명령어 구현 가이드라인
 
 ## **명령어 구조 및 패턴**
 
@@ -360,7 +360,7 @@ const hasCircularDependency = (taskId, dependencies, visited = new Set()) => {
   ));
 } 
 
-# Task Master CLI 명령어 구현 가이드라인
+# Task Garage CLI 명령어 구현 가이드라인
 
 ## **명령어 구조 및 패턴**
 

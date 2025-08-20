@@ -1,10 +1,10 @@
-# Task Master 아키텍처 가이드
+# Task Garage 아키텍처 가이드
 
 ## **전체 시스템 구조**
 
 ### **핵심 컴포넌트**
 ```
-Task Master CLI
+Task Garage CLI
 ├── CLI Interface (Commander.js)
 ├── MCP Server (Model Context Protocol)
 ├── Core Logic Modules

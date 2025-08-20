@@ -2,7 +2,7 @@
 alwaysApply: true
 ---
 
-# Task Master AI 제공자 관리 가이드
+# Task Garage AI 제공자 관리 가이드
 
 ## **AI 제공자 아키텍처**
 
@@ -556,7 +556,7 @@ function validateModelConfig(config) {
 8.  **Documentation:**
     -   Update any relevant documentation (like `README.md` or other rules) mentioning supported providers or configuration.
 
-*(Note: For providers **without** an official Vercel AI SDK adapter, the process would involve directly using the provider's own SDK or API within the `src/ai-providers/<provider-name>.js` module and manually constructing responses compatible with the unified service layer, which is significantly more complex.)*# Task Master AI 제공자 관리 가이드
+*(Note: For providers **without** an official Vercel AI SDK adapter, the process would involve directly using the provider's own SDK or API within the `src/ai-providers/<provider-name>.js` module and manually constructing responses compatible with the unified service layer, which is significantly more complex.)*# Task Garage AI 제공자 관리 가이드
 
 ## **AI 제공자 아키텍처**
 

@@ -3,7 +3,7 @@ alwaysApply: true
 ---
 
 
-# Task Master AI 서비스 레이어 가이드
+# Task Garage AI 서비스 레이어 가이드
 
 ## **통합 AI 서비스 아키텍처**
 
@@ -57,7 +57,7 @@ async function generateTaskDescription(prompt, context) {
         temperature: 0.7,
         commandName: 'add-task',
         outputType: context.mcpLog ? 'mcp' : 'cli',
-        systemPrompt: "당신은 Task Master AI 어시스턴트입니다."
+        systemPrompt: "당신은 Task Garage AI 어시스턴트입니다."
     });
 
     return {
@@ -264,15 +264,15 @@ const telemetryData = {
 ```javascript
 // ✅ DO: 시스템 프롬프트 표준화
 const SYSTEM_PROMPTS = {
-    'add-task': `당신은 Task Master AI 어시스턴트입니다. 
+    'add-task': `당신은 Task Garage AI 어시스턴트입니다. 
 사용자의 요청을 분석하여 명확하고 실행 가능한 태스크를 생성하세요.
 태스크는 구체적이고 측정 가능해야 합니다.`,
     
-    'expand-task': `당신은 Task Master AI 어시스턴트입니다.
+    'expand-task': `당신은 Task Garage AI 어시스턴트입니다.
 복잡한 태스크를 더 작고 관리 가능한 서브태스크로 분해하세요.
 각 서브태스크는 독립적으로 완료 가능해야 합니다.`,
     
-    'analyze-complexity': `당신은 Task Master AI 어시스턴트입니다.
+    'analyze-complexity': `당신은 Task Garage AI 어시스턴트입니다.
 태스크의 복잡성을 분석하여 1-10 척도로 평가하세요.
 기술적 복잡성, 시간 소요, 의존성을 고려하세요.`
 };
@@ -538,7 +538,7 @@ function validatePrompt(prompt, commandName) {
 *   ❌ **DON'T**: Handle API key resolution outside the service layer (it uses `utils.js` internally).
 *   ⚠️ **generateObjectService Caution**: Be aware of potential reliability issues with `generateObjectService` across different providers and complex schemas. Prefer `generateTextService` + manual parsing as a more robust alternative for structured data needs.
 
-# Task Master AI 서비스 레이어 가이드
+# Task Garage AI 서비스 레이어 가이드
 
 ## **통합 AI 서비스 아키텍처**
 
@@ -592,7 +592,7 @@ async function generateTaskDescription(prompt, context) {
         temperature: 0.7,
         commandName: 'add-task',
         outputType: context.mcpLog ? 'mcp' : 'cli',
-        systemPrompt: "당신은 Task Master AI 어시스턴트입니다."
+        systemPrompt: "당신은 Task Garage AI 어시스턴트입니다."
     });
 
     return {
@@ -799,15 +799,15 @@ const telemetryData = {
 ```javascript
 // ✅ DO: 시스템 프롬프트 표준화
 const SYSTEM_PROMPTS = {
-    'add-task': `당신은 Task Master AI 어시스턴트입니다. 
+    'add-task': `당신은 Task Garage AI 어시스턴트입니다. 
 사용자의 요청을 분석하여 명확하고 실행 가능한 태스크를 생성하세요.
 태스크는 구체적이고 측정 가능해야 합니다.`,
     
-    'expand-task': `당신은 Task Master AI 어시스턴트입니다.
+    'expand-task': `당신은 Task Garage AI 어시스턴트입니다.
 복잡한 태스크를 더 작고 관리 가능한 서브태스크로 분해하세요.
 각 서브태스크는 독립적으로 완료 가능해야 합니다.`,
     
-    'analyze-complexity': `당신은 Task Master AI 어시스턴트입니다.
+    'analyze-complexity': `당신은 Task Garage AI 어시스턴트입니다.
 태스크의 복잡성을 분석하여 1-10 척도로 평가하세요.
 기술적 복잡성, 시간 소요, 의존성을 고려하세요.`
 };

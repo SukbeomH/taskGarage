@@ -1,4 +1,4 @@
-# Task Master 새 기능 통합 가이드
+# Task Garage 새 기능 통합 가이드
 
 ## **새 기능 개발 워크플로우**
 
@@ -637,4 +637,4 @@ function getErrorMessage(error) {
   - ✅ DO: Ensure tagged system features work with flags
   - ✅ DO: Provide clear documentation about flag usage
 
-By following these guidelines, new features will integrate smoothly with the Task Master ecosystem while supporting the enhanced tagged task lists system for multi-context development workflows.
+By following these guidelines, new features will integrate smoothly with the Task Garage ecosystem while supporting the enhanced tagged task lists system for multi-context development workflows.

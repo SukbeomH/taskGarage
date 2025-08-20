@@ -2,7 +2,7 @@
 alwaysApply: true
 ---
 
-# Task Master 컨텍스트 수집 가이드
+# Task Garage 컨텍스트 수집 가이드
 
 ## **컨텍스트 수집 아키텍처**
 
@@ -540,7 +540,7 @@ describe('Context Validation', () => {
 ```
 
 This context gathering system provides a foundation for building more intelligent, context-aware commands that can leverage project knowledge to provide better AI-powered assistance.
-# Task Master 컨텍스트 수집 가이드
+# Task Garage 컨텍스트 수집 가이드
 
 ## **컨텍스트 수집 아키텍처**
 

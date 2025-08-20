@@ -3,7 +3,7 @@ alwaysApply: true
 ---
 
 
-# Task Master 의존성 관리 가이드
+# Task Garage 의존성 관리 가이드
 
 ## **의존성 시스템 아키텍처**
 
@@ -680,7 +680,7 @@ describe('Dependency Management', () => {
   ```
 
 Refer to [`dependency-manager.js`](mdc:scripts/modules/dependency-manager.js) for implementation examples and [`new_features.mdc`](mdc:.cursor/rules/new_features.mdc) for integration guidelines. 
-# Task Master 의존성 관리 가이드
+# Task Garage 의존성 관리 가이드
 
 ## **의존성 시스템 아키텍처**
 

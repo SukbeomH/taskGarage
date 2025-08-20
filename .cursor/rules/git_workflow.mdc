@@ -1,9 +1,9 @@
 ---
-description: Git workflow integrated with Task Master for feature development and collaboration
+description: Git workflow integrated with Task Garage for feature development and collaboration
 globs: "**/*"
 alwaysApply: true
 ---
-# Git Workflow with Task Master Integration
+# Git Workflow with Task Garage Integration
 
 ## **Branch Strategy**
 
@@ -28,7 +28,7 @@ random-branch-name
 
 ## **Tagged Task Lists Integration**
 
-Task Master's **tagged task lists system** provides significant benefits for Git workflows:
+Task Garage's **tagged task lists system** provides significant benefits for Git workflows:
 
 ### **Multi-Context Development**
 - **Branch-Specific Tasks**: Each branch can have its own task context using tags
@@ -98,7 +98,7 @@ git branch  # Verify you're on main
 # 3. Create task-specific branch
 git checkout -b task-004  # For Task 4
 
-# 4. Set task status in Task Master (tasks automatically use current tag context)
+# 4. Set task status in Task Garage (tasks automatically use current tag context)
 # Use: set_task_status tool or `task-master set-status --id=4 --status=in-progress`
 ```
 
@@ -230,7 +230,7 @@ Task 4: Setup Express.js Server Project - Testing complete"
 - `refactor(task-X):` - Code refactoring
 - `chore(task-X):` - Build/tooling changes
 
-## **Task Master Commands Integration**
+## **Task Garage Commands Integration**
 
 ### **Essential Commands for Git Workflow**
 ```bash
@@ -326,7 +326,7 @@ Mention any dependent tasks or follow-up work needed.
 # With tagged task lists, merge conflicts are significantly reduced:
 # 1. Different branches can use different tag contexts
 # 2. Tasks in separate tags are completely isolated
-# 3. Use Task Master's move functionality to reorganize if needed
+# 3. Use Task Garage's move functionality to reorganize if needed
 
 # Manual git integration available:
 # - Use `task-master add-tag --from-branch` to create tags from current branch
@@ -399,6 +399,6 @@ task-master update-task --id=<id> --prompt="Task cancelled due to..."
 ---
 
 **References:**
-- [Task Master Workflow](mdc:.cursor/rules/dev_workflow.mdc)
+- [Task Garage Workflow](mdc:.cursor/rules/dev_workflow.mdc)
 - [Architecture Guidelines](mdc:.cursor/rules/architecture.mdc)
-- [Task Master Commands](mdc:.cursor/rules/taskmaster.mdc)
+- [Task Garage Commands](mdc:.cursor/rules/taskmaster.mdc)
