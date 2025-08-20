@@ -1,3 +1,364 @@
+---
+alwaysApply: true
+---
+
+
+# Task Master CLI 명령어 구현 가이드라인
+
+## **명령어 구조 및 패턴**
+
+### **Commander.js 명령어 등록 패턴**
+```javascript
+// ✅ DO: 표준 명령어 등록 패턴
+programInstance
+    .command('command-name')
+    .description('명령어 설명')
+    .option('-f, --file <file>', 'Path to the tasks file', TASKMASTER_TASKS_FILE)
+    .option('--tag <tag>', 'Specify tag context for task operations')
+    .action(async (options) => {
+        // 명령어 로직
+    });
+```
+
+### **TaskMaster 초기화 패턴**
+```javascript
+// ✅ DO: 모든 명령어에서 TaskMaster 초기화
+const taskMaster = initTaskMaster({
+    tasksPath: options.file || true,
+    tag: options.tag
+});
+
+const projectRoot = taskMaster.getProjectRoot();
+const tasksPath = taskMaster.getTasksPath();
+const tag = taskMaster.getCurrentTag();
+```
+
+### **에러 처리 패턴**
+```javascript
+// ✅ DO: 일관된 에러 처리
+try {
+    // 명령어 로직
+} catch (error) {
+    console.error(chalk.red(`Error: ${error.message}`));
+    process.exit(1);
+}
+```
+
+## **명령어 카테고리별 구현**
+
+### **1. 태스크 관리 명령어**
+- **파일**: [commands.js](mdc:scripts/modules/commands.js) (라인 200-1000)
+- **패턴**: `add-task`, `remove-task`, `list`, `show`, `next`
+- **공통 옵션**: `--file`, `--tag`, `--status`
+
+```javascript
+// ✅ DO: 태스크 명령어 표준 패턴
+programInstance
+    .command('add-task')
+    .description('Add a new task')
+    .option('-p, --prompt <text>', 'Task description')
+    .option('--priority <priority>', 'Task priority')
+    .option('--dependencies <ids>', 'Comma-separated dependency IDs')
+    .action(async (options) => {
+        const taskMaster = initTaskMaster({
+            tasksPath: options.file || true,
+            tag: options.tag
+        });
+        
+        const context = {
+            projectRoot: taskMaster.getProjectRoot(),
+            commandName: 'add-task',
+            outputType: 'cli'
+        };
+        
+        await addTask(taskMaster.getTasksPath(), options, context, 'text');
+    });
+```
+
+### **2. 태그 관리 명령어**
+- **파일**: [commands.js](mdc:scripts/modules/commands.js) (라인 4500-5000)
+- **패턴**: `add-tag`, `delete-tag`, `tags`, `use-tag`, `rename-tag`, `copy-tag`
+
+```javascript
+// ✅ DO: 태그 명령어 표준 패턴
+programInstance
+    .command('add-tag')
+    .description('Create a new tag context')
+    .argument('[tagName]', 'Name of the new tag')
+    .option('--from-branch', 'Create tag from current git branch')
+    .option('--copy-from-current', 'Copy tasks from current tag')
+    .action(async (tagName, options) => {
+        const taskMaster = initTaskMaster({
+            tasksPath: options.file || true
+        });
+        
+        const context = {
+            projectRoot: taskMaster.getProjectRoot(),
+            commandName: 'add-tag',
+            outputType: 'cli'
+        };
+        
+        await createTag(taskMaster.getTasksPath(), tagName, options, context, 'text');
+    });
+```
+
+### **3. 스크립트 실행 명령어**
+- **파일**: [commands.js](mdc:scripts/modules/commands.js) (라인 5000-5800)
+- **패턴**: `run-script`, `get-script-result`, `list-script-results`, `analyze-script-result`
+
+```javascript
+// ✅ DO: 스크립트 명령어 표준 패턴
+programInstance
+    .command('run-script')
+    .description('Execute terminal script and capture results')
+    .argument('<command>', 'Command to execute')
+    .option('-w, --working-directory <dir>', 'Working directory')
+    .option('-t, --timeout <ms>', 'Execution timeout', '300000')
+    .action(async (command, options) => {
+        const taskMaster = initTaskMaster({
+            tasksPath: options.file || true
+        });
+        
+        const result = await executeScript(command, {
+            workingDirectory: options.workingDirectory || process.cwd(),
+            timeout: parseInt(options.timeout, 10)
+        });
+        
+        // 결과 표시 로직
+    });
+```
+
+### **4. AI 모델 관리 명령어**
+- **파일**: [commands.js](mdc:scripts/modules/commands.js) (라인 1000-1500)
+- **패턴**: `models`, `lang`
+
+```javascript
+// ✅ DO: 모델 설정 명령어 패턴
+programInstance
+    .command('models')
+    .description('Manage AI model configuration')
+    .option('--set-main <model_id>', 'Set primary model')
+    .option('--set-research <model_id>', 'Set research model')
+    .option('--setup', 'Interactive setup')
+    .action(async (options) => {
+        const taskMaster = initTaskMaster({});
+        const projectRoot = taskMaster.getProjectRoot();
+        
+        if (options.setup) {
+            await runInteractiveSetup(projectRoot);
+        } else {
+            // 모델 설정 로직
+        }
+    });
+```
+
+## **옵션 및 인자 처리**
+
+### **공통 옵션 패턴**
+```javascript
+// ✅ DO: 모든 명령어에 공통 옵션 추가
+.option('-f, --file <file>', 'Path to the tasks file', TASKMASTER_TASKS_FILE)
+.option('--tag <tag>', 'Specify tag context for task operations')
+.option('-y, --yes', 'Skip confirmation prompts')
+```
+
+### **인자 검증 패턴**
+```javascript
+// ✅ DO: 필수 인자 검증
+if (!sourceId || !destinationId) {
+    console.error(chalk.red('Error: Both --from and --to parameters are required'));
+    console.log(chalk.yellow('Usage: taskgarage move --from=<sourceId> --to=<destinationId>'));
+    process.exit(1);
+}
+```
+
+### **파일 존재성 검증**
+```javascript
+// ✅ DO: tasks.json 파일 존재성 검증
+if (!fs.existsSync(tasksPath)) {
+    console.error(chalk.red(`Error: Tasks file not found at path: ${tasksPath}`));
+    console.log(chalk.yellow('Hint: Run taskgarage init or taskgarage parse-prd to create tasks.json first'));
+    process.exit(1);
+}
+```
+
+## **UI 및 출력 처리**
+
+### **색상 사용 패턴**
+```javascript
+// ✅ DO: 일관된 색상 사용
+console.log(chalk.blue('Processing...'));           // 정보
+console.log(chalk.green('Success!'));              // 성공
+console.log(chalk.yellow('Warning...'));           // 경고
+console.error(chalk.red('Error: ...'));            // 에러
+console.log(chalk.cyan('=== Section ==='));        // 섹션 구분
+```
+
+### **진행률 표시**
+```javascript
+// ✅ DO: ora를 사용한 로딩 표시
+const spinner = ora('Processing...').start();
+try {
+    // 작업 수행
+    spinner.succeed('Completed successfully');
+} catch (error) {
+    spinner.fail('Failed');
+    throw error;
+}
+```
+
+### **도움말 표시**
+```javascript
+// ✅ DO: 명령어별 도움말 추가
+.addHelpText('after', `
+Examples:
+$ taskgarage add-task --prompt="Implement user auth"
+$ taskgarage list --status=pending
+$ taskgarage show 5
+`);
+```
+
+## **MCP 서버 통합**
+
+### **MCP 도구와 CLI 명령어 매핑**
+- **MCP 도구**: `mcp-server/src/tools/` 디렉토리
+- **CLI 명령어**: `scripts/modules/commands.js`
+- **공통 로직**: `scripts/modules/task-manager/` 디렉토리
+
+```javascript
+// ✅ DO: MCP와 CLI 간 일관된 로직 사용
+// MCP 도구에서 사용
+import { addTask } from '../../../scripts/modules/task-manager/add-task.js';
+
+// CLI 명령어에서 사용
+import { addTask } from './task-manager/add-task.js';
+```
+
+## **테스트 및 검증**
+
+### **명령어 테스트 패턴**
+```javascript
+// ✅ DO: 명령어별 테스트 작성
+describe('add-task command', () => {
+    it('should add a new task successfully', async () => {
+        // 테스트 로직
+    });
+    
+    it('should handle missing required options', async () => {
+        // 에러 케이스 테스트
+    });
+});
+```
+
+### **통합 테스트**
+```javascript
+// ✅ DO: CLI 통합 테스트
+describe('CLI integration', () => {
+    it('should handle command line arguments correctly', async () => {
+        // CLI 인수 처리 테스트
+    });
+});
+```
+
+## **성능 및 최적화**
+
+### **비동기 처리**
+```javascript
+// ✅ DO: 모든 명령어를 async/await로 처리
+.action(async (options) => {
+    try {
+        const result = await performAsyncOperation(options);
+        console.log(chalk.green('Success'));
+    } catch (error) {
+        console.error(chalk.red(`Error: ${error.message}`));
+        process.exit(1);
+    }
+});
+```
+
+### **메모리 관리**
+```javascript
+// ✅ DO: 큰 파일 처리 시 스트리밍 사용
+import { createReadStream } from 'fs';
+import { pipeline } from 'stream/promises';
+
+await pipeline(
+    createReadStream(largeFile),
+    process.stdout
+);
+```
+
+## **보안 고려사항**
+
+### **입력 검증**
+```javascript
+// ✅ DO: 사용자 입력 검증
+function validateTaskId(id) {
+    if (!/^\d+(\.\d+)?$/.test(id)) {
+        throw new Error('Invalid task ID format');
+    }
+}
+```
+
+### **파일 경로 검증**
+```javascript
+// ✅ DO: 경로 순회 공격 방지
+import path from 'path';
+
+const safePath = path.resolve(userInput);
+if (!safePath.startsWith(projectRoot)) {
+    throw new Error('Invalid file path');
+}
+```
+
+## **문서화 및 주석**
+
+### **명령어 문서화**
+```javascript
+/**
+ * Add a new task to the task list
+ * 
+ * @example
+ * taskgarage add-task --prompt="Implement user authentication"
+ * taskgarage add-task --prompt="Fix login bug" --priority=high
+ * 
+ * @param {Object} options - Command options
+ * @param {string} options.prompt - Task description
+ * @param {string} options.priority - Task priority (high|medium|low)
+ * @param {string} options.dependencies - Comma-separated dependency IDs
+ */
+```
+
+### **복잡한 로직 주석**
+```javascript
+// ✅ DO: 복잡한 비즈니스 로직에 주석 추가
+// 태스크 의존성 순환 참조 검사
+const hasCircularDependency = (taskId, dependencies, visited = new Set()) => {
+    if (visited.has(taskId)) return true;
+    visited.add(taskId);
+    
+    for (const depId of dependencies) {
+        if (hasCircularDependency(depId, getDependencies(depId), visited)) {
+            return true;
+        }
+    }
+    
+    visited.delete(taskId);
+    return false;
+};
+```
+
+---
+
+**참고 파일:**
+- [commands.js](mdc:scripts/modules/commands.js) - 메인 CLI 명령어 파일
+- [task-manager/](mdc:scripts/modules/task-manager/) - 태스크 관리 로직
+- [mcp-server/src/tools/](mdc:mcp-server/src/tools/) - MCP 도구 구현 
+
+    '  task-master remove-subtask --id=\'5.2\' --convert',
+    { padding: 1, borderColor: 'blue', borderStyle: 'round' }
+  ));
+} 
 
 # Task Master CLI 명령어 구현 가이드라인
 

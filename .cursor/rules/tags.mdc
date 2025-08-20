@@ -1,7 +1,7 @@
 ---
 description: 
 globs: scripts/modules/*
-alwaysApply: false
+alwaysApply: true
 ---
 # Tagged Task Lists Command Patterns
 

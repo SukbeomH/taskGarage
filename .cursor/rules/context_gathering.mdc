@@ -1,3 +1,545 @@
+---
+alwaysApply: true
+---
+
+# Task Master 컨텍스트 수집 가이드
+
+## **컨텍스트 수집 아키텍처**
+
+### **전체 구조**
+```
+Context Gathering System
+├── contextGatherer.js         # 컨텍스트 수집 유틸리티
+├── task-manager/              # 태스크 관리 모듈
+│   ├── add-task.js           # 태스크 추가
+│   ├── expand-task.js        # 태스크 확장
+│   └── analyze-complexity.js # 복잡성 분석
+└── utils/                     # 유틸리티 함수들
+```
+
+### **컨텍스트 수집 패턴**
+```javascript
+// ✅ DO: 표준 컨텍스트 수집 패턴
+import { gatherContext } from '../utils/contextGatherer.js';
+
+async function performTaskOperation(params, context) {
+    // 컨텍스트 수집
+    const gatheredContext = await gatherContext({
+        tasksPath: params.tasksPath,
+        includeSubtasks: params.includeSubtasks,
+        includeDependencies: params.includeDependencies,
+        includeProjectStructure: params.includeProjectStructure,
+        customContext: params.customContext
+    });
+    
+    // AI 서비스 호출에 컨텍스트 포함
+    const aiResponse = await generateTextService({
+        prompt: buildPromptWithContext(params.prompt, gatheredContext),
+        model: getConfiguredModel('main'),
+        commandName: 'task-operation',
+        outputType: context.mcpLog ? 'mcp' : 'cli'
+    });
+    
+    return processAIResponse(aiResponse);
+}
+```
+
+## **컨텍스트 소스 관리**
+
+### **다중 소스 컨텍스트 수집**
+```javascript
+// ✅ DO: 체계적인 컨텍스트 수집
+class ContextGatherer {
+    constructor(options = {}) {
+        this.options = {
+            includeSubtasks: true,
+            includeDependencies: true,
+            includeProjectStructure: false,
+            maxContextLength: 8000,
+            ...options
+        };
+    }
+    
+    async gatherContext(params) {
+        const contextParts = [];
+        
+        // 1. 기본 태스크 정보
+        if (params.tasksPath) {
+            const tasksContext = await this.gatherTasksContext(params.tasksPath);
+            contextParts.push(tasksContext);
+        }
+        
+        // 2. 서브태스크 정보
+        if (this.options.includeSubtasks && params.taskId) {
+            const subtasksContext = await this.gatherSubtasksContext(params.taskId);
+            contextParts.push(subtasksContext);
+        }
+        
+        // 3. 의존성 정보
+        if (this.options.includeDependencies && params.taskId) {
+            const dependenciesContext = await this.gatherDependenciesContext(params.taskId);
+            contextParts.push(dependenciesContext);
+        }
+        
+        // 4. 프로젝트 구조
+        if (this.options.includeProjectStructure) {
+            const projectContext = await this.gatherProjectStructure();
+            contextParts.push(projectContext);
+        }
+        
+        // 5. 사용자 정의 컨텍스트
+        if (params.customContext) {
+            contextParts.push(params.customContext);
+        }
+        
+        return this.combineAndTruncate(contextParts);
+    }
+    
+    async gatherTasksContext(tasksPath) {
+        try {
+            const tasksData = JSON.parse(fs.readFileSync(tasksPath, 'utf8'));
+            const tasks = tasksData.tasks || [];
+            
+            return {
+                type: 'tasks',
+                content: `현재 태스크 목록:\n${tasks.map(task => 
+                    `- ${task.id}: ${task.title} (${task.status})`
+                ).join('\n')}`
+            };
+        } catch (error) {
+            return { type: 'tasks', content: '태스크 정보를 불러올 수 없습니다.' };
+        }
+    }
+    
+    async gatherSubtasksContext(taskId) {
+        try {
+            const task = await findTaskById(taskId);
+            if (!task || !task.subtasks) {
+                return { type: 'subtasks', content: '서브태스크가 없습니다.' };
+            }
+            
+            return {
+                type: 'subtasks',
+                content: `서브태스크 목록:\n${task.subtasks.map(subtask => 
+                    `- ${subtask.id}: ${subtask.title} (${subtask.status})`
+                ).join('\n')}`
+            };
+        } catch (error) {
+            return { type: 'subtasks', content: '서브태스크 정보를 불러올 수 없습니다.' };
+        }
+    }
+    
+    async gatherDependenciesContext(taskId) {
+        try {
+            const task = await findTaskById(taskId);
+            if (!task || !task.dependencies || task.dependencies.length === 0) {
+                return { type: 'dependencies', content: '의존성이 없습니다.' };
+            }
+            
+            const dependencyTasks = await Promise.all(
+                task.dependencies.map(depId => findTaskById(depId))
+            );
+            
+            return {
+                type: 'dependencies',
+                content: `의존성 태스크:\n${dependencyTasks.map(depTask => 
+                    `- ${depTask.id}: ${depTask.title} (${depTask.status})`
+                ).join('\n')}`
+            };
+        } catch (error) {
+            return { type: 'dependencies', content: '의존성 정보를 불러올 수 없습니다.' };
+        }
+    }
+    
+    async gatherProjectStructure() {
+        try {
+            const projectRoot = process.cwd();
+            const structure = await this.getDirectoryStructure(projectRoot, 2);
+            
+            return {
+                type: 'project-structure',
+                content: `프로젝트 구조:\n${structure}`
+            };
+        } catch (error) {
+            return { type: 'project-structure', content: '프로젝트 구조를 불러올 수 없습니다.' };
+        }
+    }
+    
+    combineAndTruncate(contextParts) {
+        let combinedContext = contextParts
+            .filter(part => part && part.content)
+            .map(part => `[${part.type.toUpperCase()}]\n${part.content}`)
+            .join('\n\n');
+        
+        // 컨텍스트 길이 제한
+        if (combinedContext.length > this.options.maxContextLength) {
+            combinedContext = combinedContext.substring(0, this.options.maxContextLength) + 
+                '\n\n[컨텍스트가 잘렸습니다...]';
+        }
+        
+        return combinedContext;
+    }
+}
+```
+
+## **컨텍스트 활용 패턴**
+
+### **AI 프롬프트에 컨텍스트 통합**
+```javascript
+// ✅ DO: 컨텍스트 기반 프롬프트 생성
+function buildPromptWithContext(basePrompt, context) {
+    if (!context || context.length === 0) {
+        return basePrompt;
+    }
+    
+    return `${basePrompt}
+
+현재 프로젝트 컨텍스트:
+${context}
+
+위의 컨텍스트를 고려하여 응답해주세요.`;
+}
+
+// 특정 작업별 컨텍스트 활용
+function buildTaskExpansionPrompt(taskId, context) {
+    return `태스크 ${taskId}를 서브태스크로 분해해주세요.
+
+현재 프로젝트 컨텍스트:
+${context}
+
+기존 태스크들과 서브태스크를 참고하여 일관성 있게 분해해주세요.`;
+}
+```
+
+### **컨텍스트 기반 의사결정**
+```javascript
+// ✅ DO: 컨텍스트 기반 로직
+async function makeContextAwareDecision(taskId, operation, context) {
+    const contextInfo = await analyzeContext(context);
+    
+    // 컨텍스트 기반 의사결정
+    if (contextInfo.hasConflictingTasks) {
+        return await handleConflict(taskId, contextInfo.conflicts);
+    }
+    
+    if (contextInfo.hasDependencies) {
+        return await checkDependencies(taskId, contextInfo.dependencies);
+    }
+    
+    if (contextInfo.isComplexTask) {
+        return await suggestSimplification(taskId, contextInfo.complexity);
+    }
+    
+    // 기본 작업 수행
+    return await performOperation(taskId, operation);
+}
+
+async function analyzeContext(context) {
+    const analysis = {
+        hasConflictingTasks: false,
+        hasDependencies: false,
+        isComplexTask: false,
+        conflicts: [],
+        dependencies: [],
+        complexity: 'low'
+    };
+    
+    // 컨텍스트 분석 로직
+    if (context.includes('의존성')) {
+        analysis.hasDependencies = true;
+        analysis.dependencies = extractDependencies(context);
+    }
+    
+    if (context.includes('서브태스크') && context.split('서브태스크').length > 5) {
+        analysis.isComplexTask = true;
+        analysis.complexity = 'high';
+    }
+    
+    return analysis;
+}
+```
+
+## **성능 최적화**
+
+### **컨텍스트 캐싱**
+```javascript
+// ✅ DO: 컨텍스트 캐싱 구현
+class ContextCache {
+    constructor() {
+        this.cache = new Map();
+        this.maxAge = 5 * 60 * 1000; // 5분
+    }
+    
+    getCacheKey(params) {
+        return JSON.stringify({
+            tasksPath: params.tasksPath,
+            taskId: params.taskId,
+            includeSubtasks: params.includeSubtasks,
+            includeDependencies: params.includeDependencies,
+            includeProjectStructure: params.includeProjectStructure
+        });
+    }
+    
+    async getCachedContext(params) {
+        const key = this.getCacheKey(params);
+        const cached = this.cache.get(key);
+        
+        if (cached && Date.now() - cached.timestamp < this.maxAge) {
+            return cached.context;
+        }
+        
+        return null;
+    }
+    
+    setCachedContext(params, context) {
+        const key = this.getCacheKey(params);
+        this.cache.set(key, {
+            context,
+            timestamp: Date.now()
+        });
+    }
+    
+    clearCache() {
+        this.cache.clear();
+    }
+}
+```
+
+### **점진적 컨텍스트 로딩**
+```javascript
+// ✅ DO: 점진적 컨텍스트 로딩
+class ProgressiveContextLoader {
+    constructor() {
+        this.loadingQueue = new Map();
+    }
+    
+    async loadContextProgressively(params, onProgress) {
+        const contextParts = [];
+        
+        // 1. 기본 태스크 정보 (빠름)
+        onProgress('기본 태스크 정보 로딩 중...', 20);
+        const tasksContext = await this.gatherTasksContext(params.tasksPath);
+        contextParts.push(tasksContext);
+        
+        // 2. 서브태스크 정보 (중간)
+        if (params.includeSubtasks) {
+            onProgress('서브태스크 정보 로딩 중...', 50);
+            const subtasksContext = await this.gatherSubtasksContext(params.taskId);
+            contextParts.push(subtasksContext);
+        }
+        
+        // 3. 프로젝트 구조 (느림)
+        if (params.includeProjectStructure) {
+            onProgress('프로젝트 구조 분석 중...', 80);
+            const projectContext = await this.gatherProjectStructure();
+            contextParts.push(projectContext);
+        }
+        
+        onProgress('컨텍스트 수집 완료', 100);
+        return this.combineContextParts(contextParts);
+    }
+}
+```
+
+## **에러 처리 및 복구**
+
+### **컨텍스트 수집 에러 처리**
+```javascript
+// ✅ DO: 견고한 에러 처리
+class RobustContextGatherer extends ContextGatherer {
+    async gatherContextWithFallback(params) {
+        try {
+            return await this.gatherContext(params);
+        } catch (error) {
+            console.warn(`컨텍스트 수집 실패: ${error.message}`);
+            
+            // 폴백 컨텍스트 생성
+            return this.createFallbackContext(params);
+        }
+    }
+    
+    createFallbackContext(params) {
+        const fallbackParts = [];
+        
+        // 기본 정보만 포함
+        if (params.taskId) {
+            fallbackParts.push({
+                type: 'basic-task',
+                content: `작업 대상: 태스크 ${params.taskId}`
+            });
+        }
+        
+        if (params.customContext) {
+            fallbackParts.push({
+                type: 'custom',
+                content: params.customContext
+            });
+        }
+        
+        return this.combineAndTruncate(fallbackParts);
+    }
+    
+    async gatherTasksContext(tasksPath) {
+        try {
+            return await super.gatherTasksContext(tasksPath);
+        } catch (error) {
+            // 파일 읽기 실패 시 빈 컨텍스트 반환
+            return {
+                type: 'tasks',
+                content: '태스크 정보를 불러올 수 없습니다. 기본 정보만 사용합니다.'
+            };
+        }
+    }
+}
+```
+
+## **컨텍스트 검증**
+
+### **컨텍스트 품질 검증**
+```javascript
+// ✅ DO: 컨텍스트 품질 검증
+class ContextValidator {
+    validateContext(context) {
+        const issues = [];
+        
+        if (!context || context.length === 0) {
+            issues.push('컨텍스트가 비어있습니다');
+        }
+        
+        if (context.length < 50) {
+            issues.push('컨텍스트가 너무 짧습니다');
+        }
+        
+        if (context.length > 10000) {
+            issues.push('컨텍스트가 너무 깁니다');
+        }
+        
+        // 필수 섹션 확인
+        const requiredSections = ['TASKS'];
+        for (const section of requiredSections) {
+            if (!context.includes(`[${section}]`)) {
+                issues.push(`필수 섹션 [${section}]이 누락되었습니다`);
+            }
+        }
+        
+        return {
+            isValid: issues.length === 0,
+            issues,
+            suggestions: this.generateSuggestions(issues)
+        };
+    }
+    
+    generateSuggestions(issues) {
+        const suggestions = [];
+        
+        if (issues.includes('컨텍스트가 너무 짧습니다')) {
+            suggestions.push('더 많은 태스크 정보를 포함하세요');
+        }
+        
+        if (issues.includes('필수 섹션 [TASKS]이 누락되었습니다')) {
+            suggestions.push('태스크 파일 경로를 확인하세요');
+        }
+        
+        return suggestions;
+    }
+}
+```
+
+## **테스트 및 검증**
+
+### **컨텍스트 수집 테스트**
+```javascript
+// ✅ DO: 컨텍스트 수집 단위 테스트
+describe('Context Gathering', () => {
+    let contextGatherer;
+    
+    beforeEach(() => {
+        contextGatherer = new ContextGatherer({
+            includeSubtasks: true,
+            includeDependencies: true
+        });
+    });
+    
+    it('should gather basic task context', async () => {
+        const mockTasksPath = '/path/to/tasks.json';
+        const mockTasksData = {
+            tasks: [
+                { id: '1', title: 'Task 1', status: 'pending' },
+                { id: '2', title: 'Task 2', status: 'done' }
+            ]
+        };
+        
+        // 파일 시스템 모킹
+        jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(mockTasksData));
+        
+        const context = await contextGatherer.gatherContext({
+            tasksPath: mockTasksPath
+        });
+        
+        expect(context).toContain('Task 1');
+        expect(context).toContain('Task 2');
+    });
+    
+    it('should handle file read errors gracefully', async () => {
+        jest.spyOn(fs, 'readFileSync').mockImplementation(() => {
+            throw new Error('File not found');
+        });
+        
+        const context = await contextGatherer.gatherContext({
+            tasksPath: '/invalid/path'
+        });
+        
+        expect(context).toContain('태스크 정보를 불러올 수 없습니다');
+    });
+});
+```
+
+### **컨텍스트 검증 테스트**
+```javascript
+// ✅ DO: 컨텍스트 검증 테스트
+describe('Context Validation', () => {
+    let validator;
+    
+    beforeEach(() => {
+        validator = new ContextValidator();
+    });
+    
+    it('should validate good context', () => {
+        const goodContext = `[TASKS]
+- 1: Task 1 (pending)
+- 2: Task 2 (done)
+
+[SUBTASKS]
+- 1.1: Subtask 1 (pending)`;
+        
+        const result = validator.validateContext(goodContext);
+        
+        expect(result.isValid).toBe(true);
+        expect(result.issues).toHaveLength(0);
+    });
+    
+    it('should detect missing sections', () => {
+        const badContext = 'Just some text without sections';
+        
+        const result = validator.validateContext(badContext);
+        
+        expect(result.isValid).toBe(false);
+        expect(result.issues).toContain('필수 섹션 [TASKS]이 누락되었습니다');
+    });
+});
+```
+
+---
+
+**참고 파일:**
+- [contextGatherer.js](mdc:scripts/modules/utils/contextGatherer.js) - 컨텍스트 수집 유틸리티
+- [task-manager/](mdc:scripts/modules/task-manager/) - 태스크 관리 모듈
+- [ai-services-unified.js](mdc:scripts/modules/ai-services-unified.js) - AI 서비스 통합
+
+};
+```
+
+This context gathering system provides a foundation for building more intelligent, context-aware commands that can leverage project knowledge to provide better AI-powered assistance.
 # Task Master 컨텍스트 수집 가이드
 
 ## **컨텍스트 수집 아키텍처**

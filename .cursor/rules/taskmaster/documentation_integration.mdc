@@ -249,5 +249,5 @@ const task = {
 이 규칙을 따라 TaskGarage 워크플로우에 문서 업데이트를 완전히 통합하여 코드와 문서의 일관성을 보장하세요.
 description:
 globs:
-alwaysApply: false
+alwaysApply: true
 ---
