@@ -40,6 +40,11 @@ import { registerResearchTool } from './research.js';
 import { registerRulesTool } from './rules.js';
 import { registerScopeUpTool } from './scope-up.js';
 import { registerScopeDownTool } from './scope-down.js';
+import { registerRunScriptTool } from './run-script.js';
+import { registerGetScriptResultTool } from './get-script-result.js';
+import { registerListScriptResultsTool } from './list-script-results.js';
+import { registerAnalyzeScriptResultTool } from './analyze-script-result.js';
+import { registerCreateScriptReportTool } from './create-script-report.js';
 
 /**
  * Register all Task Master tools with the MCP server
@@ -100,6 +105,13 @@ export function registerTaskMasterTools(server) {
 
 		// Group 8: Research Features
 		registerResearchTool(server);
+
+		// Group 9: Script Execution Features
+		registerRunScriptTool(server);
+		registerGetScriptResultTool(server);
+		registerListScriptResultsTool(server);
+		registerAnalyzeScriptResultTool(server);
+		registerCreateScriptReportTool(server);
 	} catch (error) {
 		logger.error(`Error registering Task Master tools: ${error.message}`);
 		throw error;

@@ -1,102 +1,535 @@
----
-description: Guidelines for interacting with the unified AI service layer.
-globs: scripts/modules/ai-services-unified.js, scripts/modules/task-manager/*.js, scripts/modules/commands.js
----
 
-# AI Services Layer Guidelines
+# Task Master AI 서비스 레이어 가이드
 
-This document outlines the architecture and usage patterns for interacting with Large Language Models (LLMs) via Task Master's unified AI service layer (`ai-services-unified.js`). The goal is to centralize configuration, provider selection, API key management, fallback logic, and error handling.
+## **통합 AI 서비스 아키텍처**
 
-**Core Components:**
+### **전체 구조**
+```
+AI Services Layer
+├── ai-services-unified.js      # 통합 AI 서비스 진입점
+├── ai-providers/               # 개별 AI 제공자 구현
+│   ├── anthropic.js           # Anthropic Claude
+│   ├── openai.js              # OpenAI GPT
+│   ├── gemini.js              # Google Gemini
+│   └── base-provider.js       # 기본 제공자 클래스
+└── custom-sdk/                # 커스텀 SDK 구현
+```
 
-*   **Configuration (`.taskmasterconfig` & [`config-manager.js`](mdc:scripts/modules/config-manager.js)):**
-    *   Defines the AI provider and model ID for different **roles** (`main`, `research`, `fallback`).
-    *   Stores parameters like `maxTokens` and `temperature` per role.
-    *   Managed via the `task-master models --setup` CLI command.
-    *   [`config-manager.js`](mdc:scripts/modules/config-manager.js) provides **getters** (e.g., `getMainProvider()`, `getParametersForRole()`) to access these settings. Core logic should **only** use these getters for *non-AI related application logic* (e.g., `getDefaultSubtasks`). The unified service fetches necessary AI parameters internally based on the `role`.
-    *   **API keys** are **NOT** stored here; they are resolved via `resolveEnvVariable` (in [`utils.js`](mdc:scripts/modules/utils.js)) from `.env` (for CLI) or the MCP `session.env` object (for MCP calls). See [`utilities.mdc`](mdc:.cursor/rules/utilities.mdc) and [`dev_workflow.mdc`](mdc:.cursor/rules/dev_workflow.mdc).
+### **서비스 레이어 패턴**
+```javascript
+// ✅ DO: 통합 AI 서비스 사용
+import { generateTextService, generateObjectService } from '../ai-services-unified.js';
 
-*   **Unified Service (`ai-services-unified.js`):**
-    *   Exports primary interaction functions: `generateTextService`, `generateObjectService`. (Note: `streamTextService` exists but has known reliability issues with some providers/payloads).
-    *   Contains the core `_unifiedServiceRunner` logic.
-    *   Internally uses `config-manager.js` getters to determine the provider/model/parameters based on the requested `role`.
-    *   Implements the **fallback sequence** (e.g., main -> fallback -> research) if the primary provider/model fails.
-    *   Constructs the `messages` array required by the Vercel AI SDK.
-    *   Implements **retry logic** for specific API errors (`_attemptProviderCallWithRetries`).
-    *   Resolves API keys automatically via `_resolveApiKey` (using `resolveEnvVariable`).
-    *   Maps requests to the correct provider implementation (in `src/ai-providers/`) via `PROVIDER_FUNCTIONS`.
-    *   Returns a structured object containing the primary AI result (`mainResult`) and telemetry data (`telemetryData`). See [`telemetry.mdc`](mdc:.cursor/rules/telemetry.mdc) for details on how this telemetry data is propagated and handled.
+// 텍스트 생성
+const textResult = await generateTextService({
+    prompt: "사용자 프롬프트",
+    model: "claude-3-sonnet-20240229",
+    maxTokens: 1000,
+    temperature: 0.7,
+    commandName: "add-task",
+    outputType: "cli"
+});
 
-*   **Provider Implementations (`src/ai-providers/*.js`):**
-    *   Contain provider-specific wrappers around Vercel AI SDK functions (`generateText`, `generateObject`).
+// 구조화된 객체 생성
+const objectResult = await generateObjectService({
+    prompt: "JSON 스키마로 응답",
+    schema: taskSchema,
+    model: "claude-3-sonnet-20240229",
+    commandName: "expand-task",
+    outputType: "mcp"
+});
+```
 
-**Usage Pattern (from Core Logic like `task-manager/*.js`):**
+## **AI 서비스 호출 패턴**
 
-1.  **Import Service:** Import `generateTextService` or `generateObjectService` from `../ai-services-unified.js`.
-    ```javascript
-    // Preferred for most tasks (especially with complex JSON)
-    import { generateTextService } from '../ai-services-unified.js';
+### **기본 텍스트 생성**
+```javascript
+// ✅ DO: 표준 텍스트 생성 패턴
+async function generateTaskDescription(prompt, context) {
+    const aiServiceResponse = await generateTextService({
+        prompt: prompt,
+        model: getConfiguredModel('main'),
+        maxTokens: 500,
+        temperature: 0.7,
+        commandName: 'add-task',
+        outputType: context.mcpLog ? 'mcp' : 'cli',
+        systemPrompt: "당신은 Task Master AI 어시스턴트입니다."
+    });
 
-    // Use if structured output is reliable for the specific use case
-    // import { generateObjectService } from '../ai-services-unified.js';
-    ```
+    return {
+        result: aiServiceResponse.mainResult,
+        telemetryData: aiServiceResponse.telemetryData
+    };
+}
+```
 
-2.  **Prepare Parameters:** Construct the parameters object for the service call.
-    *   `role`: **Required.** `'main'`, `'research'`, or `'fallback'`. Determines the initial provider/model/parameters used by the unified service.
-    *   `session`: **Required if called from MCP context.** Pass the `session` object received by the direct function wrapper. The unified service uses `session.env` to find API keys.
-    *   `systemPrompt`: Your system instruction string.
-    *   `prompt`: The user message string (can be long, include stringified data, etc.).
-    *   (For `generateObjectService` only): `schema` (Zod schema), `objectName`.
+### **구조화된 객체 생성**
+```javascript
+// ✅ DO: JSON 스키마 기반 객체 생성
+async function generateTaskObject(prompt, schema) {
+    const aiServiceResponse = await generateObjectService({
+        prompt: prompt,
+        schema: schema,
+        model: getConfiguredModel('main'),
+        maxTokens: 1000,
+        temperature: 0.5,
+        commandName: 'parse-prd',
+        outputType: 'cli',
+        retryAttempts: 3
+    });
 
-3.  **Call Service:** Use `await` to call the service function.
-    ```javascript
-    // Example using generateTextService (most common)
+    return {
+        object: aiServiceResponse.mainResult.object,
+        telemetryData: aiServiceResponse.telemetryData
+    };
+}
+```
+
+### **AI 서비스 응답 처리**
+```javascript
+// ✅ DO: AI 서비스 응답 표준 처리
+async function processAIResponse(aiServiceResponse) {
+    if (aiServiceResponse.mainResult) {
+        return {
+            success: true,
+            data: aiServiceResponse.mainResult,
+            telemetryData: aiServiceResponse.telemetryData
+        };
+    } else {
+        throw new Error('AI 서비스 응답이 올바르지 않습니다');
+    }
+}
+```
+
+## **모델 구성 및 관리**
+
+### **모델 설정 가져오기**
+```javascript
+// ✅ DO: 구성된 모델 사용
+import { getConfiguredModel } from '../config-manager.js';
+
+async function getAIResponse(prompt) {
+    const model = getConfiguredModel('main'); // main, research, fallback
+    const maxTokens = getConfiguredMaxTokens();
+    const temperature = getConfiguredTemperature();
+    
+    return await generateTextService({
+        prompt,
+        model,
+        maxTokens,
+        temperature,
+        commandName: 'current-command',
+        outputType: 'cli'
+    });
+}
+```
+
+### **모델별 특성 활용**
+```javascript
+// ✅ DO: 모델별 특성에 맞는 사용
+async function selectOptimalModel(taskType) {
+    switch (taskType) {
+        case 'research':
+            return getConfiguredModel('research'); // Perplexity 등
+        case 'creative':
+            return getConfiguredModel('main'); // Claude 등
+        case 'fallback':
+            return getConfiguredModel('fallback'); // 백업 모델
+        default:
+            return getConfiguredModel('main');
+    }
+}
+```
+
+## **에러 처리 및 재시도**
+
+### **AI 서비스 에러 처리**
+```javascript
+// ✅ DO: 포괄적인 에러 처리
+async function robustAICall(prompt, options = {}) {
+    const maxRetries = options.retryAttempts || 3;
+    let lastError;
+    
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            const result = await generateTextService({
+                prompt,
+                model: options.model || getConfiguredModel('main'),
+                maxTokens: options.maxTokens || 1000,
+                temperature: options.temperature || 0.7,
+                commandName: options.commandName || 'unknown',
+                outputType: options.outputType || 'cli'
+            });
+            
+            return result;
+        } catch (error) {
+            lastError = error;
+            
+            if (attempt < maxRetries) {
+                // 재시도 전 대기
+                await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+                continue;
+            }
+        }
+    }
+    
+    throw new Error(`AI 서비스 호출 실패 (${maxRetries}회 시도): ${lastError.message}`);
+}
+```
+
+### **모델별 에러 처리**
+```javascript
+// ✅ DO: 모델별 특화 에러 처리
+async function handleModelSpecificError(error, model) {
+    if (error.code === 'RATE_LIMIT_EXCEEDED') {
+        // 속도 제한 에러 처리
+        await handleRateLimitError(model);
+    } else if (error.code === 'MODEL_NOT_FOUND') {
+        // 모델을 찾을 수 없는 경우
+        return await fallbackToAlternativeModel(model);
+    } else if (error.code === 'CONTEXT_LENGTH_EXCEEDED') {
+        // 컨텍스트 길이 초과
+        return await handleContextLengthError(error, model);
+    }
+    
+    throw error;
+}
+```
+
+## **텔레메트리 통합**
+
+### **텔레메트리 데이터 수집**
+```javascript
+// ✅ DO: 텔레메트리 데이터 활용
+async function trackAIUsage(prompt, options) {
+    const startTime = Date.now();
+    
     try {
-        const resultText = await generateTextService({
-            role: useResearch ? 'research' : 'main', // Determine role based on logic
-            session: context.session, // Pass session from context object
-            systemPrompt: "You are...",
-            prompt: userMessageContent
+        const result = await generateTextService({
+            prompt,
+            model: options.model,
+            maxTokens: options.maxTokens,
+            temperature: options.temperature,
+            commandName: options.commandName,
+            outputType: options.outputType
         });
-        // Process the raw text response (e.g., parse JSON, use directly)
-        // ...
+        
+        // 텔레메트리 데이터 로깅
+        logTelemetryData({
+            ...result.telemetryData,
+            executionTime: Date.now() - startTime,
+            success: true
+        });
+        
+        return result;
     } catch (error) {
-        // Handle errors thrown by the unified service (if all fallbacks/retries fail)
-        report('error', `Unified AI service call failed: ${error.message}`);
+        // 에러 텔레메트리
+        logTelemetryData({
+            commandName: options.commandName,
+            model: options.model,
+            executionTime: Date.now() - startTime,
+            success: false,
+            error: error.message
+        });
+        
         throw error;
     }
+}
+```
 
-    // Example using generateObjectService (use cautiously)
-    try {
-        const resultObject = await generateObjectService({
-            role: 'main',
-            session: context.session,
-            schema: myZodSchema,
-            objectName: 'myDataObject',
-            systemPrompt: "You are...",
-            prompt: userMessageContent
+### **텔레메트리 데이터 구조**
+```javascript
+// ✅ DO: 표준 텔레메트리 데이터 구조
+const telemetryData = {
+    timestamp: new Date().toISOString(),
+    userId: getUserId(),
+    commandName: "add-task",
+    modelUsed: "claude-3-sonnet-20240229",
+    providerName: "anthropic",
+    inputTokens: 150,
+    outputTokens: 300,
+    totalTokens: 450,
+    totalCost: 0.012414,
+    currency: "USD"
+};
+```
+
+## **프롬프트 엔지니어링**
+
+### **시스템 프롬프트 관리**
+```javascript
+// ✅ DO: 시스템 프롬프트 표준화
+const SYSTEM_PROMPTS = {
+    'add-task': `당신은 Task Master AI 어시스턴트입니다. 
+사용자의 요청을 분석하여 명확하고 실행 가능한 태스크를 생성하세요.
+태스크는 구체적이고 측정 가능해야 합니다.`,
+    
+    'expand-task': `당신은 Task Master AI 어시스턴트입니다.
+복잡한 태스크를 더 작고 관리 가능한 서브태스크로 분해하세요.
+각 서브태스크는 독립적으로 완료 가능해야 합니다.`,
+    
+    'analyze-complexity': `당신은 Task Master AI 어시스턴트입니다.
+태스크의 복잡성을 분석하여 1-10 척도로 평가하세요.
+기술적 복잡성, 시간 소요, 의존성을 고려하세요.`
+};
+
+// 시스템 프롬프트 사용
+const result = await generateTextService({
+    prompt: userPrompt,
+    systemPrompt: SYSTEM_PROMPTS[commandName],
+    model: getConfiguredModel('main'),
+    commandName,
+    outputType
+});
+```
+
+### **동적 프롬프트 생성**
+```javascript
+// ✅ DO: 컨텍스트 기반 프롬프트 생성
+function buildContextualPrompt(basePrompt, context) {
+    let enhancedPrompt = basePrompt;
+    
+    if (context.existingTasks) {
+        enhancedPrompt += `\n\n기존 태스크들:\n${context.existingTasks.map(t => `- ${t.title}`).join('\n')}`;
+    }
+    
+    if (context.projectType) {
+        enhancedPrompt += `\n\n프로젝트 유형: ${context.projectType}`;
+    }
+    
+    if (context.techStack) {
+        enhancedPrompt += `\n\n기술 스택: ${context.techStack.join(', ')}`;
+    }
+    
+    return enhancedPrompt;
+}
+```
+
+## **성능 최적화**
+
+### **캐싱 전략**
+```javascript
+// ✅ DO: AI 응답 캐싱
+import { getCachedOrExecute } from '../utils/cache-utils.js';
+
+async function getCachedAIResponse(prompt, options) {
+    const cacheKey = generateAICacheKey(prompt, options);
+    
+    return await getCachedOrExecute(cacheKey, async () => {
+        return await generateTextService({
+            prompt,
+            model: options.model,
+            maxTokens: options.maxTokens,
+            temperature: options.temperature,
+            commandName: options.commandName,
+            outputType: options.outputType
         });
-        // resultObject is already a validated JS object
-        // ...
+    });
+}
+```
+
+### **배치 처리**
+```javascript
+// ✅ DO: 여러 AI 요청 배치 처리
+async function batchAIRequests(requests) {
+    const results = await Promise.allSettled(
+        requests.map(request => 
+            generateTextService({
+                prompt: request.prompt,
+                model: request.model,
+                maxTokens: request.maxTokens,
+                temperature: request.temperature,
+                commandName: request.commandName,
+                outputType: request.outputType
+            })
+        )
+    );
+    
+    return results.map((result, index) => ({
+        requestId: requests[index].id,
+        success: result.status === 'fulfilled',
+        data: result.status === 'fulfilled' ? result.value : null,
+        error: result.status === 'rejected' ? result.reason : null
+    }));
+}
+```
+
+## **보안 및 API 키 관리**
+
+### **API 키 검증**
+```javascript
+// ✅ DO: API 키 유효성 검증
+async function validateAPIKey(provider, apiKey) {
+    try {
+        const testResult = await generateTextService({
+            prompt: "테스트",
+            model: getProviderTestModel(provider),
+            maxTokens: 10,
+            temperature: 0,
+            commandName: 'api-validation',
+            outputType: 'internal'
+        });
+        
+        return true;
     } catch (error) {
-        report('error', `Unified AI service call failed: ${error.message}`);
+        if (error.message.includes('API key') || error.message.includes('authentication')) {
+            return false;
+        }
         throw error;
     }
-    ```
+}
+```
 
-4.  **Handle Results/Errors:** Process the returned text/object or handle errors thrown by the unified service layer.
+### **API 키 순환**
+```javascript
+// ✅ DO: API 키 순환 관리
+async function rotateAPIKeys() {
+    const providers = ['anthropic', 'openai', 'perplexity'];
+    
+    for (const provider of providers) {
+        const currentKey = getAPIKey(provider);
+        const backupKey = getBackupAPIKey(provider);
+        
+        if (await validateAPIKey(provider, backupKey)) {
+            setAPIKey(provider, backupKey);
+            log.info(`API 키 순환 완료: ${provider}`);
+        }
+    }
+}
+```
 
-**Key Implementation Rules & Gotchas:**
+## **모니터링 및 로깅**
 
-*   ✅ **DO**: Centralize **all** LLM calls through `generateTextService` or `generateObjectService`.
-*   ✅ **DO**: Determine the appropriate `role` (`main`, `research`, `fallback`) in your core logic and pass it to the service.
-*   ✅ **DO**: Pass the `session` object (received in the `context` parameter, especially from direct function wrappers) to the service call when in MCP context.
-*   ✅ **DO**: Ensure API keys are correctly configured in `.env` (for CLI) or `.cursor/mcp.json` (for MCP).
-*   ✅ **DO**: Ensure `.taskmasterconfig` exists and has valid provider/model IDs for the roles you intend to use (manage via `task-master models --setup`).
-*   ✅ **DO**: Use `generateTextService` and implement robust manual JSON parsing (with Zod validation *after* parsing) when structured output is needed, as `generateObjectService` has shown unreliability with some providers/schemas.
-*   ❌ **DON'T**: Import or call anything from the old `ai-services.js`, `ai-client-factory.js`, or `ai-client-utils.js` files.
-*   ❌ **DON'T**: Initialize AI clients (Anthropic, Perplexity, etc.) directly within core logic (`task-manager/`) or MCP direct functions.
-*   ❌ **DON'T**: Fetch AI-specific parameters (model ID, max tokens, temp) using `config-manager.js` getters *for the AI call*. Pass the `role` instead.
+### **AI 서비스 모니터링**
+```javascript
+// ✅ DO: AI 서비스 성능 모니터링
+class AIServiceMonitor {
+    constructor() {
+        this.metrics = {
+            totalCalls: 0,
+            successfulCalls: 0,
+            failedCalls: 0,
+            averageResponseTime: 0,
+            totalCost: 0
+        };
+    }
+    
+    recordCall(result, executionTime) {
+        this.metrics.totalCalls++;
+        this.metrics.averageResponseTime = 
+            (this.metrics.averageResponseTime * (this.metrics.totalCalls - 1) + executionTime) / this.metrics.totalCalls;
+        
+        if (result.success) {
+            this.metrics.successfulCalls++;
+            this.metrics.totalCost += result.telemetryData.totalCost;
+        } else {
+            this.metrics.failedCalls++;
+        }
+    }
+    
+    getMetrics() {
+        return {
+            ...this.metrics,
+            successRate: this.metrics.successfulCalls / this.metrics.totalCalls
+        };
+    }
+}
+```
+
+### **상세 로깅**
+```javascript
+// ✅ DO: AI 서비스 상세 로깅
+async function logAIServiceCall(prompt, options, result, executionTime) {
+    const logData = {
+        timestamp: new Date().toISOString(),
+        commandName: options.commandName,
+        model: options.model,
+        promptLength: prompt.length,
+        executionTime,
+        success: !!result.mainResult,
+        inputTokens: result.telemetryData?.inputTokens,
+        outputTokens: result.telemetryData?.outputTokens,
+        totalCost: result.telemetryData?.totalCost
+    };
+    
+    if (result.error) {
+        logData.error = result.error.message;
+    }
+    
+    log.info('AI 서비스 호출', logData);
+}
+```
+
+## **테스트 및 검증**
+
+### **AI 서비스 테스트**
+```javascript
+// ✅ DO: AI 서비스 단위 테스트
+describe('AI Services', () => {
+    beforeEach(() => {
+        // AI 클라이언트 모킹
+        jest.mock('../ai-services-unified.js');
+    });
+    
+    it('should generate text successfully', async () => {
+        const mockResponse = {
+            mainResult: 'Generated text',
+            telemetryData: {
+                inputTokens: 10,
+                outputTokens: 20,
+                totalCost: 0.001
+            }
+        };
+        
+        generateTextService.mockResolvedValue(mockResponse);
+        
+        const result = await generateTaskDescription('Test prompt', {});
+        
+        expect(result.result).toBe('Generated text');
+        expect(result.telemetryData.totalCost).toBe(0.001);
+    });
+    
+    it('should handle AI service errors', async () => {
+        generateTextService.mockRejectedValue(new Error('API Error'));
+        
+        await expect(generateTaskDescription('Test prompt', {}))
+            .rejects.toThrow('API Error');
+    });
+});
+```
+
+### **프롬프트 검증**
+```javascript
+// ✅ DO: 프롬프트 품질 검증
+function validatePrompt(prompt, commandName) {
+    const issues = [];
+    
+    if (prompt.length < 10) {
+        issues.push('프롬프트가 너무 짧습니다');
+    }
+    
+    if (prompt.length > 4000) {
+        issues.push('프롬프트가 너무 깁니다');
+    }
+    
+    if (!prompt.includes('task') && commandName.includes('task')) {
+        issues.push('태스크 관련 키워드가 부족합니다');
+    }
+    
+    return {
+        isValid: issues.length === 0,
+        issues
+    };
+}
+```
+
+---
+
+**참고 파일:**
+- [ai-services-unified.js](mdc:scripts/modules/ai-services-unified.js) - 통합 AI 서비스
+- [ai-providers/](mdc:src/ai-providers/) - AI 제공자 구현
+- [config-manager.js](mdc:scripts/modules/config-manager.js) - 설정 관리
+
 *   ❌ **DON'T**: Implement fallback or retry logic outside `ai-services-unified.js`.
 *   ❌ **DON'T**: Handle API key resolution outside the service layer (it uses `utils.js` internally).
 *   ⚠️ **generateObjectService Caution**: Be aware of potential reliability issues with `generateObjectService` across different providers and complex schemas. Prefer `generateTextService` + manual parsing as a more robust alternative for structured data needs.

@@ -1,238 +1,995 @@
----
-description: Guidelines for implementing and maintaining user interface components
-globs: scripts/modules/ui.js
-alwaysApply: false
----
 
-# User Interface Implementation Guidelines
+# Task Master UI 가이드
 
-## Core UI Component Principles
+## **UI 컴포넌트 아키텍처**
 
-- **Function Scope Separation**:
-  - ✅ DO: Keep display logic separate from business logic
-  - ✅ DO: Import data processing functions from other modules
-  - ❌ DON'T: Include task manipulations within UI functions
-  - ❌ DON'T: Create circular dependencies with other modules
+### **UI 시스템 구조**
+```
+UI Components
+├── ui.js                    # 메인 UI 유틸리티
+├── display/                 # 표시 관련 컴포넌트
+│   ├── task-display.js     # 태스크 표시
+│   ├── progress-display.js # 진행률 표시
+│   └── status-display.js   # 상태 표시
+├── input/                   # 입력 관련 컴포넌트
+│   ├── confirm.js          # 확인 다이얼로그
+│   └── prompt.js           # 사용자 입력
+└── formatting/              # 포맷팅 유틸리티
+    ├── table-formatter.js   # 테이블 포맷팅
+    └── text-formatter.js    # 텍스트 포맷팅
+```
 
-- **Standard Display Pattern**:
-  ```javascript
-  // ✅ DO: Follow this pattern for display functions
-  /**
-   * Display information about a task
-   * @param {Object} task - The task to display
-   */
-  function displayTaskInfo(task) {
-    console.log(boxen(
-      chalk.white.bold(`Task: #${task.id} - ${task.title}`),
-      { padding: 1, borderColor: 'blue', borderStyle: 'round' }
-    ));
-  }
-  ```
+### **UI 컴포넌트 패턴**
+```javascript
+// ✅ DO: 표준 UI 컴포넌트 패턴
+import chalk from 'chalk';
+import boxen from 'boxen';
+import ora from 'ora';
 
-## Visual Styling Standards
-
-- **Color Scheme**:
-  - Use `chalk.blue` for informational messages
-  - Use `chalk.green` for success messages
-  - Use `chalk.yellow` for warnings
-  - Use `chalk.red` for errors
-  - Use `chalk.cyan` for prompts and highlights
-  - Use `chalk.magenta` for subtask-related information
-
-- **Box Styling**:
-  ```javascript
-  // ✅ DO: Use consistent box styles by content type
-  // For success messages:
-  boxen(content, { 
-    padding: 1, 
-    borderColor: 'green', 
-    borderStyle: 'round', 
-    margin: { top: 1 } 
-  })
-
-  // For errors:
-  boxen(content, { 
-    padding: 1, 
-    borderColor: 'red', 
-    borderStyle: 'round'
-  })
-
-  // For information:
-  boxen(content, { 
-    padding: 1, 
-    borderColor: 'blue', 
-    borderStyle: 'round', 
-    margin: { top: 1, bottom: 1 } 
-  })
-  ```
-
-## Table Display Guidelines
-
-- **Table Structure**:
-  - Use [`cli-table3`](mdc:node_modules/cli-table3/README.md) for consistent table rendering
-  - Include colored headers with bold formatting
-  - Use appropriate column widths for readability
-
-  ```javascript
-  // ✅ DO: Create well-structured tables
-  const table = new Table({
-    head: [
-      chalk.cyan.bold('ID'),
-      chalk.cyan.bold('Title'),
-      chalk.cyan.bold('Status'),
-      chalk.cyan.bold('Priority'),
-      chalk.cyan.bold('Dependencies')
-    ],
-    colWidths: [5, 40, 15, 10, 20]
-  });
-  
-  // Add content rows
-  table.push([
-    task.id,
-    truncate(task.title, 37),
-    getStatusWithColor(task.status),
-    chalk.white(task.priority || 'medium'),
-    formatDependenciesWithStatus(task.dependencies, allTasks, true)
-  ]);
-  
-  console.log(table.toString());
-  ```
-
-## Loading Indicators
-
-- **Animation Standards**:
-  - Use [`ora`](mdc:node_modules/ora/readme.md) for spinner animations
-  - Create and stop loading indicators correctly
-
-  ```javascript
-  // ✅ DO: Properly manage loading state
-  const loadingIndicator = startLoadingIndicator('Processing task data...');
-  try {
-    // Do async work...
-    stopLoadingIndicator(loadingIndicator);
-    // Show success message
-  } catch (error) {
-    stopLoadingIndicator(loadingIndicator);
-    // Show error message
-  }
-  ```
-
-## Helper Functions
-
-- **Status Formatting**:
-  - Use `getStatusWithColor` for consistent status display
-  - Use `formatDependenciesWithStatus` for dependency lists
-  - Use `truncate` to handle text that may overflow display
-
-- **Progress Reporting**:
-  - Use visual indicators for progress (bars, percentages)
-  - Include both numeric and visual representations
-  
-  ```javascript
-  // ✅ DO: Show clear progress indicators
-  console.log(`${chalk.cyan('Tasks:')} ${completedTasks}/${totalTasks} (${completionPercentage.toFixed(1)}%)`);
-  console.log(`${chalk.cyan('Progress:')} ${createProgressBar(completionPercentage)}`);
-  ```
-
-## Command Suggestions
-
-- **Action Recommendations**:
-  - Provide next step suggestions after command completion
-  - Use a consistent format for suggested commands
-
-  ```javascript
-  // ✅ DO: Show suggested next actions
-  console.log(boxen(
-    chalk.white.bold('Next Steps:') + '\n\n' +
-    `${chalk.cyan('1.')} Run ${chalk.yellow('task-master list')} to view all tasks\n` +
-    `${chalk.cyan('2.')} Run ${chalk.yellow('task-master show --id=' + newTaskId)} to view details`,
-    { padding: 1, borderColor: 'cyan', borderStyle: 'round', margin: { top: 1 } }
-  ));
-  ```
-
-## Enhanced Display Patterns
-
-### **Token Breakdown Display**
-- Use detailed, granular token breakdowns for AI-powered commands
-- Display context sources with individual token counts
-- Show both token count and character count for transparency
-
-  ```javascript
-  // ✅ DO: Display detailed token breakdown
-  function displayDetailedTokenBreakdown(tokenBreakdown, systemTokens, userTokens) {
-    const sections = [];
-    
-    if (tokenBreakdown.tasks?.length > 0) {
-      const taskDetails = tokenBreakdown.tasks.map(task => 
-        `${task.type === 'subtask' ? '  ' : ''}${task.id}: ${task.tokens.toLocaleString()}`
-      ).join('\n');
-      sections.push(`Tasks (${tokenBreakdown.tasks.reduce((sum, t) => sum + t.tokens, 0).toLocaleString()}):\n${taskDetails}`);
+export class UIComponent {
+    constructor(options = {}) {
+        this.options = {
+            colors: true,
+            interactive: true,
+            ...options
+        };
     }
     
-    const content = sections.join('\n\n');
-    console.log(boxen(content, {
-      title: chalk.cyan('Token Usage'),
-      padding: { top: 1, bottom: 1, left: 2, right: 2 },
-      borderStyle: 'round',
-      borderColor: 'cyan'
-    }));
-  }
-  ```
+    render(data) {
+        // 기본 렌더링 로직
+        return this.format(data);
+    }
+    
+    format(data) {
+        // 포맷팅 로직 구현
+        throw new Error('format method must be implemented');
+    }
+    
+    log(message, level = 'info') {
+        const colors = {
+            info: chalk.blue,
+            success: chalk.green,
+            warning: chalk.yellow,
+            error: chalk.red
+        };
+        
+        const color = colors[level] || chalk.white;
+        console.log(color(message));
+    }
+}
+```
 
-### **Code Block Syntax Highlighting**
-- Use `cli-highlight` library for syntax highlighting in terminal output
-- Process code blocks in AI responses for better readability
+## **태스크 표시 컴포넌트**
 
-  ```javascript
-  // ✅ DO: Enhance code blocks with syntax highlighting
-  import { highlight } from 'cli-highlight';
-  
-  function processCodeBlocks(text) {
-    return text.replace(/```(\w+)?\n([\s\S]*?)```/g, (match, language, code) => {
-      try {
-        const highlighted = highlight(code.trim(), { 
-          language: language || 'javascript',
-          theme: 'default'
+### **태스크 목록 표시**
+```javascript
+// ✅ DO: 태스크 목록 표시 컴포넌트
+export class TaskListDisplay extends UIComponent {
+    format(tasks) {
+        if (!tasks || tasks.length === 0) {
+            return this.renderEmptyState();
+        }
+        
+        const formattedTasks = tasks.map(task => this.formatTask(task));
+        const table = this.createTable(formattedTasks);
+        
+        return boxen(table, {
+            title: chalk.cyan.bold('Task List'),
+            padding: { top: 1, bottom: 1, left: 2, right: 2 },
+            borderStyle: 'round',
+            borderColor: 'cyan'
         });
-        return `\n${highlighted}\n`;
-      } catch (error) {
-        return `\n${code.trim()}\n`;
-      }
-    });
-  }
-  ```
+    }
+    
+    formatTask(task) {
+        const statusIcon = this.getStatusIcon(task.status);
+        const priorityColor = this.getPriorityColor(task.priority);
+        const dependencies = this.formatDependencies(task.dependencies);
+        
+        return {
+            id: chalk.bold(task.id),
+            status: `${statusIcon} ${task.status}`,
+            title: chalk.white(task.title),
+            priority: priorityColor(task.priority || 'medium'),
+            dependencies: dependencies,
+            subtasks: this.formatSubtasks(task.subtasks)
+        };
+    }
+    
+    getStatusIcon(status) {
+        const icons = {
+            'pending': '⏱️',
+            'in-progress': '🔄',
+            'done': '✅',
+            'cancelled': '❌',
+            'deferred': '⏸️'
+        };
+        return icons[status] || '❓';
+    }
+    
+    getPriorityColor(priority) {
+        const colors = {
+            'high': chalk.red,
+            'medium': chalk.yellow,
+            'low': chalk.green
+        };
+        return colors[priority] || chalk.white;
+    }
+    
+    formatDependencies(dependencies) {
+        if (!dependencies || dependencies.length === 0) {
+            return chalk.gray('none');
+        }
+        
+        return dependencies.map(dep => chalk.cyan(dep)).join(', ');
+    }
+    
+    formatSubtasks(subtasks) {
+        if (!subtasks || subtasks.length === 0) {
+            return '';
+        }
+        
+        const completed = subtasks.filter(st => st.status === 'done').length;
+        const total = subtasks.length;
+        
+        return chalk.gray(`${completed}/${total}`);
+    }
+    
+    createTable(tasks) {
+        const headers = ['ID', 'Status', 'Title', 'Priority', 'Dependencies', 'Subtasks'];
+        const rows = tasks.map(task => [
+            task.id,
+            task.status,
+            task.title,
+            task.priority,
+            task.dependencies,
+            task.subtasks
+        ]);
+        
+        return this.formatTable(headers, rows);
+    }
+    
+    formatTable(headers, rows) {
+        // 테이블 포맷팅 로직
+        const columnWidths = this.calculateColumnWidths(headers, rows);
+        
+        const headerRow = headers.map((header, i) => 
+            chalk.bold(header.padEnd(columnWidths[i]))
+        ).join(' | ');
+        
+        const separator = headers.map((_, i) => 
+            '-'.repeat(columnWidths[i])
+        ).join('-+-');
+        
+        const dataRows = rows.map(row => 
+            row.map((cell, i) => 
+                cell.padEnd(columnWidths[i])
+            ).join(' | ')
+        );
+        
+        return [headerRow, separator, ...dataRows].join('\n');
+    }
+    
+    calculateColumnWidths(headers, rows) {
+        const widths = headers.map(header => header.length);
+        
+        rows.forEach(row => {
+            row.forEach((cell, i) => {
+                const cellLength = this.stripAnsi(cell).length;
+                widths[i] = Math.max(widths[i], cellLength);
+            });
+        });
+        
+        return widths;
+    }
+    
+    stripAnsi(text) {
+        return text.replace(/\u001b\[\d+m/g, '');
+    }
+    
+    renderEmptyState() {
+        return boxen(
+            chalk.gray('No tasks found. Use "task-master add-task" to create your first task.'),
+            {
+                padding: { top: 2, bottom: 2, left: 4, right: 4 },
+                borderStyle: 'round',
+                borderColor: 'gray'
+            }
+        );
+    }
+}
+```
 
-### **Multi-Section Result Display**
-- Use separate boxes for headers, content, and metadata
-- Maintain consistent styling across different result types
+### **태스크 상세 표시**
+```javascript
+// ✅ DO: 태스크 상세 표시 컴포넌트
+export class TaskDetailDisplay extends UIComponent {
+    format(task) {
+        if (!task) {
+            return this.renderNotFound();
+        }
+        
+        const sections = [
+            this.formatHeader(task),
+            this.formatDescription(task),
+            this.formatDetails(task),
+            this.formatDependencies(task),
+            this.formatSubtasks(task),
+            this.formatMetadata(task)
+        ].filter(Boolean);
+        
+        return boxen(sections.join('\n\n'), {
+            title: chalk.cyan.bold(`Task ${task.id}`),
+            padding: { top: 1, bottom: 1, left: 2, right: 2 },
+            borderStyle: 'round',
+            borderColor: 'cyan'
+        });
+    }
+    
+    formatHeader(task) {
+        const statusIcon = this.getStatusIcon(task.status);
+        const priorityColor = this.getPriorityColor(task.priority);
+        
+        return [
+            chalk.bold.white(task.title),
+            `${statusIcon} ${chalk.white(task.status)} | ${priorityColor(task.priority || 'medium')}`
+        ].join('\n');
+    }
+    
+    formatDescription(task) {
+        if (!task.description) return null;
+        
+        return [
+            chalk.cyan.bold('Description:'),
+            chalk.white(task.description)
+        ].join('\n');
+    }
+    
+    formatDetails(task) {
+        if (!task.details) return null;
+        
+        return [
+            chalk.cyan.bold('Implementation Details:'),
+            chalk.white(task.details)
+        ].join('\n');
+    }
+    
+    formatDependencies(task) {
+        if (!task.dependencies || task.dependencies.length === 0) {
+            return [
+                chalk.cyan.bold('Dependencies:'),
+                chalk.gray('None')
+            ].join('\n');
+        }
+        
+        const depList = task.dependencies.map(dep => 
+            `- ${chalk.cyan(dep)}`
+        ).join('\n');
+        
+        return [
+            chalk.cyan.bold('Dependencies:'),
+            depList
+        ].join('\n');
+    }
+    
+    formatSubtasks(task) {
+        if (!task.subtasks || task.subtasks.length === 0) {
+            return null;
+        }
+        
+        const subtaskList = task.subtasks.map(subtask => {
+            const statusIcon = this.getStatusIcon(subtask.status);
+            return `- ${chalk.bold(subtask.id)} ${statusIcon} ${chalk.white(subtask.title)}`;
+        }).join('\n');
+        
+        return [
+            chalk.cyan.bold('Subtasks:'),
+            subtaskList
+        ].join('\n');
+    }
+    
+    formatMetadata(task) {
+        const metadata = [];
+        
+        if (task.createdAt) {
+            metadata.push(`Created: ${chalk.gray(new Date(task.createdAt).toLocaleString())}`);
+        }
+        
+        if (task.updatedAt) {
+            metadata.push(`Updated: ${chalk.gray(new Date(task.updatedAt).toLocaleString())}`);
+        }
+        
+        if (task.completedAt) {
+            metadata.push(`Completed: ${chalk.gray(new Date(task.completedAt).toLocaleString())}`);
+        }
+        
+        if (metadata.length === 0) return null;
+        
+        return [
+            chalk.cyan.bold('Metadata:'),
+            metadata.join(' | ')
+        ].join('\n');
+    }
+    
+    renderNotFound() {
+        return boxen(
+            chalk.red('Task not found.'),
+            {
+                padding: { top: 2, bottom: 2, left: 4, right: 4 },
+                borderStyle: 'round',
+                borderColor: 'red'
+            }
+        );
+    }
+}
+```
 
-  ```javascript
-  // ✅ DO: Use structured result display
-  function displayResults(result, query, detailLevel) {
-    // Header with query info
-    const header = boxen(
-      chalk.green.bold('Research Results') + '\n\n' +
-      chalk.gray('Query: ') + chalk.white(query) + '\n' +
-      chalk.gray('Detail Level: ') + chalk.cyan(detailLevel),
-      {
+## **진행률 표시 컴포넌트**
+
+### **로딩 스피너**
+```javascript
+// ✅ DO: 로딩 스피너 컴포넌트
+export class LoadingSpinner extends UIComponent {
+    constructor(text = 'Loading...') {
+        super();
+        this.spinner = ora({
+            text,
+            color: 'cyan',
+            spinner: 'dots'
+        });
+    }
+    
+    start(text) {
+        if (text) {
+            this.spinner.text = text;
+        }
+        this.spinner.start();
+    }
+    
+    stop() {
+        this.spinner.stop();
+    }
+    
+    succeed(text) {
+        this.spinner.succeed(text);
+    }
+    
+    fail(text) {
+        this.spinner.fail(text);
+    }
+    
+    warn(text) {
+        this.spinner.warn(text);
+    }
+    
+    info(text) {
+        this.spinner.info(text);
+    }
+    
+    updateText(text) {
+        this.spinner.text = text;
+    }
+}
+```
+
+### **진행률 바**
+```javascript
+// ✅ DO: 진행률 바 컴포넌트
+export class ProgressBar extends UIComponent {
+    constructor(total = 100, options = {}) {
+        super();
+        this.total = total;
+        this.current = 0;
+        this.options = {
+            width: 40,
+            showPercentage: true,
+            showCount: true,
+            ...options
+        };
+    }
+    
+    update(current, text = '') {
+        this.current = Math.min(current, this.total);
+        this.render(text);
+    }
+    
+    render(text = '') {
+        const percentage = (this.current / this.total) * 100;
+        const filledWidth = Math.round((this.current / this.total) * this.options.width);
+        const emptyWidth = this.options.width - filledWidth;
+        
+        const filled = '█'.repeat(filledWidth);
+        const empty = '░'.repeat(emptyWidth);
+        
+        let progressText = `${filled}${empty}`;
+        
+        if (this.options.showPercentage) {
+            progressText += ` ${percentage.toFixed(1)}%`;
+        }
+        
+        if (this.options.showCount) {
+            progressText += ` (${this.current}/${this.total})`;
+        }
+        
+        if (text) {
+            progressText = `${text} ${progressText}`;
+        }
+        
+        // 커서를 이전 줄로 이동하여 진행률 바 업데이트
+        process.stdout.write(`\r${chalk.cyan(progressText)}`);
+    }
+    
+    complete(text = 'Complete!') {
+        this.update(this.total, text);
+        console.log(); // 새 줄 추가
+    }
+}
+```
+
+## **입력 컴포넌트**
+
+### **확인 다이얼로그**
+```javascript
+// ✅ DO: 확인 다이얼로그 컴포넌트
+export class ConfirmDialog extends UIComponent {
+    async confirm(message, options = {}) {
+        const defaultOptions = {
+            default: false,
+            timeout: 30000
+        };
+        
+        const config = { ...defaultOptions, ...options };
+        
+        const prompt = this.formatPrompt(message, config.default);
+        
+        if (!this.options.interactive) {
+            return config.default;
+        }
+        
+        try {
+            const answer = await this.showPrompt(prompt, config.timeout);
+            return this.parseAnswer(answer, config.default);
+        } catch (error) {
+            return config.default;
+        }
+    }
+    
+    formatPrompt(message, defaultValue) {
+        const defaultText = defaultValue ? 'Y/n' : 'y/N';
+        return `${chalk.yellow('?')} ${chalk.white(message)} ${chalk.gray(`(${defaultText})`)} `;
+    }
+    
+    async showPrompt(prompt, timeout) {
+        return new Promise((resolve, reject) => {
+            const timer = setTimeout(() => {
+                reject(new Error('Timeout'));
+            }, timeout);
+            
+            process.stdout.write(prompt);
+            
+            process.stdin.once('data', (data) => {
+                clearTimeout(timer);
+                resolve(data.toString().trim());
+            });
+        });
+    }
+    
+    parseAnswer(answer, defaultValue) {
+        const normalized = answer.toLowerCase();
+        
+        if (normalized === '' || normalized === 'y' || normalized === 'yes') {
+            return true;
+        }
+        
+        if (normalized === 'n' || normalized === 'no') {
+            return false;
+        }
+        
+        return defaultValue;
+    }
+}
+```
+
+### **사용자 입력 프롬프트**
+```javascript
+// ✅ DO: 사용자 입력 프롬프트 컴포넌트
+export class InputPrompt extends UIComponent {
+    async prompt(message, options = {}) {
+        const defaultOptions = {
+            required: false,
+            validator: null,
+            default: null,
+            timeout: 30000
+        };
+        
+        const config = { ...defaultOptions, ...options };
+        
+        while (true) {
+            const prompt = this.formatPrompt(message, config.default);
+            
+            try {
+                const input = await this.showPrompt(prompt, config.timeout);
+                const value = input || config.default;
+                
+                if (config.required && !value) {
+                    this.log('This field is required.', 'error');
+                    continue;
+                }
+                
+                if (config.validator) {
+                    const validation = config.validator(value);
+                    if (validation !== true) {
+                        this.log(validation, 'error');
+                        continue;
+                    }
+                }
+                
+                return value;
+            } catch (error) {
+                if (config.default !== null) {
+                    return config.default;
+                }
+                throw error;
+            }
+        }
+    }
+    
+    formatPrompt(message, defaultValue) {
+        let prompt = `${chalk.blue('?')} ${chalk.white(message)}`;
+        
+        if (defaultValue !== null) {
+            prompt += ` ${chalk.gray(`(${defaultValue})`)}`;
+        }
+        
+        return prompt + ' ';
+    }
+    
+    async showPrompt(prompt, timeout) {
+        return new Promise((resolve, reject) => {
+            const timer = setTimeout(() => {
+                reject(new Error('Timeout'));
+            }, timeout);
+            
+            process.stdout.write(prompt);
+            
+            process.stdin.once('data', (data) => {
+                clearTimeout(timer);
+                resolve(data.toString().trim());
+            });
+        });
+    }
+}
+```
+
+## **포맷팅 유틸리티**
+
+### **테이블 포맷터**
+```javascript
+// ✅ DO: 테이블 포맷터 컴포넌트
+export class TableFormatter extends UIComponent {
+    format(headers, rows, options = {}) {
+        const defaultOptions = {
+            align: 'left',
+            padding: 1,
+            border: true,
+            sort: false
+        };
+        
+        const config = { ...defaultOptions, ...options };
+        
+        if (config.sort) {
+            rows = this.sortRows(rows, config.sort);
+        }
+        
+        const columnWidths = this.calculateColumnWidths(headers, rows);
+        const formattedHeaders = this.formatHeaders(headers, columnWidths, config);
+        const formattedRows = this.formatRows(rows, columnWidths, config);
+        
+        if (config.border) {
+            return this.addBorders(formattedHeaders, formattedRows, columnWidths);
+        }
+        
+        return [formattedHeaders, ...formattedRows].join('\n');
+    }
+    
+    calculateColumnWidths(headers, rows) {
+        const widths = headers.map(header => this.stripAnsi(header).length);
+        
+        rows.forEach(row => {
+            row.forEach((cell, i) => {
+                const cellLength = this.stripAnsi(cell || '').length;
+                widths[i] = Math.max(widths[i], cellLength);
+            });
+        });
+        
+        return widths;
+    }
+    
+    formatHeaders(headers, widths, config) {
+        return headers.map((header, i) => 
+            this.padCell(header, widths[i], config.align, config.padding)
+        ).join(' | ');
+    }
+    
+    formatRows(rows, widths, config) {
+        return rows.map(row => 
+            row.map((cell, i) => 
+                this.padCell(cell || '', widths[i], config.align, config.padding)
+            ).join(' | ')
+        );
+    }
+    
+    padCell(content, width, align, padding) {
+        const paddedWidth = width + (padding * 2);
+        const spaces = ' '.repeat(padding);
+        
+        switch (align) {
+            case 'right':
+                return spaces + content.padStart(width) + spaces;
+            case 'center':
+                const leftPad = Math.floor((width - this.stripAnsi(content).length) / 2);
+                const rightPad = width - this.stripAnsi(content).length - leftPad;
+                return spaces + ' '.repeat(leftPad) + content + ' '.repeat(rightPad) + spaces;
+            default: // left
+                return spaces + content.padEnd(width) + spaces;
+        }
+    }
+    
+    addBorders(headers, rows, widths) {
+        const separator = widths.map(width => 
+            '-'.repeat(width + 2)
+        ).join('-+-');
+        
+        return [
+            headers,
+            separator,
+            ...rows
+        ].join('\n');
+    }
+    
+    sortRows(rows, sortConfig) {
+        return [...rows].sort((a, b) => {
+            for (const { column, direction } of sortConfig) {
+                const aVal = a[column] || '';
+                const bVal = b[column] || '';
+                
+                const comparison = aVal.localeCompare(bVal);
+                if (comparison !== 0) {
+                    return direction === 'desc' ? -comparison : comparison;
+                }
+            }
+            return 0;
+        });
+    }
+}
+```
+
+### **텍스트 포맷터**
+```javascript
+// ✅ DO: 텍스트 포맷터 컴포넌트
+export class TextFormatter extends UIComponent {
+    format(text, options = {}) {
+        const defaultOptions = {
+            width: process.stdout.columns || 80,
+            indent: 0,
+            wrap: true,
+            highlight: false
+        };
+        
+        const config = { ...defaultOptions, ...options };
+        
+        if (config.highlight) {
+            text = this.highlightSyntax(text);
+        }
+        
+        if (config.wrap) {
+            text = this.wrapText(text, config.width - config.indent);
+        }
+        
+        if (config.indent > 0) {
+            text = this.indentText(text, config.indent);
+        }
+        
+        return text;
+    }
+    
+    wrapText(text, width) {
+        const words = text.split(' ');
+        const lines = [];
+        let currentLine = '';
+        
+        words.forEach(word => {
+            if ((currentLine + word).length <= width) {
+                currentLine += (currentLine ? ' ' : '') + word;
+            } else {
+                if (currentLine) {
+                    lines.push(currentLine);
+                }
+                currentLine = word;
+            }
+        });
+        
+        if (currentLine) {
+            lines.push(currentLine);
+        }
+        
+        return lines.join('\n');
+    }
+    
+    indentText(text, indent) {
+        const spaces = ' '.repeat(indent);
+        return text.split('\n').map(line => spaces + line).join('\n');
+    }
+    
+    highlightSyntax(text) {
+        // 코드 블록 하이라이팅
+        text = text.replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
+            return chalk.gray('```' + (lang || '')) + '\n' + 
+                   chalk.cyan(code.trim()) + '\n' + 
+                   chalk.gray('```');
+        });
+        
+        // 인라인 코드 하이라이팅
+        text = text.replace(/`([^`]+)`/g, chalk.cyan('`$1`'));
+        
+        // 강조 표시
+        text = text.replace(/\*\*([^*]+)\*\*/g, chalk.bold('$1'));
+        text = text.replace(/\*([^*]+)\*/g, chalk.italic('$1'));
+        
+        return text;
+    }
+    
+    truncate(text, length, suffix = '...') {
+        if (text.length <= length) {
+            return text;
+        }
+        
+        return text.substring(0, length - suffix.length) + suffix;
+    }
+    
+    ellipsis(text, length) {
+        return this.truncate(text, length, '…');
+    }
+}
+```
+
+## **UI 유틸리티 함수**
+
+### **메인 UI 유틸리티**
+```javascript
+// ✅ DO: scripts/modules/ui.js 메인 UI 유틸리티
+import chalk from 'chalk';
+import boxen from 'boxen';
+import { TaskListDisplay, TaskDetailDisplay } from './ui/display/index.js';
+import { LoadingSpinner, ProgressBar } from './ui/progress/index.js';
+import { ConfirmDialog, InputPrompt } from './ui/input/index.js';
+import { TableFormatter, TextFormatter } from './ui/formatting/index.js';
+
+// 전역 UI 인스턴스
+let globalUI = null;
+
+export function initializeUI(options = {}) {
+    globalUI = {
+        taskList: new TaskListDisplay(options),
+        taskDetail: new TaskDetailDisplay(options),
+        spinner: new LoadingSpinner(),
+        progress: new ProgressBar(),
+        confirm: new ConfirmDialog(options),
+        input: new InputPrompt(options),
+        table: new TableFormatter(options),
+        text: new TextFormatter(options)
+    };
+    
+    return globalUI;
+}
+
+export function getUI() {
+    if (!globalUI) {
+        initializeUI();
+    }
+    return globalUI;
+}
+
+// 편의 함수들
+export function displayTasks(tasks, options = {}) {
+    const ui = getUI();
+    console.log(ui.taskList.format(tasks, options));
+}
+
+export function displayTask(task, options = {}) {
+    const ui = getUI();
+    console.log(ui.taskDetail.format(task, options));
+}
+
+export function showLoading(text) {
+    const ui = getUI();
+    ui.spinner.start(text);
+    return ui.spinner;
+}
+
+export function showProgress(total, options = {}) {
+    const ui = getUI();
+    ui.progress = new ProgressBar(total, options);
+    return ui.progress;
+}
+
+export async function confirm(message, options = {}) {
+    const ui = getUI();
+    return await ui.confirm.confirm(message, options);
+}
+
+export async function prompt(message, options = {}) {
+    const ui = getUI();
+    return await ui.input.prompt(message, options);
+}
+
+export function formatTable(headers, rows, options = {}) {
+    const ui = getUI();
+    return ui.table.format(headers, rows, options);
+}
+
+export function formatText(text, options = {}) {
+    const ui = getUI();
+    return ui.text.format(text, options);
+}
+
+// 로깅 함수들
+export function log(message, level = 'info') {
+    const colors = {
+        info: chalk.blue,
+        success: chalk.green,
+        warning: chalk.yellow,
+        error: chalk.red
+    };
+    
+    const color = colors[level] || chalk.white;
+    console.log(color(message));
+}
+
+export function logInfo(message) {
+    log(message, 'info');
+}
+
+export function logSuccess(message) {
+    log(message, 'success');
+}
+
+export function logWarning(message) {
+    log(message, 'warning');
+}
+
+export function logError(message) {
+    log(message, 'error');
+}
+
+// 박스 표시 함수들
+export function showBox(content, options = {}) {
+    const defaultOptions = {
+        title: null,
         padding: { top: 1, bottom: 1, left: 2, right: 2 },
-        margin: { top: 1, bottom: 0 },
         borderStyle: 'round',
+        borderColor: 'cyan'
+    };
+    
+    const config = { ...defaultOptions, ...options };
+    console.log(boxen(content, config));
+}
+
+export function showSuccessBox(message) {
+    showBox(message, {
+        title: 'Success',
         borderColor: 'green'
-      }
-    );
-    console.log(header);
-    
-    // Process and display main content
-    const processedResult = processCodeBlocks(result);
-    const contentBox = boxen(processedResult, {
-      padding: { top: 1, bottom: 1, left: 2, right: 2 },
-      margin: { top: 0, bottom: 1 },
-      borderStyle: 'single',
-      borderColor: 'gray'
     });
-    console.log(contentBox);
+}
+
+export function showErrorBox(message) {
+    showBox(message, {
+        title: 'Error',
+        borderColor: 'red'
+    });
+}
+
+export function showWarningBox(message) {
+    showBox(message, {
+        title: 'Warning',
+        borderColor: 'yellow'
+    });
+}
+
+// 텔레메트리 표시
+export function displayAiUsageSummary(telemetryData, outputType = 'cli') {
+    if (outputType !== 'cli' || !telemetryData) {
+        return;
+    }
     
+    const summary = [
+        chalk.gray('AI Usage:'),
+        `Model: ${chalk.cyan(telemetryData.modelUsed)}`,
+        `Tokens: ${chalk.yellow(telemetryData.totalTokens.toLocaleString())}`,
+        `Cost: ${chalk.green(`$${telemetryData.totalCost.toFixed(4)}`)}`
+    ].join(' | ');
+    
+    console.log(boxen(summary, {
+        padding: { top: 0, bottom: 0, left: 1, right: 1 },
+        borderStyle: 'single',
+        borderColor: 'gray'
+    }));
+}
+```
+
+## **테스트 및 검증**
+
+### **UI 컴포넌트 테스트**
+```javascript
+// ✅ DO: tests/unit/ui/task-display.test.js
+import { TaskListDisplay, TaskDetailDisplay } from '../../../scripts/modules/ui/display/task-display.js';
+
+describe('Task Display Components', () => {
+    let taskListDisplay;
+    let taskDetailDisplay;
+    
+    beforeEach(() => {
+        taskListDisplay = new TaskListDisplay();
+        taskDetailDisplay = new TaskDetailDisplay();
+    });
+    
+    it('should format task list correctly', () => {
+        const tasks = [
+            {
+                id: '1',
+                title: 'Test Task',
+                status: 'pending',
+                priority: 'high',
+                dependencies: []
+            }
+        ];
+        
+        const result = taskListDisplay.format(tasks);
+        
+        expect(result).toContain('Test Task');
+        expect(result).toContain('⏱️');
+        expect(result).toContain('high');
+    });
+    
+    it('should handle empty task list', () => {
+        const result = taskListDisplay.format([]);
+        
+        expect(result).toContain('No tasks found');
+        expect(result).toContain('add-task');
+    });
+    
+    it('should format task detail correctly', () => {
+        const task = {
+            id: '1',
+            title: 'Test Task',
+            description: 'Test Description',
+            status: 'done',
+            priority: 'medium',
+            dependencies: ['2'],
+            subtasks: [
+                { id: '1.1', title: 'Subtask', status: 'done' }
+            ],
+            createdAt: '2024-01-01T00:00:00Z'
+        };
+        
+        const result = taskDetailDisplay.format(task);
+        
+        expect(result).toContain('Test Task');
+        expect(result).toContain('Test Description');
+        expect(result).toContain('✅');
+        expect(result).toContain('2');
+        expect(result).toContain('1.1');
+    });
+});
+```
+
+---
+
+**참고 파일:**
+- [ui.js](mdc:scripts/modules/ui.js) - 메인 UI 유틸리티
+- [display/](mdc:src/ui/display/) - 표시 컴포넌트
+- [input/](mdc:src/ui/input/) - 입력 컴포넌트
+- [formatting/](mdc:src/ui/formatting/) - 포맷팅 유틸리티 
     console.log(chalk.green('✓ Operation complete'));
   }
   ```

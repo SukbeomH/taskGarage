@@ -20,7 +20,9 @@ import {
 	writeJSON,
 	getCurrentTag,
 	detectCamelCaseFlags,
-	toKebabCase
+	toKebabCase,
+	generateProgressBar,
+	formatDuration
 } from './utils.js';
 import {
 	parsePRD,
@@ -86,6 +88,28 @@ import {
 } from '../../src/constants/paths.js';
 
 import { initTaskMaster } from '../../src/taskgarage.js';
+
+import {
+	executeScript,
+	getScriptResult,
+	getAllScriptResults,
+	getActiveExecutions,
+	getExecutionHistory,
+	getExecutionStatus
+} from './script-execution-engine.js';
+
+import {
+	analyzeScriptResult,
+	getBasicAnalysis,
+	getDetailedAnalysis,
+	getAIAnalysis
+} from './script-analysis-engine.js';
+
+import {
+	generateScriptReport,
+	getSupportedReportFormats,
+	getSupportedReportTemplates
+} from './script-report-engine.js';
 
 import {
 	displayBanner,
@@ -2578,6 +2602,7 @@ ${result.result}
 			COMPLEXITY_REPORT_FILE
 		)
 		.option('--tag <tag>', 'Specify tag context for task operations')
+		.option('--json', 'Output in JSON format for programmatic use')
 		.action(async (options) => {
 			const initOptions = {
 				tasksPath: options.file || true,
@@ -2602,13 +2627,16 @@ ${result.result}
 				tag
 			};
 
-			// Show current tag context
-			displayCurrentTagIndicator(tag);
+			// Show current tag context (only for non-JSON output)
+			if (!options.json) {
+				displayCurrentTagIndicator(tag);
+			}
 
 			await displayNextTask(
 				taskMaster.getTasksPath(),
 				taskMaster.getComplexityReportPath(),
-				context
+				context,
+				options.json ? 'json' : 'text'
 			);
 		});
 
@@ -2635,6 +2663,7 @@ ${result.result}
 			COMPLEXITY_REPORT_FILE
 		)
 		.option('--tag <tag>', 'Specify tag context for task operations')
+		.option('--json', 'Output in JSON format for programmatic use')
 		.action(async (taskId, options) => {
 			// Initialize TaskMaster
 			const initOptions = {
@@ -2651,8 +2680,10 @@ ${result.result}
 			const statusFilter = options.status;
 			const tag = taskMaster.getCurrentTag();
 
-			// Show current tag context
-			displayCurrentTagIndicator(tag);
+			// Show current tag context (only for non-JSON output)
+			if (!options.json) {
+				displayCurrentTagIndicator(tag);
+			}
 
 			if (!idArg) {
 				console.error(chalk.red('Error: Please provide a task ID'));
@@ -2672,7 +2703,8 @@ ${result.result}
 					taskIds,
 					taskMaster.getComplexityReportPath(),
 					statusFilter,
-					{ projectRoot: taskMaster.getProjectRoot(), tag }
+					{ projectRoot: taskMaster.getProjectRoot(), tag },
+					options.json ? 'json' : 'text'
 				);
 			} else {
 				// Single task - use detailed view
@@ -2681,7 +2713,8 @@ ${result.result}
 					taskIds[0],
 					taskMaster.getComplexityReportPath(),
 					statusFilter,
-					{ projectRoot: taskMaster.getProjectRoot(), tag }
+					{ projectRoot: taskMaster.getProjectRoot(), tag },
+					options.json ? 'json' : 'text'
 				);
 			}
 		});
@@ -2741,6 +2774,50 @@ ${result.result}
 					tag
 				}
 			);
+		});
+
+	// install-keybindings command
+	programInstance
+		.command('install-keybindings')
+		.description('Install Cursor keybindings for Task Master integration')
+		.option('--force', 'Force overwrite existing keybindings')
+		.option('--dry-run', 'Show what would be installed without making changes')
+		.option('--no-backup', 'Skip creating backup of existing keybindings')
+		.option('--custom-prefix <prefix>', 'Custom key prefix (default: cmd+shift for macOS, ctrl+shift for others)')
+		.action(async (options) => {
+			try {
+				const os = process.platform;
+				const force = options.force || false;
+				const dryRun = options.dryRun || false;
+				const noBackup = options.noBackup || false;
+				const customPrefix = options.customPrefix;
+
+				console.log(chalk.blue(`Detected OS: ${os}`));
+				console.log(chalk.blue(`Force mode: ${force}`));
+				console.log(chalk.blue(`Dry run mode: ${dryRun}`));
+				console.log(chalk.blue(`Skip backup: ${noBackup}`));
+				if (customPrefix) {
+					console.log(chalk.blue(`Custom prefix: ${customPrefix}`));
+				}
+
+				// OS별 키바인딩 설치 로직
+				if (os === 'darwin') {
+					// macOS
+					await installMacOSKeybindings(force, dryRun, noBackup, customPrefix);
+				} else if (os === 'win32') {
+					// Windows
+					await installWindowsKeybindings(force, dryRun, noBackup, customPrefix);
+				} else if (os === 'linux') {
+					// Linux
+					await installLinuxKeybindings(force, dryRun, noBackup, customPrefix);
+				} else {
+					console.error(chalk.red(`Unsupported operating system: ${os}`));
+					process.exit(1);
+				}
+			} catch (error) {
+				console.error(chalk.red(`Error installing keybindings: ${error.message}`));
+				process.exit(1);
+			}
 		});
 
 	// remove-dependency command
@@ -4935,6 +5012,809 @@ Examples:
 			process.exit(1);
 		});
 
+	// Script Execution Commands
+	programInstance
+		.command('run-script')
+		.description('터미널 스크립트를 실행하고 결과를 캡처하여 저장합니다')
+		.argument('<command>', '실행할 명령어 (예: "ls -la", "npm test")')
+		.option(
+			'-f, --file <file>',
+			'Path to the tasks file',
+			TASKMASTER_TASKS_FILE
+		)
+		.option('--tag <tag>', 'Specify tag context for task operations')
+		.option('-w, --working-directory <dir>', '작업 디렉토리 (기본값: 현재 디렉토리)')
+		.option('-t, --timeout <ms>', '실행 타임아웃 (밀리초, 기본값: 300000)', '300000')
+		.option('-s, --shell', '쉘을 통해 실행할지 여부 (기본값: false)')
+		.option('-e, --encoding <encoding>', '출력 인코딩 (기본값: utf8)', 'utf8')
+		.option('-b, --max-buffer <bytes>', '최대 버퍼 크기 (바이트, 기본값: 1048576)', '1048576')
+		.action(async (command, options) => {
+			try {
+				// Initialize TaskMaster
+				const taskMaster = initTaskMaster({
+					tasksPath: options.file || true
+				});
+				const tasksPath = taskMaster.getTasksPath();
+
+				// Validate tasks file exists
+				if (!fs.existsSync(tasksPath)) {
+					console.error(
+						chalk.red(`Error: Tasks file not found at path: ${tasksPath}`)
+					);
+					process.exit(1);
+				}
+
+				// Find project root
+				const projectRoot = taskMaster.getProjectRoot();
+				if (!projectRoot) {
+					console.error(chalk.red('Error: Could not find project root.'));
+					process.exit(1);
+				}
+
+				// Resolve tag using standard pattern
+				const tag = options.tag || getCurrentTag(projectRoot) || 'master';
+
+				console.log(chalk.blue(`Executing script: ${command}`));
+				console.log(chalk.blue(`Working directory: ${options.workingDirectory || process.cwd()}`));
+				console.log(chalk.blue(`Tag context: ${tag}`));
+
+				// Execute script
+				const result = await executeScript(command, {
+					workingDirectory: options.workingDirectory || process.cwd(),
+					timeout: parseInt(options.timeout, 10),
+					shell: options.shell || false,
+					encoding: options.encoding || 'utf8',
+					maxBuffer: parseInt(options.maxBuffer, 10)
+				});
+
+				// Display results
+				console.log(chalk.green(`\nScript execution completed: ${result.id}`));
+				console.log(chalk.green(`Exit code: ${result.exitCode}`));
+				console.log(chalk.green(`Duration: ${result.duration}ms`));
+				console.log(chalk.green(`Success: ${result.success}`));
+
+				if (result.stdout) {
+					console.log(chalk.cyan('\n=== STDOUT ==='));
+					console.log(result.stdout);
+				}
+
+				if (result.stderr) {
+					console.log(chalk.yellow('\n=== STDERR ==='));
+					console.log(result.stderr);
+				}
+
+				if (result.error) {
+					console.log(chalk.red('\n=== ERROR ==='));
+					console.log(result.error.message);
+				}
+
+				console.log(chalk.blue(`\nResult saved to: .taskmaster/script-results/`));
+
+			} catch (error) {
+				console.error(chalk.red(`Error executing script: ${error.message}`));
+				process.exit(1);
+			}
+		})
+		.on('error', function (err) {
+			console.error(chalk.red(`Error: ${err.message}`));
+			process.exit(1);
+		});
+
+	// Script Result Management Commands
+	programInstance
+		.command('get-script-result')
+		.description('특정 스크립트 실행 결과를 조회합니다')
+		.argument('<id>', '조회할 스크립트 실행 결과의 ID (예: script_001)')
+		.option(
+			'-f, --file <file>',
+			'Path to the tasks file',
+			TASKMASTER_TASKS_FILE
+		)
+		.option('--tag <tag>', 'Specify tag context for task operations')
+		.action(async (id, options) => {
+			try {
+				// Initialize TaskMaster
+				const taskMaster = initTaskMaster({
+					tasksPath: options.file || true
+				});
+				const tasksPath = taskMaster.getTasksPath();
+
+				// Validate tasks file exists
+				if (!fs.existsSync(tasksPath)) {
+					console.error(
+						chalk.red(`Error: Tasks file not found at path: ${tasksPath}`)
+					);
+					process.exit(1);
+				}
+
+				// Find project root
+				const projectRoot = taskMaster.getProjectRoot();
+				if (!projectRoot) {
+					console.error(chalk.red('Error: Could not find project root.'));
+					process.exit(1);
+				}
+
+				// Resolve tag using standard pattern
+				const tag = options.tag || getCurrentTag(projectRoot) || 'master';
+
+				console.log(chalk.blue(`Looking up script result: ${id}`));
+				console.log(chalk.blue(`Tag context: ${tag}`));
+
+				// Get script result
+				const result = getScriptResult(id);
+				
+				if (!result) {
+					console.error(chalk.red(`Script result not found: ${id}`));
+					process.exit(1);
+				}
+
+				// Display results
+				console.log(chalk.green(`\nScript Result: ${result.id}`));
+				console.log(chalk.green(`Command: ${result.command}`));
+				console.log(chalk.green(`Working Directory: ${result.workingDirectory}`));
+				console.log(chalk.green(`Start Time: ${new Date(result.startTime).toISOString()}`));
+				console.log(chalk.green(`End Time: ${new Date(result.endTime).toISOString()}`));
+				console.log(chalk.green(`Duration: ${result.duration}ms`));
+				console.log(chalk.green(`Exit Code: ${result.exitCode}`));
+				console.log(chalk.green(`Success: ${result.success}`));
+
+				if (result.stdout) {
+					console.log(chalk.cyan('\n=== STDOUT ==='));
+					console.log(result.stdout);
+				}
+
+				if (result.stderr) {
+					console.log(chalk.yellow('\n=== STDERR ==='));
+					console.log(result.stderr);
+				}
+
+				if (result.error) {
+					console.log(chalk.red('\n=== ERROR ==='));
+					console.log(result.error.message);
+				}
+
+			} catch (error) {
+				console.error(chalk.red(`Error getting script result: ${error.message}`));
+				process.exit(1);
+			}
+		})
+		.on('error', function (err) {
+			console.error(chalk.red(`Error: ${err.message}`));
+			process.exit(1);
+		});
+
+	programInstance
+		.command('list-script-results')
+		.description('모든 스크립트 실행 결과 목록을 조회합니다')
+		.option(
+			'-f, --file <file>',
+			'Path to the tasks file',
+			TASKMASTER_TASKS_FILE
+		)
+		.option('--tag <tag>', 'Specify tag context for task operations')
+		.option('-l, --limit <number>', '조회할 결과 수 제한 (기본값: 50)', '50')
+		.option('-o, --offset <number>', '조회 시작 위치 (기본값: 0)', '0')
+		.option('-s, --status <status>', '필터링할 상태 (success, failure, all)', 'all')
+		.action(async (options) => {
+			try {
+				// Initialize TaskMaster
+				const taskMaster = initTaskMaster({
+					tasksPath: options.file || true
+				});
+				const tasksPath = taskMaster.getTasksPath();
+
+				// Validate tasks file exists
+				if (!fs.existsSync(tasksPath)) {
+					console.error(
+						chalk.red(`Error: Tasks file not found at path: ${tasksPath}`)
+					);
+					process.exit(1);
+				}
+
+				// Find project root
+				const projectRoot = taskMaster.getProjectRoot();
+				if (!projectRoot) {
+					console.error(chalk.red('Error: Could not find project root.'));
+					process.exit(1);
+				}
+
+				// Resolve tag using standard pattern
+				const tag = options.tag || getCurrentTag(projectRoot) || 'master';
+
+				console.log(chalk.blue(`Listing script results...`));
+				console.log(chalk.blue(`Tag context: ${tag}`));
+				console.log(chalk.blue(`Limit: ${options.limit}, Offset: ${options.offset}, Status: ${options.status}`));
+
+				// Get all script results
+				const allResults = getAllScriptResults();
+				
+				// Filter by status
+				let filteredResults = allResults;
+				if (options.status !== 'all') {
+					filteredResults = allResults.filter(result => {
+						if (options.status === 'success') {
+							return result.success === true;
+						} else if (options.status === 'failure') {
+							return result.success === false;
+						}
+						return true;
+					});
+				}
+
+				// Sort by end time (newest first)
+				filteredResults.sort((a, b) => b.endTime - a.endTime);
+
+				// Apply pagination
+				const limit = parseInt(options.limit, 10);
+				const offset = parseInt(options.offset, 10);
+				const paginatedResults = filteredResults.slice(offset, offset + limit);
+
+				// Display results
+				console.log(chalk.green(`\nFound ${filteredResults.length} script results`));
+				console.log(chalk.green(`Showing ${paginatedResults.length} results (offset: ${offset})`));
+
+				if (paginatedResults.length === 0) {
+					console.log(chalk.yellow('No script results found.'));
+					return;
+				}
+
+				// Display table
+				console.log(chalk.cyan('\n=== Script Results ==='));
+				console.log(chalk.cyan('ID'.padEnd(12) + 'Command'.padEnd(30) + 'Status'.padEnd(10) + 'Duration'.padEnd(12) + 'Exit Code'));
+				console.log(chalk.cyan('-'.repeat(80)));
+
+				paginatedResults.forEach(result => {
+					const status = result.success ? chalk.green('SUCCESS') : chalk.red('FAILED');
+					const duration = `${result.duration}ms`;
+					const exitCode = result.exitCode;
+					const command = result.command.length > 28 ? 
+						result.command.substring(0, 25) + '...' : 
+						result.command;
+
+					console.log(
+						result.id.padEnd(12) +
+						command.padEnd(30) +
+						status.padEnd(10) +
+						duration.padEnd(12) +
+						exitCode
+					);
+				});
+
+			} catch (error) {
+				console.error(chalk.red(`Error listing script results: ${error.message}`));
+				process.exit(1);
+			}
+		})
+		.on('error', function (err) {
+			console.error(chalk.red(`Error: ${err.message}`));
+			process.exit(1);
+		});
+
+	// Script Analysis Commands
+	programInstance
+		.command('analyze-script-result')
+		.description('스크립트 실행 결과를 분석하고 인사이트를 제공합니다')
+		.argument('<scriptResultId>', '분석할 스크립트 실행 결과의 ID (예: script_001)')
+		.option(
+			'-f, --file <file>',
+			'Path to the tasks file',
+			TASKMASTER_TASKS_FILE
+		)
+		.option('--tag <tag>', 'Specify tag context for task operations')
+		.option('-t, --type <type>', '분석 타입 (basic, detailed, ai, comprehensive)', 'comprehensive')
+		.option('--no-ai', 'AI 분석 비활성화')
+		.option('-c, --context <context>', '분석 컨텍스트 정보')
+		.action(async (scriptResultId, options) => {
+			try {
+				// Initialize TaskMaster
+				const taskMaster = initTaskMaster({
+					tasksPath: options.file || true
+				});
+				const tasksPath = taskMaster.getTasksPath();
+
+				// Validate tasks file exists
+				if (!fs.existsSync(tasksPath)) {
+					console.error(
+						chalk.red(`Error: Tasks file not found at path: ${tasksPath}`)
+					);
+					process.exit(1);
+				}
+
+				// Find project root
+				const projectRoot = taskMaster.getProjectRoot();
+				if (!projectRoot) {
+					console.error(chalk.red('Error: Could not find project root.'));
+					process.exit(1);
+				}
+
+				// Resolve tag using standard pattern
+				const tag = options.tag || getCurrentTag(projectRoot) || 'master';
+
+				console.log(chalk.blue(`Analyzing script result: ${scriptResultId}`));
+				console.log(chalk.blue(`Analysis type: ${options.type}`));
+				console.log(chalk.blue(`AI enabled: ${!options.noAi}`));
+				console.log(chalk.blue(`Tag context: ${tag}`));
+
+				// Get script result
+				const scriptResult = getScriptResult(scriptResultId);
+				
+				if (!scriptResult) {
+					console.error(chalk.red(`Script result not found: ${scriptResultId}`));
+					process.exit(1);
+				}
+
+				// Perform analysis
+				const analysisContext = {
+					enableAI: !options.noAi,
+					context: options.context || ''
+				};
+
+				let analysisResult;
+
+				switch (options.type) {
+					case 'basic':
+						console.log(chalk.cyan('Performing basic analysis...'));
+						const basicAnalysis = getBasicAnalysis(scriptResult);
+						analysisResult = {
+							id: `analysis_${scriptResultId}_basic_${Date.now()}`,
+							scriptResultId: scriptResultId,
+							analysisType: 'basic',
+							timestamp: Date.now(),
+							summary: `Basic analysis: ${basicAnalysis.success ? 'Success' : 'Failure'} (${basicAnalysis.executionTime}ms)`,
+							details: { basic: basicAnalysis },
+							recommendations: [],
+							nextSteps: [],
+							confidence: 1.0
+						};
+						break;
+
+					case 'detailed':
+						console.log(chalk.cyan('Performing detailed analysis...'));
+						const detailedAnalysis = getDetailedAnalysis(scriptResult);
+						analysisResult = {
+							id: `analysis_${scriptResultId}_detailed_${Date.now()}`,
+							scriptResultId: scriptResultId,
+							analysisType: 'detailed',
+							timestamp: Date.now(),
+							summary: `Detailed analysis: ${detailedAnalysis.errorPatterns.length} errors, ${detailedAnalysis.warningPatterns.length} warnings`,
+							details: { detailed: detailedAnalysis },
+							recommendations: [],
+							nextSteps: [],
+							confidence: 0.9
+						};
+						break;
+
+					case 'ai':
+						console.log(chalk.cyan('Performing AI analysis...'));
+						const aiAnalysis = await getAIAnalysis(scriptResult, analysisContext);
+						analysisResult = {
+							id: `analysis_${scriptResultId}_ai_${Date.now()}`,
+							scriptResultId: scriptResultId,
+							analysisType: 'ai',
+							timestamp: Date.now(),
+							summary: `AI analysis: ${aiAnalysis.insights.length} insights, confidence: ${aiAnalysis.confidence}`,
+							details: { ai: aiAnalysis },
+							recommendations: aiAnalysis.recommendations,
+							nextSteps: aiAnalysis.nextSteps,
+							confidence: aiAnalysis.confidence
+						};
+						break;
+
+					case 'comprehensive':
+					default:
+						console.log(chalk.cyan('Performing comprehensive analysis...'));
+						analysisResult = await analyzeScriptResult(scriptResult, analysisContext);
+						break;
+				}
+
+				// Display results
+				console.log(chalk.green(`\nAnalysis completed: ${analysisResult.id}`));
+				console.log(chalk.green(`Summary: ${analysisResult.summary}`));
+				console.log(chalk.green(`Confidence: ${(analysisResult.confidence * 100).toFixed(1)}%`));
+
+				if (analysisResult.recommendations && analysisResult.recommendations.length > 0) {
+					console.log(chalk.yellow('\n=== Recommendations ==='));
+					analysisResult.recommendations.forEach((rec, index) => {
+						console.log(chalk.yellow(`${index + 1}. ${rec}`));
+					});
+				}
+
+				if (analysisResult.nextSteps && analysisResult.nextSteps.length > 0) {
+					console.log(chalk.blue('\n=== Next Steps ==='));
+					analysisResult.nextSteps.forEach((step, index) => {
+						console.log(chalk.blue(`${index + 1}. ${step}`));
+					});
+				}
+
+				// Display detailed analysis if available
+				if (analysisResult.details.basic) {
+					const basic = analysisResult.details.basic;
+					console.log(chalk.cyan('\n=== Basic Analysis ==='));
+					console.log(chalk.cyan(`Success: ${basic.success}`));
+					console.log(chalk.cyan(`Execution Time: ${basic.executionTime}ms`));
+					console.log(chalk.cyan(`Exit Code: ${basic.exitCode}`));
+					console.log(chalk.cyan(`Performance: ${basic.performance}`));
+					console.log(chalk.cyan(`Error Count: ${basic.errorCount}`));
+					console.log(chalk.cyan(`Warning Count: ${basic.warningCount}`));
+				}
+
+				if (analysisResult.details.detailed) {
+					const detailed = analysisResult.details.detailed;
+					console.log(chalk.cyan('\n=== Detailed Analysis ==='));
+					
+					if (detailed.errorPatterns.length > 0) {
+						console.log(chalk.red(`Errors (${detailed.errorPatterns.length}):`));
+						detailed.errorPatterns.forEach((error, index) => {
+							console.log(chalk.red(`  ${index + 1}. ${error.type}: ${error.message}`));
+						});
+					}
+
+					if (detailed.warningPatterns.length > 0) {
+						console.log(chalk.yellow(`Warnings (${detailed.warningPatterns.length}):`));
+						detailed.warningPatterns.forEach((warning, index) => {
+							console.log(chalk.yellow(`  ${index + 1}. ${warning.type}: ${warning.message}`));
+						});
+					}
+
+					if (detailed.securityIssues.length > 0) {
+						console.log(chalk.red(`Security Issues (${detailed.securityIssues.length}):`));
+						detailed.securityIssues.forEach((issue, index) => {
+							console.log(chalk.red(`  ${index + 1}. ${issue.type}: ${issue.description}`));
+						});
+					}
+
+					if (detailed.optimizationOpportunities.length > 0) {
+						console.log(chalk.blue(`Optimization Opportunities (${detailed.optimizationOpportunities.length}):`));
+						detailed.optimizationOpportunities.forEach((opp, index) => {
+							console.log(chalk.blue(`  ${index + 1}. ${opp.type}: ${opp.description}`));
+						});
+					}
+				}
+
+				if (analysisResult.details.ai) {
+					const ai = analysisResult.details.ai;
+					console.log(chalk.magenta('\n=== AI Analysis ==='));
+					
+					if (ai.insights.length > 0) {
+						console.log(chalk.magenta(`Insights (${ai.insights.length}):`));
+						ai.insights.forEach((insight, index) => {
+							console.log(chalk.magenta(`  ${index + 1}. ${insight}`));
+						});
+					}
+
+					if (ai.bestPractices.length > 0) {
+						console.log(chalk.green(`Best Practices (${ai.bestPractices.length}):`));
+						ai.bestPractices.forEach((practice, index) => {
+							console.log(chalk.green(`  ${index + 1}. ${practice}`));
+						});
+					}
+
+					if (ai.relatedCommands.length > 0) {
+						console.log(chalk.blue(`Related Commands (${ai.relatedCommands.length}):`));
+						ai.relatedCommands.forEach((cmd, index) => {
+							console.log(chalk.blue(`  ${index + 1}. ${cmd}`));
+						});
+					}
+				}
+
+			} catch (error) {
+				console.error(chalk.red(`Error analyzing script result: ${error.message}`));
+				process.exit(1);
+			}
+		})
+		.on('error', function (err) {
+			console.error(chalk.red(`Error: ${err.message}`));
+			process.exit(1);
+		});
+
+	// Script Execution Monitoring Commands
+	programInstance
+		.command('list-active-scripts')
+		.description('현재 실행 중인 스크립트 목록을 표시합니다')
+		.option('-f, --file <file>', 'Path to the tasks file', TASKMASTER_TASKS_FILE)
+		.option('--tag <tag>', 'Specify tag context for task operations')
+		.action(async (options) => {
+			try {
+				// Initialize TaskMaster
+				const taskMaster = initTaskMaster({
+					tasksPath: options.file || true
+				});
+
+				// Find project root
+				const projectRoot = taskMaster.getProjectRoot();
+				if (!projectRoot) {
+					console.error(chalk.red('Error: Could not find project root.'));
+					process.exit(1);
+				}
+
+				// Resolve tag using standard pattern
+				const tag = options.tag || getCurrentTag(projectRoot) || 'master';
+
+				console.log(chalk.blue('현재 실행 중인 스크립트 목록:'));
+				console.log(chalk.blue(`태그 컨텍스트: ${tag}`));
+				console.log('');
+
+				const activeExecutions = getActiveExecutions();
+				
+				if (activeExecutions.length === 0) {
+					console.log(chalk.yellow('현재 실행 중인 스크립트가 없습니다.'));
+					return;
+				}
+
+				activeExecutions.forEach((execution, index) => {
+					const duration = Date.now() - execution.startTime;
+					const progressBar = generateProgressBar(execution.progress);
+					
+					console.log(chalk.cyan(`${index + 1}. ${execution.id}`));
+					console.log(chalk.white(`   명령어: ${execution.command}`));
+					console.log(chalk.white(`   상태: ${getStatusWithColor(execution.status)}`));
+					console.log(chalk.white(`   진행률: ${progressBar} ${execution.progress}%`));
+					console.log(chalk.white(`   실행 시간: ${formatDuration(duration)}`));
+					console.log('');
+				});
+
+			} catch (error) {
+				console.error(chalk.red(`Error: ${error.message}`));
+				process.exit(1);
+			}
+		});
+
+	programInstance
+		.command('script-history')
+		.description('스크립트 실행 히스토리를 표시합니다')
+		.option('-f, --file <file>', 'Path to the tasks file', TASKMASTER_TASKS_FILE)
+		.option('--tag <tag>', 'Specify tag context for task operations')
+		.option('-l, --limit <number>', '표시할 히스토리 개수', '20')
+		.action(async (options) => {
+			try {
+				// Initialize TaskMaster
+				const taskMaster = initTaskMaster({
+					tasksPath: options.file || true
+				});
+
+				// Find project root
+				const projectRoot = taskMaster.getProjectRoot();
+				if (!projectRoot) {
+					console.error(chalk.red('Error: Could not find project root.'));
+					process.exit(1);
+				}
+
+				// Resolve tag using standard pattern
+				const tag = options.tag || getCurrentTag(projectRoot) || 'master';
+
+				const limit = parseInt(options.limit, 10);
+				if (isNaN(limit) || limit <= 0) {
+					console.error(chalk.red('Error: --limit must be a positive number'));
+					process.exit(1);
+				}
+
+				console.log(chalk.blue(`스크립트 실행 히스토리 (최근 ${limit}개):`));
+				console.log(chalk.blue(`태그 컨텍스트: ${tag}`));
+				console.log('');
+
+				const history = getExecutionHistory(limit);
+				
+				if (history.length === 0) {
+					console.log(chalk.yellow('실행 히스토리가 없습니다.'));
+					return;
+				}
+
+				history.forEach((execution, index) => {
+					const duration = execution.duration || 0;
+					const statusColor = execution.status === 'completed' ? 'green' : 
+									   execution.status === 'failed' ? 'red' : 'yellow';
+					
+					console.log(chalk.cyan(`${index + 1}. ${execution.id}`));
+					console.log(chalk.white(`   명령어: ${execution.command}`));
+					console.log(chalk[statusColor](`   상태: ${execution.status}`));
+					console.log(chalk.white(`   실행 시간: ${formatDuration(duration)}`));
+					console.log(chalk.white(`   시작 시간: ${new Date(execution.startTime).toLocaleString()}`));
+					
+					if (execution.error) {
+						console.log(chalk.red(`   에러: ${execution.error}`));
+					}
+					console.log('');
+				});
+
+			} catch (error) {
+				console.error(chalk.red(`Error: ${error.message}`));
+				process.exit(1);
+			}
+		});
+
+	programInstance
+		.command('script-status')
+		.description('특정 스크립트의 실행 상태를 조회합니다')
+		.argument('<scriptId>', '조회할 스크립트 ID')
+		.option('-f, --file <file>', 'Path to the tasks file', TASKMASTER_TASKS_FILE)
+		.option('--tag <tag>', 'Specify tag context for task operations')
+		.action(async (scriptId, options) => {
+			try {
+				// Initialize TaskMaster
+				const taskMaster = initTaskMaster({
+					tasksPath: options.file || true
+				});
+
+				// Find project root
+				const projectRoot = taskMaster.getProjectRoot();
+				if (!projectRoot) {
+					console.error(chalk.red('Error: Could not find project root.'));
+					process.exit(1);
+				}
+
+				// Resolve tag using standard pattern
+				const tag = options.tag || getCurrentTag(projectRoot) || 'master';
+
+				console.log(chalk.blue(`스크립트 실행 상태 조회: ${scriptId}`));
+				console.log(chalk.blue(`태그 컨텍스트: ${tag}`));
+				console.log('');
+
+				const status = getExecutionStatus(scriptId);
+				
+				if (!status) {
+					console.log(chalk.yellow(`스크립트 ${scriptId}의 실행 상태를 찾을 수 없습니다.`));
+					console.log(chalk.yellow('다음 중 하나일 수 있습니다:'));
+					console.log(chalk.yellow('1. 스크립트가 아직 실행되지 않았습니다'));
+					console.log(chalk.yellow('2. 스크립트 실행이 완료되었습니다'));
+					console.log(chalk.yellow('3. 스크립트 ID가 잘못되었습니다'));
+					return;
+				}
+
+				const duration = status.endTime ? status.endTime - status.startTime : Date.now() - status.startTime;
+				const progressBar = generateProgressBar(status.progress);
+				
+				console.log(chalk.cyan(`스크립트 ID: ${status.id}`));
+				console.log(chalk.white(`명령어: ${status.command}`));
+				console.log(chalk.white(`상태: ${getStatusWithColor(status.status)}`));
+				console.log(chalk.white(`진행률: ${progressBar} ${status.progress}%`));
+				console.log(chalk.white(`실행 시간: ${formatDuration(duration)}`));
+				console.log(chalk.white(`시작 시간: ${new Date(status.startTime).toLocaleString()}`));
+				
+				if (status.endTime) {
+					console.log(chalk.white(`종료 시간: ${new Date(status.endTime).toLocaleString()}`));
+				}
+				
+				if (status.error) {
+					console.log(chalk.red(`에러: ${status.error}`));
+				}
+
+			} catch (error) {
+				console.error(chalk.red(`Error: ${error.message}`));
+				process.exit(1);
+			}
+		});
+
+	// Script Report Generation Commands
+	programInstance
+		.command('create-script-report')
+		.description('스크립트 실행 결과를 다양한 형식으로 보고서를 생성합니다')
+		.argument('<scriptResultId>', '보고서를 생성할 스크립트 실행 결과의 ID (예: script_001)')
+		.option(
+			'-f, --file <file>',
+			'Path to the tasks file',
+			TASKMASTER_TASKS_FILE
+		)
+		.option('--tag <tag>', 'Specify tag context for task operations')
+		.option('-a, --analysis-id <id>', '분석 결과 ID (선택사항)')
+		.option('-o, --output <path>', '보고서 파일 저장 경로 (선택사항)')
+		.option('-t, --format <format>', '보고서 형식 (markdown, html, json)', 'markdown')
+		.option('-p, --template <template>', '보고서 템플릿 (기본값: default)', 'default')
+		.option('--no-details', '상세 정보 제외')
+		.option('--no-analysis', '분석 결과 제외')
+		.option('--no-recommendations', '권장사항 제외')
+		.option('--no-next-steps', '다음 단계 제외')
+		.option('--list-formats', '지원하는 형식 목록 표시')
+		.option('--list-templates', '지원하는 템플릿 목록 표시')
+		.action(async (scriptResultId, options) => {
+			try {
+				// Initialize TaskMaster
+				const taskMaster = initTaskMaster({
+					tasksPath: options.file || true
+				});
+				const tasksPath = taskMaster.getTasksPath();
+
+				// Validate tasks file exists
+				if (!fs.existsSync(tasksPath)) {
+					console.error(
+						chalk.red(`Error: Tasks file not found at path: ${tasksPath}`)
+					);
+					process.exit(1);
+				}
+
+				// Find project root
+				const projectRoot = taskMaster.getProjectRoot();
+				if (!projectRoot) {
+					console.error(chalk.red('Error: Could not find project root.'));
+					process.exit(1);
+				}
+
+				// Resolve tag using standard pattern
+				const tag = options.tag || getCurrentTag(projectRoot) || 'master';
+
+				// 지원하는 형식 목록 표시
+				if (options.listFormats) {
+					const formats = getSupportedReportFormats();
+					console.log(chalk.blue('지원하는 보고서 형식:'));
+					formats.forEach(format => {
+						console.log(chalk.cyan(`  - ${format}`));
+					});
+					return;
+				}
+
+				// 지원하는 템플릿 목록 표시
+				if (options.listTemplates) {
+					const templates = getSupportedReportTemplates(options.format || 'markdown');
+					console.log(chalk.blue(`지원하는 ${options.format || 'markdown'} 템플릿:`));
+					templates.forEach(template => {
+						console.log(chalk.cyan(`  - ${template}`));
+					});
+					return;
+				}
+
+				console.log(chalk.blue(`Creating script report for: ${scriptResultId}`));
+				console.log(chalk.blue(`Format: ${options.format}`));
+				console.log(chalk.blue(`Template: ${options.template}`));
+				console.log(chalk.blue(`Tag context: ${tag}`));
+
+				// Get script result
+				const scriptResult = getScriptResult(scriptResultId);
+				
+				if (!scriptResult) {
+					console.error(chalk.red(`Script result not found: ${scriptResultId}`));
+					process.exit(1);
+				}
+
+				// Get analysis result if provided
+				let analysisResult = null;
+				if (options.analysisId) {
+					analysisResult = getAnalysis(options.analysisId);
+					if (!analysisResult) {
+						console.warn(chalk.yellow(`Analysis result not found: ${options.analysisId}, proceeding without analysis`));
+					}
+				}
+
+				// Report options
+				const reportOptions = {
+					format: options.format,
+					template: options.template,
+					outputPath: options.output || null,
+					includeDetails: !options.noDetails,
+					includeAnalysis: !options.noAnalysis,
+					includeRecommendations: !options.noRecommendations,
+					includeNextSteps: !options.noNextSteps,
+					metadata: {
+						generatedBy: 'task-master-cli',
+						tag: tag
+					}
+				};
+
+				// Generate report
+				console.log(chalk.cyan('Generating report...'));
+				const report = await generateScriptReport(scriptResult, analysisResult, reportOptions);
+
+				// Display results
+				console.log(chalk.green(`\nReport generated successfully!`));
+				console.log(chalk.green(`Format: ${options.format}`));
+				console.log(chalk.green(`Template: ${options.template}`));
+				console.log(chalk.green(`Length: ${report.length} characters`));
+
+				if (options.output) {
+					console.log(chalk.green(`Saved to: ${options.output}`));
+				} else {
+					console.log(chalk.blue('\n=== Report Content ==='));
+					console.log(report);
+				}
+
+			} catch (error) {
+				console.error(chalk.red(`Error creating script report: ${error.message}`));
+				process.exit(1);
+			}
+		})
+		.on('error', function (err) {
+			console.error(chalk.red(`Error: ${err.message}`));
+			process.exit(1);
+		});
+
 	return programInstance;
 }
 
@@ -4986,6 +5866,399 @@ function setupCLI() {
 	registerCommands(programInstance);
 
 	return programInstance;
+}
+
+/**
+ * Install Cursor keybindings for macOS
+ * @param {boolean} force - Force overwrite existing keybindings
+ * @param {boolean} dryRun - Show what would be installed without making changes
+ * @param {boolean} noBackup - Skip creating backup
+ * @param {string} customPrefix - Custom key prefix
+ */
+async function installMacOSKeybindings(force, dryRun, noBackup = false, customPrefix = null) {
+	const homeDir = process.env.HOME;
+	const keybindingsPath = path.join(homeDir, 'Library', 'Application Support', 'Cursor', 'User', 'keybindings.json');
+	
+	console.log(chalk.blue(`\nInstalling Cursor keybindings for macOS...`));
+	console.log(chalk.blue(`Keybindings path: ${keybindingsPath}`));
+
+	// Check if Cursor is installed
+	if (!fs.existsSync(path.dirname(keybindingsPath))) {
+		console.error(chalk.red('Cursor is not installed or not found in the expected location.'));
+		console.error(chalk.yellow('Please install Cursor first: https://cursor.sh/'));
+		process.exit(1);
+	}
+
+	// Read existing keybindings and create backup
+	let existingKeybindings = [];
+	if (fs.existsSync(keybindingsPath)) {
+		try {
+			const content = fs.readFileSync(keybindingsPath, 'utf8');
+			existingKeybindings = JSON.parse(content);
+			
+			// Create backup of existing keybindings (unless --no-backup is specified)
+			if (!noBackup) {
+				const backupPath = keybindingsPath + '.backup.' + new Date().toISOString().replace(/[:.]/g, '-');
+				fs.writeFileSync(backupPath, content);
+				console.log(chalk.blue(`Backup created: ${backupPath}`));
+			} else {
+				console.log(chalk.yellow('Skipping backup creation (--no-backup specified)'));
+			}
+		} catch (error) {
+			console.warn(chalk.yellow(`Warning: Could not read existing keybindings: ${error.message}`));
+		}
+	}
+
+	// Define Task Master keybindings with custom prefix support
+	const prefix = customPrefix || 'cmd+shift';
+	const taskMasterKeybindings = [
+		{
+			"key": `${prefix}+t`,
+			"command": "workbench.action.terminal.sendSequence",
+			"args": {
+				"text": "task-master next\n"
+			},
+			"when": "terminalFocus"
+		},
+		{
+			"key": `${prefix}+l`,
+			"command": "workbench.action.terminal.sendSequence",
+			"args": {
+				"text": "task-master list\n"
+			},
+			"when": "terminalFocus"
+		},
+		{
+			"key": `${prefix}+s`,
+			"command": "workbench.action.terminal.sendSequence",
+			"args": {
+				"text": "task-master show "
+			},
+			"when": "terminalFocus"
+		},
+		{
+			"key": `${prefix}+a`,
+			"command": "workbench.action.terminal.sendSequence",
+			"args": {
+				"text": "task-master add-task "
+			},
+			"when": "terminalFocus"
+		}
+	];
+
+	// Check for existing Task Master keybindings to prevent duplicates
+	const existingTaskMasterKeys = existingKeybindings.filter(kb => 
+		kb.command === "workbench.action.terminal.sendSequence" && 
+		kb.args && kb.args.text && kb.args.text.startsWith("task-master")
+	);
+
+	if (existingTaskMasterKeys.length > 0) {
+		console.log(chalk.yellow('\n⚠️  Found existing Task Master keybindings:'));
+		existingTaskMasterKeys.forEach(kb => {
+			console.log(chalk.yellow(`  ${kb.key}: ${kb.args.text.trim()}`));
+		});
+		
+		if (!force) {
+			console.log(chalk.red('\n❌ Installation cancelled. Use --force to overwrite existing keybindings.'));
+			return;
+		} else {
+			console.log(chalk.blue('\n🔄 Force mode: Will replace existing Task Master keybindings.'));
+			// Remove existing Task Master keybindings
+			existingKeybindings = existingKeybindings.filter(kb => 
+				!(kb.command === "workbench.action.terminal.sendSequence" && 
+				kb.args && kb.args.text && kb.args.text.startsWith("task-master"))
+			);
+		}
+	}
+
+	if (dryRun) {
+		console.log(chalk.cyan('\n=== DRY RUN - Would install the following keybindings ==='));
+		console.log(JSON.stringify(taskMasterKeybindings, null, 2));
+		console.log(chalk.cyan('\nExisting keybindings would be preserved.'));
+		return;
+	}
+
+	// Merge with existing keybindings
+	const mergedKeybindings = [...existingKeybindings, ...taskMasterKeybindings];
+
+	// Ensure directory exists
+	const keybindingsDir = path.dirname(keybindingsPath);
+	if (!fs.existsSync(keybindingsDir)) {
+		fs.mkdirSync(keybindingsDir, { recursive: true });
+	}
+
+	// Write keybindings
+	fs.writeFileSync(keybindingsPath, JSON.stringify(mergedKeybindings, null, 2));
+
+	console.log(chalk.green('\n✅ Cursor keybindings installed successfully!'));
+	console.log(chalk.blue('\nInstalled keybindings:'));
+	console.log(chalk.cyan(`  ${prefix}+T: Show next task`));
+	console.log(chalk.cyan(`  ${prefix}+L: List all tasks`));
+	console.log(chalk.cyan(`  ${prefix}+S: Show specific task (with ID)`));
+	console.log(chalk.cyan(`  ${prefix}+A: Add new task`));
+	console.log(chalk.yellow('\nNote: Restart Cursor to apply the new keybindings.'));
+}
+
+/**
+ * Install Cursor keybindings for Windows
+ * @param {boolean} force - Force overwrite existing keybindings
+ * @param {boolean} dryRun - Show what would be installed without making changes
+ * @param {boolean} noBackup - Skip creating backup of existing keybindings
+ * @param {string} customPrefix - Custom prefix for keybindings
+ */
+async function installWindowsKeybindings(force, dryRun, noBackup = false, customPrefix = null) {
+	const appData = process.env.APPDATA;
+	const keybindingsPath = path.join(appData, 'Cursor', 'User', 'keybindings.json');
+	
+	console.log(chalk.blue(`\nInstalling Cursor keybindings for Windows...`));
+	console.log(chalk.blue(`Keybindings path: ${keybindingsPath}`));
+
+	// Check if Cursor is installed
+	if (!fs.existsSync(path.dirname(keybindingsPath))) {
+		console.error(chalk.red('Cursor is not installed or not found in the expected location.'));
+		console.error(chalk.yellow('Please install Cursor first: https://cursor.sh/'));
+		process.exit(1);
+	}
+
+	// Read existing keybindings and create backup
+	let existingKeybindings = [];
+	if (fs.existsSync(keybindingsPath)) {
+		try {
+			const content = fs.readFileSync(keybindingsPath, 'utf8');
+			existingKeybindings = JSON.parse(content);
+			
+			// Create backup of existing keybindings (unless --no-backup is specified)
+			if (!noBackup) {
+				const backupPath = keybindingsPath + '.backup.' + new Date().toISOString().replace(/[:.]/g, '-');
+				fs.writeFileSync(backupPath, content);
+				console.log(chalk.blue(`Backup created: ${backupPath}`));
+			} else {
+				console.log(chalk.yellow('Skipping backup creation (--no-backup specified)'));
+			}
+		} catch (error) {
+			console.warn(chalk.yellow(`Warning: Could not read existing keybindings: ${error.message}`));
+		}
+	}
+
+	// Define Task Master keybindings for Windows with custom prefix support
+	const prefix = customPrefix || 'ctrl+shift';
+	const taskMasterKeybindings = [
+		{
+			"key": `${prefix}+t`,
+			"command": "workbench.action.terminal.sendSequence",
+			"args": {
+				"text": "task-master next\n"
+			},
+			"when": "terminalFocus"
+		},
+		{
+			"key": `${prefix}+l`,
+			"command": "workbench.action.terminal.sendSequence",
+			"args": {
+				"text": "task-master list\n"
+			},
+			"when": "terminalFocus"
+		},
+		{
+			"key": `${prefix}+s`,
+			"command": "workbench.action.terminal.sendSequence",
+			"args": {
+				"text": "task-master show "
+			},
+			"when": "terminalFocus"
+		},
+		{
+			"key": `${prefix}+a`,
+			"command": "workbench.action.terminal.sendSequence",
+			"args": {
+				"text": "task-master add-task "
+			},
+			"when": "terminalFocus"
+		}
+	];
+
+	// Check for existing Task Master keybindings to prevent duplicates
+	const existingTaskMasterKeys = existingKeybindings.filter(kb => 
+		kb.command === "workbench.action.terminal.sendSequence" && 
+		kb.args && kb.args.text && kb.args.text.startsWith("task-master")
+	);
+
+	if (existingTaskMasterKeys.length > 0) {
+		console.log(chalk.yellow('\n⚠️  Found existing Task Master keybindings:'));
+		existingTaskMasterKeys.forEach(kb => {
+			console.log(chalk.yellow(`  ${kb.key}: ${kb.args.text.trim()}`));
+		});
+		
+		if (!force) {
+			console.log(chalk.red('\n❌ Installation cancelled. Use --force to overwrite existing keybindings.'));
+			return;
+		} else {
+			console.log(chalk.blue('\n🔄 Force mode: Will replace existing Task Master keybindings.'));
+			// Remove existing Task Master keybindings
+			existingKeybindings = existingKeybindings.filter(kb => 
+				!(kb.command === "workbench.action.terminal.sendSequence" && 
+				kb.args && kb.args.text && kb.args.text.startsWith("task-master"))
+			);
+		}
+	}
+
+	if (dryRun) {
+		console.log(chalk.cyan('\n=== DRY RUN - Would install the following keybindings ==='));
+		console.log(JSON.stringify(taskMasterKeybindings, null, 2));
+		console.log(chalk.cyan('\nExisting keybindings would be preserved.'));
+		return;
+	}
+
+	// Merge with existing keybindings
+	const mergedKeybindings = [...existingKeybindings, ...taskMasterKeybindings];
+
+	// Ensure directory exists
+	const keybindingsDir = path.dirname(keybindingsPath);
+	if (!fs.existsSync(keybindingsDir)) {
+		fs.mkdirSync(keybindingsDir, { recursive: true });
+	}
+
+	// Write keybindings
+	fs.writeFileSync(keybindingsPath, JSON.stringify(mergedKeybindings, null, 2));
+
+	console.log(chalk.green('\n✅ Cursor keybindings installed successfully!'));
+	console.log(chalk.blue('\nInstalled keybindings:'));
+	console.log(chalk.cyan(`  ${prefix}+T: Show next task`));
+	console.log(chalk.cyan(`  ${prefix}+L: List all tasks`));
+	console.log(chalk.cyan(`  ${prefix}+S: Show specific task (with ID)`));
+	console.log(chalk.cyan(`  ${prefix}+A: Add new task`));
+	console.log(chalk.yellow('\nNote: Restart Cursor to apply the new keybindings.'));
+}
+
+/**
+ * Install Cursor keybindings for Linux
+ * @param {boolean} force - Force overwrite existing keybindings
+ * @param {boolean} dryRun - Show what would be installed without making changes
+ * @param {boolean} noBackup - Skip creating backup of existing keybindings
+ * @param {string} customPrefix - Custom prefix for keybindings
+ */
+async function installLinuxKeybindings(force, dryRun, noBackup = false, customPrefix = null) {
+	const homeDir = process.env.HOME;
+	const keybindingsPath = path.join(homeDir, '.config', 'Cursor', 'User', 'keybindings.json');
+	
+	console.log(chalk.blue(`\nInstalling Cursor keybindings for Linux...`));
+	console.log(chalk.blue(`Keybindings path: ${keybindingsPath}`));
+
+	// Check if Cursor is installed
+	if (!fs.existsSync(path.dirname(keybindingsPath))) {
+		console.error(chalk.red('Cursor is not installed or not found in the expected location.'));
+		console.error(chalk.yellow('Please install Cursor first: https://cursor.sh/'));
+		process.exit(1);
+	}
+
+	// Read existing keybindings and create backup
+	let existingKeybindings = [];
+	if (fs.existsSync(keybindingsPath)) {
+		try {
+			const content = fs.readFileSync(keybindingsPath, 'utf8');
+			existingKeybindings = JSON.parse(content);
+			
+			// Create backup of existing keybindings (unless --no-backup is specified)
+			if (!noBackup) {
+				const backupPath = keybindingsPath + '.backup.' + new Date().toISOString().replace(/[:.]/g, '-');
+				fs.writeFileSync(backupPath, content);
+				console.log(chalk.blue(`Backup created: ${backupPath}`));
+			} else {
+				console.log(chalk.yellow('Skipping backup creation (--no-backup specified)'));
+			}
+		} catch (error) {
+			console.warn(chalk.yellow(`Warning: Could not read existing keybindings: ${error.message}`));
+		}
+	}
+
+	// Define Task Master keybindings for Linux with custom prefix support
+	const prefix = customPrefix || 'ctrl+shift';
+	const taskMasterKeybindings = [
+		{
+			"key": `${prefix}+t`,
+			"command": "workbench.action.terminal.sendSequence",
+			"args": {
+				"text": "task-master next\n"
+			},
+			"when": "terminalFocus"
+		},
+		{
+			"key": `${prefix}+l`,
+			"command": "workbench.action.terminal.sendSequence",
+			"args": {
+				"text": "task-master list\n"
+			},
+			"when": "terminalFocus"
+		},
+		{
+			"key": `${prefix}+s`,
+			"command": "workbench.action.terminal.sendSequence",
+			"args": {
+				"text": "task-master show "
+			},
+			"when": "terminalFocus"
+		},
+		{
+			"key": `${prefix}+a`,
+			"command": "workbench.action.terminal.sendSequence",
+			"args": {
+				"text": "task-master add-task "
+			},
+			"when": "terminalFocus"
+		}
+	];
+
+	// Check for existing Task Master keybindings to prevent duplicates
+	const existingTaskMasterKeys = existingKeybindings.filter(kb => 
+		kb.command === "workbench.action.terminal.sendSequence" && 
+		kb.args && kb.args.text && kb.args.text.startsWith("task-master")
+	);
+
+	if (existingTaskMasterKeys.length > 0) {
+		console.log(chalk.yellow('\n⚠️  Found existing Task Master keybindings:'));
+		existingTaskMasterKeys.forEach(kb => {
+			console.log(chalk.yellow(`  ${kb.key}: ${kb.args.text.trim()}`));
+		});
+		
+		if (!force) {
+			console.log(chalk.red('\n❌ Installation cancelled. Use --force to overwrite existing keybindings.'));
+			return;
+		} else {
+			console.log(chalk.blue('\n🔄 Force mode: Will replace existing Task Master keybindings.'));
+			// Remove existing Task Master keybindings
+			existingKeybindings = existingKeybindings.filter(kb => 
+				!(kb.command === "workbench.action.terminal.sendSequence" && 
+				kb.args && kb.args.text && kb.args.text.startsWith("task-master"))
+			);
+		}
+	}
+
+	if (dryRun) {
+		console.log(chalk.cyan('\n=== DRY RUN - Would install the following keybindings ==='));
+		console.log(JSON.stringify(taskMasterKeybindings, null, 2));
+		console.log(chalk.cyan('\nExisting keybindings would be preserved.'));
+		return;
+	}
+
+	// Merge with existing keybindings
+	const mergedKeybindings = [...existingKeybindings, ...taskMasterKeybindings];
+
+	// Ensure directory exists
+	const keybindingsDir = path.dirname(keybindingsPath);
+	if (!fs.existsSync(keybindingsDir)) {
+		fs.mkdirSync(keybindingsDir, { recursive: true });
+	}
+
+	// Write keybindings
+	fs.writeFileSync(keybindingsPath, JSON.stringify(mergedKeybindings, null, 2));
+
+	console.log(chalk.green('\n✅ Cursor keybindings installed successfully!'));
+	console.log(chalk.blue('\nInstalled keybindings:'));
+	console.log(chalk.cyan(`  ${prefix}+T: Show next task`));
+	console.log(chalk.cyan(`  ${prefix}+L: List all tasks`));
+	console.log(chalk.cyan(`  ${prefix}+S: Show specific task (with ID)`));
+	console.log(chalk.cyan(`  ${prefix}+A: Add new task`));
+	console.log(chalk.yellow('\nNote: Restart Cursor to apply the new keybindings.'));
 }
 
 /**

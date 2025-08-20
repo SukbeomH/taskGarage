@@ -1,0 +1,29 @@
+{
+  "script_001": {
+    "command": "echo \"Data integrity test\"",
+    "startTime": 1755581556068,
+    "endTime": 1755581556207,
+    "duration": 139,
+    "exitCode": 0,
+    "success": true,
+    "workingDirectory": "/Users/sukbeom/Desktop/workspace/taskmaster/tests/temp/test-1755581556060"
+  },
+  "script_002": {
+    "command": "echo \"Data integrity test\"",
+    "startTime": 1755591178830,
+    "endTime": 1755591178874,
+    "duration": 44,
+    "exitCode": 0,
+    "success": true,
+    "workingDirectory": "/Users/sukbeom/Desktop/workspace/taskmaster/tests/temp/test-1755591178672"
+  },
+  "script_004": {
+    "command": "echo \"Error recovery test\"",
+    "startTime": 1755591179037,
+    "endTime": 1755591179059,
+    "duration": 22,
+    "exitCode": 0,
+    "success": true,
+    "workingDirectory": "/Users/sukbeom/Desktop/workspace/taskmaster/tests/temp/test-1755591179020"
+  }
+}

@@ -921,12 +921,14 @@ function truncateString(str, maxLength) {
  * Display the next task to work on
  * @param {string} tasksPath - Path to the tasks.json file
  * @param {string} complexityReportPath - Path to the complexity report file
- * @param {string} tag - Optional tag to override current tag resolution
+ * @param {object} context - Context object containing projectRoot and tag
+ * @param {string} outputFormat - Output format: 'text' or 'json'
  */
 async function displayNextTask(
 	tasksPath,
 	complexityReportPath = null,
-	context = {}
+	context = {},
+	outputFormat = 'text'
 ) {
 	// Extract parameters from context
 	const { projectRoot, tag } = context;
@@ -934,8 +936,16 @@ async function displayNextTask(
 	// Read the tasks file with proper projectRoot for tag resolution
 	const data = readJSON(tasksPath, projectRoot, tag);
 	if (!data || !data.tasks) {
-		log('error', 'No valid tasks found.');
-		process.exit(1);
+		if (outputFormat === 'json') {
+			console.log(JSON.stringify({
+				success: false,
+				error: 'No valid tasks found.'
+			}));
+		} else {
+			log('error', 'No valid tasks found.');
+			process.exit(1);
+		}
+		return;
 	}
 
 	// Read complexity report once
@@ -945,18 +955,40 @@ async function displayNextTask(
 	const nextTask = findNextTask(data.tasks, complexityReport);
 
 	if (!nextTask) {
-		console.log(
-			boxen(
-				chalk.yellow('No eligible tasks found!\n\n') +
-					'All pending tasks have unsatisfied dependencies, or all tasks are completed.',
-				{
-					padding: { top: 0, bottom: 0, left: 1, right: 1 },
-					borderColor: 'yellow',
-					borderStyle: 'round',
-					margin: { top: 1 }
+		if (outputFormat === 'json') {
+			console.log(JSON.stringify({
+				success: true,
+				data: {
+					message: 'No eligible tasks found. All pending tasks have unsatisfied dependencies, or all tasks are completed.',
+					nextTask: null
 				}
-			)
-		);
+			}));
+		} else {
+			console.log(
+				boxen(
+					chalk.yellow('No eligible tasks found!\n\n') +
+						'All pending tasks have unsatisfied dependencies, or all tasks are completed.',
+					{
+						padding: { top: 0, bottom: 0, left: 1, right: 1 },
+						borderColor: 'yellow',
+						borderStyle: 'round',
+						margin: { top: 1 }
+					}
+				)
+			);
+		}
+		return;
+	}
+
+	// Return JSON output if requested
+	if (outputFormat === 'json') {
+		console.log(JSON.stringify({
+			success: true,
+			data: {
+				nextTask: nextTask,
+				complexityReport: complexityReport
+			}
+		}));
 		return;
 	}
 
@@ -1201,21 +1233,31 @@ async function displayNextTask(
  * @param {object} context - Context object containing projectRoot and tag
  * @param {string} context.projectRoot - Project root path
  * @param {string} context.tag - Tag for the task
+ * @param {string} outputFormat - Output format: 'text' or 'json'
  */
 async function displayTaskById(
 	tasksPath,
 	taskId,
 	complexityReportPath = null,
 	statusFilter = null,
-	context = {}
+	context = {},
+	outputFormat = 'text'
 ) {
 	const { projectRoot, tag } = context;
 
 	// Read the tasks file with proper projectRoot for tag resolution
 	const data = readJSON(tasksPath, projectRoot, tag);
 	if (!data || !data.tasks) {
-		log('error', 'No valid tasks found.');
-		process.exit(1);
+		if (outputFormat === 'json') {
+			console.log(JSON.stringify({
+				success: false,
+				error: 'No valid tasks found.'
+			}));
+		} else {
+			log('error', 'No valid tasks found.');
+			process.exit(1);
+		}
+		return;
 	}
 
 	// Read complexity report once
@@ -1231,14 +1273,35 @@ async function displayTaskById(
 	);
 
 	if (!task) {
-		console.log(
-			boxen(chalk.yellow(`Task with ID ${taskId} not found!`), {
-				padding: { top: 0, bottom: 0, left: 1, right: 1 },
-				borderColor: 'yellow',
-				borderStyle: 'round',
-				margin: { top: 1 }
-			})
-		);
+		if (outputFormat === 'json') {
+			console.log(JSON.stringify({
+				success: false,
+				error: `Task with ID ${taskId} not found!`
+			}));
+		} else {
+			console.log(
+				boxen(chalk.yellow(`Task with ID ${taskId} not found!`), {
+					padding: { top: 0, bottom: 0, left: 1, right: 1 },
+					borderColor: 'yellow',
+					borderStyle: 'round',
+					margin: { top: 1 }
+				})
+			);
+		}
+		return;
+	}
+
+	// Return JSON output if requested
+	if (outputFormat === 'json') {
+		const result = { ...task };
+		if (originalSubtaskCount !== null) {
+			result._originalSubtaskCount = originalSubtaskCount;
+			result._subtaskFilter = statusFilter;
+		}
+		console.log(JSON.stringify({
+			success: true,
+			data: result
+		}));
 		return;
 	}
 
@@ -2307,16 +2370,16 @@ function displayAiUsageSummary(telemetryData, outputType = 'cli') {
  * @param {Object} context - Context object containing projectRoot and tag
  * @param {string} [context.projectRoot] - Project root path
  * @param {string} [context.tag] - Tag for the task
+ * @param {string} outputFormat - Output format: 'text' or 'json'
  */
 async function displayMultipleTasksSummary(
 	tasksPath,
 	taskIds,
 	complexityReportPath = null,
 	statusFilter = null,
-	context = {}
+	context = {},
+	outputFormat = 'text'
 ) {
-	displayBanner();
-
 	// Extract projectRoot and tag from context
 	const projectRoot = context.projectRoot || null;
 	const tag = context.tag || null;
@@ -2324,8 +2387,16 @@ async function displayMultipleTasksSummary(
 	// Read the tasks file with proper projectRoot for tag resolution
 	const data = readJSON(tasksPath, projectRoot, tag);
 	if (!data || !data.tasks) {
-		log('error', 'No valid tasks found.');
-		process.exit(1);
+		if (outputFormat === 'json') {
+			console.log(JSON.stringify({
+				success: false,
+				error: 'No valid tasks found.'
+			}));
+		} else {
+			log('error', 'No valid tasks found.');
+			process.exit(1);
+		}
+		return;
 	}
 
 	// Read complexity report once
@@ -2349,7 +2420,22 @@ async function displayMultipleTasksSummary(
 		}
 	});
 
-	// Show not found tasks
+	// Return JSON output if requested
+	if (outputFormat === 'json') {
+		console.log(JSON.stringify({
+			success: true,
+			data: {
+				foundTasks: foundTasks,
+				notFoundIds: notFoundIds,
+				totalRequested: taskIds.length,
+				foundCount: foundTasks.length,
+				notFoundCount: notFoundIds.length
+			}
+		}));
+		return;
+	}
+
+	// Show not found tasks (text output only)
 	if (notFoundIds.length > 0) {
 		console.log(
 			boxen(chalk.yellow(`Tasks not found: ${notFoundIds.join(', ')}`), {
@@ -2372,6 +2458,9 @@ async function displayMultipleTasksSummary(
 		);
 		return;
 	}
+
+	// Display banner for text output
+	displayBanner();
 
 	// Display header
 	console.log(

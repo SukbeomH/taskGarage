@@ -1,0 +1,15 @@
+{
+  "id": "script_002",
+  "command": "echo \"Data integrity test\"",
+  "workingDirectory": "/Users/sukbeom/Desktop/workspace/taskmaster/tests/temp/test-1755584043647",
+  "startTime": "2025-08-19T06:14:03.684Z",
+  "endTime": "2025-08-19T06:14:03.710Z",
+  "duration": 26,
+  "exitCode": -2,
+  "stdout": "",
+  "stderr": "",
+  "success": false,
+  "error": "spawn echo ENOENT",
+  "metadata": {},
+  "savedAt": "2025-08-19T06:14:03.719Z"
+}

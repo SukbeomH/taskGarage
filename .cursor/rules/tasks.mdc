@@ -1,325 +1,717 @@
----
-description: Guidelines for implementing task management operations
-globs: scripts/modules/task-manager.js
-alwaysApply: false
----
-# Task Management Guidelines
+# Task Master 태스크 관리 시스템
 
-## Tagged Task Lists System
+## **태스크 데이터 구조**
 
-Task Master now uses a **tagged task lists system** for multi-context task management:
-
-- **Data Structure**: Tasks are organized into separate contexts (tags) within `tasks.json`
-- **Legacy Format**: `{"tasks": [...]}`
-- **Tagged Format**: `{"master": {"tasks": [...]}, "feature-branch": {"tasks": [...]}}`
-- **Silent Migration**: Legacy format automatically converts to tagged format on first use
-- **Tag Resolution**: Core functions receive legacy format for 100% backward compatibility
-- **Default Tag**: "master" is used for all existing and new tasks unless otherwise specified
-
-## Task Structure Standards
-
-- **Core Task Properties**:
-  - ✅ DO: Include all required properties in each task object
-  - ✅ DO: Provide default values for optional properties
-  - ❌ DON'T: Add extra properties that aren't in the standard schema
-
-  ```javascript
-  // ✅ DO: Follow this structure for task objects
-  const task = {
-    id: nextId,
-    title: "Task title",
-    description: "Brief task description",
-    status: "pending", // "pending", "in-progress", "done", etc.
-    dependencies: [], // Array of task IDs
-    priority: "medium", // "high", "medium", "low"
-    details: "Detailed implementation instructions",
-    testStrategy: "Verification approach",
-    subtasks: [] // Array of subtask objects
-  };
-  ```
-
-- **Tagged Data Structure**:
-  - ✅ DO: Access tasks through tag resolution layer
-  - ✅ DO: Use `getTasksForTag(data, tagName)` to retrieve tasks for a specific tag
-  - ✅ DO: Use `setTasksForTag(data, tagName, tasks)` to update tasks for a specific tag
-  - ❌ DON'T: Directly manipulate the tagged structure in core functions
-
-  ```javascript
-  // ✅ DO: Use tag resolution functions
-  const tasksData = readJSON(tasksPath);
-  const currentTag = getCurrentTag() || 'master';
-  const tasks = getTasksForTag(tasksData, currentTag);
-  
-  // Manipulate tasks as normal...
-  
-  // Save back to the tagged structure
-  setTasksForTag(tasksData, currentTag, tasks);
-  writeJSON(tasksPath, tasksData);
-  ```
-
-- **Subtask Structure**:
-  - ✅ DO: Use consistent properties across subtasks
-  - ✅ DO: Maintain simple numeric IDs within parent tasks
-  - ❌ DON'T: Duplicate parent task properties in subtasks
-
-  ```javascript
-  // ✅ DO: Structure subtasks consistently
-  const subtask = {
-    id: nextSubtaskId, // Simple numeric ID, unique within the parent task
-    title: "Subtask title",
-    description: "Brief subtask description",
-    status: "pending",
-    dependencies: [], // Can include numeric IDs (other subtasks) or full task IDs
-    details: "Detailed implementation instructions"
-  };
-  ```
-
-## Task Creation and Parsing
-
-- **ID Management**:
-  - ✅ DO: Assign unique sequential IDs to tasks within each tag context
-  - ✅ DO: Calculate the next ID based on existing tasks in the current tag
-  - ❌ DON'T: Hardcode or reuse IDs within the same tag
-
-  ```javascript
-  // ✅ DO: Calculate the next available ID within the current tag
-  const tasksData = readJSON(tasksPath);
-  const currentTag = getCurrentTag() || 'master';
-  const tasks = getTasksForTag(tasksData, currentTag);
-  const highestId = Math.max(...tasks.map(t => t.id));
-  const nextTaskId = highestId + 1;
-  ```
-
-- **PRD Parsing**:
-  - ✅ DO: Extract tasks from PRD documents using AI
-  - ✅ DO: Create tasks in the current tag context (defaults to "master")
-  - ✅ DO: Provide clear prompts to guide AI task generation
-  - ✅ DO: Validate and clean up AI-generated tasks
-
-  ```javascript
-  // ✅ DO: Parse into current tag context
-  const tasksData = readJSON(tasksPath) || {};
-  const currentTag = getCurrentTag() || 'master';
-  
-  // Parse tasks and add to current tag
-  const newTasks = await parseTasksFromPRD(prdContent);
-  setTasksForTag(tasksData, currentTag, newTasks);
-  writeJSON(tasksPath, tasksData);
-  ```
-
-## Task Updates and Modifications
-
-- **Status Management**:
-  - ✅ DO: Provide functions for updating task status within current tag context
-  - ✅ DO: Handle both individual tasks and subtasks
-  - ✅ DO: Consider subtask status when updating parent tasks
-
-  ```javascript
-  // ✅ DO: Handle status updates within tagged context
-  async function setTaskStatus(tasksPath, taskIdInput, newStatus) {
-    const tasksData = readJSON(tasksPath);
-    const currentTag = getCurrentTag() || 'master';
-    const tasks = getTasksForTag(tasksData, currentTag);
-    
-    // Check if it's a subtask (e.g., "1.2")
-    if (taskIdInput.includes('.')) {
-      const [parentId, subtaskId] = taskIdInput.split('.').map(id => parseInt(id, 10));
-      
-      // Find the parent task and subtask
-      const parentTask = tasks.find(t => t.id === parentId);
-      const subtask = parentTask.subtasks.find(st => st.id === subtaskId);
-      
-      // Update subtask status
-      subtask.status = newStatus;
-      
-      // Check if all subtasks are done
-      if (newStatus === 'done') {
-        const allSubtasksDone = parentTask.subtasks.every(st => st.status === 'done');
-        if (allSubtasksDone) {
-          // Suggest updating parent task
+### **기본 태스크 객체 구조**
+```javascript
+// ✅ DO: 표준 태스크 객체 구조
+const task = {
+    id: "1",                    // 고유 식별자
+    title: "태스크 제목",        // 간단한 제목
+    description: "태스크 설명",  // 간단한 설명
+    status: "pending",          // 상태: pending, in-progress, done, cancelled, deferred
+    priority: "medium",         // 우선순위: high, medium, low
+    dependencies: ["2", "3"],   // 의존성 태스크 ID 배열
+    details: "구현 세부사항...", // 상세 구현 정보
+    testStrategy: "테스트 전략", // 테스트 방법
+    subtasks: [                 // 서브태스크 배열
+        {
+            id: "1.1",
+            title: "서브태스크 제목",
+            description: "서브태스크 설명",
+            status: "pending",
+            details: "서브태스크 세부사항",
+            dependencies: ["1.2"]
         }
-      }
+    ],
+    createdAt: "2024-01-01T00:00:00Z",
+    updatedAt: "2024-01-01T00:00:00Z"
+};
+```
+
+### **태그된 태스크 리스트 구조**
+```json
+{
+    "master": {
+        "tasks": [...],
+        "metadata": {
+            "createdAt": "2024-01-01T00:00:00Z",
+            "description": "마스터 태스크 리스트"
+        }
+    },
+    "feature-auth": {
+        "tasks": [...],
+        "metadata": {
+            "createdAt": "2024-01-01T00:00:00Z",
+            "description": "인증 기능 개발 태스크"
+        }
+    }
+}
+```
+
+## **태스크 CRUD 작업**
+
+### **태스크 추가**
+```javascript
+// ✅ DO: 태스크 추가 함수 구조
+export async function addTask(tasksPath, options, context, outputFormat = 'text') {
+    const { projectRoot, commandNameFromContext, outputType } = context;
+    
+    // AI 서비스를 통한 태스크 생성
+    const aiServiceResponse = await generateObjectService({
+        prompt: options.prompt,
+        outputType: 'task',
+        commandName: commandNameFromContext || 'add-task',
+        outputType: outputType || 'cli',
+        projectContext: await gatherProjectContext(projectRoot)
+    });
+    
+    const newTask = aiServiceResponse.mainResult.object;
+    
+    // 태스크 데이터에 추가
+    const tasksData = readJSON(tasksPath, projectRoot, context.tag);
+    const tag = context.tag || 'master';
+    
+    if (!tasksData[tag]) {
+        tasksData[tag] = { tasks: [], metadata: {} };
+    }
+    
+    tasksData[tag].tasks.push(newTask);
+    
+    // 파일 저장
+    writeJSON(tasksPath, tasksData, projectRoot);
+    
+    // UI 출력
+    if (outputFormat === 'text') {
+        displayTaskAdded(newTask, tag);
+        if (aiServiceResponse.telemetryData) {
+            displayAiUsageSummary(aiServiceResponse.telemetryData, 'cli');
+        }
+    }
+    
+    return {
+        actionData: newTask,
+        telemetryData: aiServiceResponse.telemetryData
+    };
+}
+```
+
+### **태스크 조회**
+```javascript
+// ✅ DO: 태스크 조회 함수 구조
+export function getTask(tasksPath, taskId, context) {
+    const { projectRoot, tag } = context;
+    const tasksData = readJSON(tasksPath, projectRoot, tag);
+    
+    // 태스크 ID 파싱 (메인 태스크 또는 서브태스크)
+    const [mainId, subtaskId] = taskId.split('.');
+    
+    const task = tasksData[tag].tasks.find(t => t.id === mainId);
+    if (!task) {
+        throw new TaskNotFoundError(taskId);
+    }
+    
+    if (subtaskId) {
+        const subtask = task.subtasks?.find(st => st.id === subtaskId);
+        if (!subtask) {
+            throw new TaskNotFoundError(taskId);
+        }
+        return { task, subtask, isSubtask: true };
+    }
+    
+    return { task, isSubtask: false };
+}
+```
+
+### **태스크 업데이트**
+```javascript
+// ✅ DO: 태스크 업데이트 함수 구조
+export async function updateTask(tasksPath, taskId, options, context, outputFormat = 'text') {
+    const { projectRoot, commandNameFromContext, outputType } = context;
+    
+    // AI 서비스를 통한 태스크 업데이트
+    const aiServiceResponse = await generateObjectService({
+        prompt: options.prompt,
+        outputType: 'task_update',
+        commandName: commandNameFromContext || 'update-task',
+        outputType: outputType || 'cli',
+        existingTask: await getTask(tasksPath, taskId, context),
+        projectContext: await gatherProjectContext(projectRoot)
+    });
+    
+    const updatedTask = aiServiceResponse.mainResult.object;
+    
+    // 태스크 데이터 업데이트
+    const tasksData = readJSON(tasksPath, projectRoot, context.tag);
+    const tag = context.tag || 'master';
+    
+    const taskIndex = tasksData[tag].tasks.findIndex(t => t.id === taskId);
+    if (taskIndex === -1) {
+        throw new TaskNotFoundError(taskId);
+    }
+    
+    tasksData[tag].tasks[taskIndex] = {
+        ...tasksData[tag].tasks[taskIndex],
+        ...updatedTask,
+        updatedAt: new Date().toISOString()
+    };
+    
+    // 파일 저장
+    writeJSON(tasksPath, tasksData, projectRoot);
+    
+    // UI 출력
+    if (outputFormat === 'text') {
+        displayTaskUpdated(updatedTask, tag);
+        if (aiServiceResponse.telemetryData) {
+            displayAiUsageSummary(aiServiceResponse.telemetryData, 'cli');
+        }
+    }
+    
+    return {
+        actionData: updatedTask,
+        telemetryData: aiServiceResponse.telemetryData
+    };
+}
+```
+
+### **태스크 삭제**
+```javascript
+// ✅ DO: 태스크 삭제 함수 구조
+export function removeTask(tasksPath, taskId, context, options = {}) {
+    const { projectRoot, tag } = context;
+    const { yes = false } = options;
+    
+    // 확인 프롬프트 (파괴적 작업)
+    if (!yes) {
+        const confirmed = confirmTaskDeletion(taskId);
+        if (!confirmed) {
+            return { cancelled: true };
+        }
+    }
+    
+    const tasksData = readJSON(tasksPath, projectRoot, tag);
+    const taskIndex = tasksData[tag].tasks.findIndex(t => t.id === taskId);
+    
+    if (taskIndex === -1) {
+        throw new TaskNotFoundError(taskId);
+    }
+    
+    // 의존성 정리
+    cleanupTaskDependencies(tasksData[tag].tasks, taskId);
+    
+    // 태스크 제거
+    const removedTask = tasksData[tag].tasks.splice(taskIndex, 1)[0];
+    
+    // 파일 저장
+    writeJSON(tasksPath, tasksData, projectRoot);
+    
+    // 태스크 파일 재생성
+    if (!options.skipGenerate) {
+        generateTaskFiles(tasksPath, path.dirname(tasksPath));
+    }
+    
+    return { removedTask };
+}
+```
+
+## **서브태스크 관리**
+
+### **서브태스크 추가**
+```javascript
+// ✅ DO: 서브태스크 추가 함수 구조
+export async function addSubtask(tasksPath, parentId, options, context, outputFormat = 'text') {
+    const { projectRoot, commandNameFromContext, outputType } = context;
+    
+    // 부모 태스크 조회
+    const parentTask = await getTask(tasksPath, parentId, context);
+    if (parentTask.isSubtask) {
+        throw new Error('Cannot add subtask to a subtask');
+    }
+    
+    // AI 서비스를 통한 서브태스크 생성
+    const aiServiceResponse = await generateObjectService({
+        prompt: options.prompt || `Create a subtask for: ${parentTask.task.title}`,
+        outputType: 'subtask',
+        commandName: commandNameFromContext || 'add-subtask',
+        outputType: outputType || 'cli',
+        parentTask: parentTask.task,
+        projectContext: await gatherProjectContext(projectRoot)
+    });
+    
+    const newSubtask = aiServiceResponse.mainResult.object;
+    
+    // 서브태스크 ID 생성
+    newSubtask.id = `${parentId}.${parentTask.task.subtasks?.length + 1 || 1}`;
+    
+    // 부모 태스크에 서브태스크 추가
+    const tasksData = readJSON(tasksPath, projectRoot, context.tag);
+    const tag = context.tag || 'master';
+    
+    const parentIndex = tasksData[tag].tasks.findIndex(t => t.id === parentId);
+    if (!tasksData[tag].tasks[parentIndex].subtasks) {
+        tasksData[tag].tasks[parentIndex].subtasks = [];
+    }
+    
+    tasksData[tag].tasks[parentIndex].subtasks.push(newSubtask);
+    
+    // 파일 저장
+    writeJSON(tasksPath, tasksData, projectRoot);
+    
+    // UI 출력
+    if (outputFormat === 'text') {
+        displaySubtaskAdded(newSubtask, parentId, tag);
+        if (aiServiceResponse.telemetryData) {
+            displayAiUsageSummary(aiServiceResponse.telemetryData, 'cli');
+        }
+    }
+    
+    return {
+        actionData: newSubtask,
+        telemetryData: aiServiceResponse.telemetryData
+    };
+}
+```
+
+### **서브태스크 업데이트**
+```javascript
+// ✅ DO: 서브태스크 업데이트 함수 구조
+export async function updateSubtask(tasksPath, subtaskId, options, context, outputFormat = 'text') {
+    const { projectRoot, commandNameFromContext, outputType } = context;
+    
+    // 서브태스크 조회
+    const { task: parentTask, subtask } = await getTask(tasksPath, subtaskId, context);
+    
+    // AI 서비스를 통한 서브태스크 업데이트
+    const aiServiceResponse = await generateObjectService({
+        prompt: options.prompt,
+        outputType: 'subtask_update',
+        commandName: commandNameFromContext || 'update-subtask',
+        outputType: outputType || 'cli',
+        existingSubtask: subtask,
+        parentTask: parentTask,
+        projectContext: await gatherProjectContext(projectRoot)
+    });
+    
+    const updatedSubtask = aiServiceResponse.mainResult.object;
+    
+    // 서브태스크 데이터 업데이트
+    const tasksData = readJSON(tasksPath, projectRoot, context.tag);
+    const tag = context.tag || 'master';
+    
+    const parentIndex = tasksData[tag].tasks.findIndex(t => t.id === parentTask.id);
+    const subtaskIndex = tasksData[tag].tasks[parentIndex].subtasks.findIndex(st => st.id === subtaskId);
+    
+    tasksData[tag].tasks[parentIndex].subtasks[subtaskIndex] = {
+        ...tasksData[tag].tasks[parentIndex].subtasks[subtaskIndex],
+        ...updatedSubtask,
+        updatedAt: new Date().toISOString()
+    };
+    
+    // 파일 저장
+    writeJSON(tasksPath, tasksData, projectRoot);
+    
+    // UI 출력
+    if (outputFormat === 'text') {
+        displaySubtaskUpdated(updatedSubtask, parentTask.id, tag);
+        if (aiServiceResponse.telemetryData) {
+            displayAiUsageSummary(aiServiceResponse.telemetryData, 'cli');
+        }
+    }
+    
+    return {
+        actionData: updatedSubtask,
+        telemetryData: aiServiceResponse.telemetryData
+    };
+}
+```
+
+## **태스크 상태 관리**
+
+### **상태 변경**
+```javascript
+// ✅ DO: 태스크 상태 변경 함수 구조
+export function setTaskStatus(tasksPath, taskId, newStatus, context, options = {}) {
+    const { projectRoot, tag } = context;
+    const { skipValidation = false } = options;
+    
+    // 상태 유효성 검사
+    if (!skipValidation && !isValidTaskStatus(newStatus)) {
+        throw new Error(`Invalid task status: ${newStatus}`);
+    }
+    
+    // 의존성 검사
+    if (newStatus === 'in-progress' || newStatus === 'done') {
+        const { task } = getTask(tasksPath, taskId, context);
+        if (task.dependencies && task.dependencies.length > 0) {
+            const tasksData = readJSON(tasksPath, projectRoot, tag);
+            const incompleteDeps = task.dependencies.filter(depId => {
+                const depTask = tasksData[tag].tasks.find(t => t.id === depId);
+                return depTask && depTask.status !== 'done';
+            });
+            
+            if (incompleteDeps.length > 0) {
+                throw new Error(`Cannot set status to ${newStatus}: incomplete dependencies: ${incompleteDeps.join(', ')}`);
+            }
+        }
+    }
+    
+    // 태스크 또는 서브태스크 상태 업데이트
+    const tasksData = readJSON(tasksPath, projectRoot, tag);
+    const [mainId, subtaskId] = taskId.split('.');
+    
+    const taskIndex = tasksData[tag].tasks.findIndex(t => t.id === mainId);
+    if (taskIndex === -1) {
+        throw new TaskNotFoundError(taskId);
+    }
+    
+    if (subtaskId) {
+        // 서브태스크 상태 변경
+        const subtaskIndex = tasksData[tag].tasks[taskIndex].subtasks.findIndex(st => st.id === subtaskId);
+        if (subtaskIndex === -1) {
+            throw new TaskNotFoundError(taskId);
+        }
+        
+        tasksData[tag].tasks[taskIndex].subtasks[subtaskIndex].status = newStatus;
+        tasksData[tag].tasks[taskIndex].subtasks[subtaskIndex].updatedAt = new Date().toISOString();
+        
+        // 부모 태스크 상태 자동 업데이트
+        updateParentTaskStatus(tasksData[tag].tasks[taskIndex]);
     } else {
-      // Handle regular task
-      const task = tasks.find(t => t.id === parseInt(taskIdInput, 10));
-      task.status = newStatus;
-      
-      // If marking as done, also mark subtasks
-      if (newStatus === 'done' && task.subtasks && task.subtasks.length > 0) {
-        task.subtasks.forEach(subtask => {
-          subtask.status = newStatus;
-        });
-      }
+        // 메인 태스크 상태 변경
+        tasksData[tag].tasks[taskIndex].status = newStatus;
+        tasksData[tag].tasks[taskIndex].updatedAt = new Date().toISOString();
     }
     
-    // Save updated tasks back to tagged structure
-    setTasksForTag(tasksData, currentTag, tasks);
-    writeJSON(tasksPath, tasksData);
-  }
-  ```
-
-- **Task Expansion**:
-  - ✅ DO: Use AI to generate detailed subtasks within current tag context
-  - ✅ DO: Consider complexity analysis for subtask counts
-  - ✅ DO: Ensure proper IDs for newly created subtasks
-
-  ```javascript
-  // ✅ DO: Generate appropriate subtasks based on complexity
-  const tasksData = readJSON(tasksPath);
-  const currentTag = getCurrentTag() || 'master';
-  const tasks = getTasksForTag(tasksData, currentTag);
-  
-  if (taskAnalysis) {
-    log('info', `Found complexity analysis for task ${taskId}: Score ${taskAnalysis.complexityScore}/10`);
+    // 파일 저장
+    writeJSON(tasksPath, tasksData, projectRoot);
     
-    // Use recommended number of subtasks if available
-    if (taskAnalysis.recommendedSubtasks && numSubtasks === CONFIG.defaultSubtasks) {
-      numSubtasks = taskAnalysis.recommendedSubtasks;
-      log('info', `Using recommended number of subtasks: ${numSubtasks}`);
+    return { success: true };
+}
+```
+
+### **부모 태스크 상태 자동 업데이트**
+```javascript
+// ✅ DO: 부모 태스크 상태 자동 업데이트
+function updateParentTaskStatus(parentTask) {
+    if (!parentTask.subtasks || parentTask.subtasks.length === 0) {
+        return;
     }
-  }
-  
-  // Generate subtasks and save back
-  // ... subtask generation logic ...
-  setTasksForTag(tasksData, currentTag, tasks);
-  writeJSON(tasksPath, tasksData);
-  ```
-
-## Task File Generation
-
-- **File Formatting**:
-  - ✅ DO: Use consistent formatting for task files
-  - ✅ DO: Include all task properties in text files
-  - ✅ DO: Format dependencies with status indicators
-
-  ```javascript
-  // ✅ DO: Use consistent file formatting
-  let content = `# Task ID: ${task.id}\n`;
-  content += `# Title: ${task.title}\n`;
-  content += `# Status: ${task.status || 'pending'}\n`;
-  
-  // Format dependencies with their status
-  if (task.dependencies && task.dependencies.length > 0) {
-    content += `# Dependencies: ${formatDependenciesWithStatus(task.dependencies, tasks)}\n`;
-  } else {
-    content += '# Dependencies: None\n';
-  }
-  ```
-
-- **Tagged Context Awareness**:
-  - ✅ DO: Generate task files from current tag context
-  - ✅ DO: Include tag information in generated files
-  - ❌ DON'T: Mix tasks from different tags in file generation
-
-  ```javascript
-  // ✅ DO: Generate files for current tag context
-  async function generateTaskFiles(tasksPath, outputDir) {
-    const tasksData = readJSON(tasksPath);
-    const currentTag = getCurrentTag() || 'master';
-    const tasks = getTasksForTag(tasksData, currentTag);
     
-    // Add tag context to file header
-    let content = `# Tag Context: ${currentTag}\n`;
-    content += `# Task ID: ${task.id}\n`;
-    // ... rest of file generation
-  }
-  ```
-
-## Task Listing and Display
-
-- **Filtering and Organization**:
-  - ✅ DO: Allow filtering tasks by status within current tag context
-  - ✅ DO: Handle subtask display in lists
-  - ✅ DO: Use consistent table formats
-
-  ```javascript
-  // ✅ DO: Implement clear filtering within tag context
-  const tasksData = readJSON(tasksPath);
-  const currentTag = getCurrentTag() || 'master';
-  const tasks = getTasksForTag(tasksData, currentTag);
-  
-  // Filter tasks by status if specified
-  const filteredTasks = statusFilter 
-    ? tasks.filter(task => 
-        task.status && task.status.toLowerCase() === statusFilter.toLowerCase())
-    : tasks;
-  ```
-
-- **Progress Tracking**:
-  - ✅ DO: Calculate and display completion statistics for current tag
-  - ✅ DO: Track both task and subtask completion
-  - ✅ DO: Use visual progress indicators
-
-  ```javascript
-  // ✅ DO: Track and display progress within tag context
-  const tasksData = readJSON(tasksPath);
-  const currentTag = getCurrentTag() || 'master';
-  const tasks = getTasksForTag(tasksData, currentTag);
-  
-  // Calculate completion statistics
-  const totalTasks = tasks.length;
-  const completedTasks = tasks.filter(task => 
-    task.status === 'done' || task.status === 'completed').length;
-  const completionPercentage = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
-  
-  // Count subtasks
-  let totalSubtasks = 0;
-  let completedSubtasks = 0;
-  
-  tasks.forEach(task => {
-    if (task.subtasks && task.subtasks.length > 0) {
-      totalSubtasks += task.subtasks.length;
-      completedSubtasks += task.subtasks.filter(st => 
-        st.status === 'done' || st.status === 'completed').length;
+    const allDone = parentTask.subtasks.every(st => st.status === 'done');
+    const anyInProgress = parentTask.subtasks.some(st => st.status === 'in-progress');
+    const anyCancelled = parentTask.subtasks.some(st => st.status === 'cancelled');
+    
+    if (allDone) {
+        parentTask.status = 'done';
+    } else if (anyInProgress) {
+        parentTask.status = 'in-progress';
+    } else if (anyCancelled) {
+        parentTask.status = 'cancelled';
+    } else {
+        parentTask.status = 'pending';
     }
-  });
-  ```
-
-## Migration and Compatibility
-
-- **Silent Migration Handling**:
-  - ✅ DO: Implement silent migration in `readJSON()` function
-  - ✅ DO: Detect legacy format and convert automatically
-  - ✅ DO: Preserve all existing task data during migration
-
-  ```javascript
-  // ✅ DO: Handle silent migration (implemented in utils.js)
-  function readJSON(filepath) {
-    let data = JSON.parse(fs.readFileSync(filepath, 'utf8'));
     
-    // Silent migration for tasks.json files
-    if (data.tasks && Array.isArray(data.tasks) && !data.master && isTasksFile) {
-      const migratedData = {
-        master: {
-          tasks: data.tasks
+    parentTask.updatedAt = new Date().toISOString();
+}
+```
+
+## **태스크 확장 및 분석**
+
+### **태스크 확장**
+```javascript
+// ✅ DO: 태스크 확장 함수 구조
+export async function expandTask(tasksPath, taskId, options, context, outputFormat = 'text') {
+    const { projectRoot, commandNameFromContext, outputType } = context;
+    const { numSubtasks, useResearch, additionalContext, force = false } = options;
+    
+    // 태스크 조회
+    const { task } = await getTask(tasksPath, taskId, context);
+    
+    // 기존 서브태스크 정리 (force 옵션)
+    if (force && task.subtasks) {
+        task.subtasks = [];
+    }
+    
+    // AI 서비스를 통한 서브태스크 생성
+    const aiServiceResponse = await generateObjectService({
+        prompt: `Expand task "${task.title}" into ${numSubtasks || 5} subtasks. ${additionalContext || ''}`,
+        outputType: 'subtasks',
+        commandName: commandNameFromContext || 'expand-task',
+        outputType: outputType || 'cli',
+        parentTask: task,
+        numSubtasks: numSubtasks || 5,
+        useResearch: useResearch || false,
+        projectContext: await gatherProjectContext(projectRoot)
+    });
+    
+    const newSubtasks = aiServiceResponse.mainResult.object;
+    
+    // 서브태스크 ID 할당
+    const startIndex = task.subtasks ? task.subtasks.length + 1 : 1;
+    newSubtasks.forEach((subtask, index) => {
+        subtask.id = `${taskId}.${startIndex + index}`;
+    });
+    
+    // 태스크에 서브태스크 추가
+    const tasksData = readJSON(tasksPath, projectRoot, context.tag);
+    const tag = context.tag || 'master';
+    
+    const taskIndex = tasksData[tag].tasks.findIndex(t => t.id === taskId);
+    if (!tasksData[tag].tasks[taskIndex].subtasks) {
+        tasksData[tag].tasks[taskIndex].subtasks = [];
+    }
+    
+    tasksData[tag].tasks[taskIndex].subtasks.push(...newSubtasks);
+    
+    // 파일 저장
+    writeJSON(tasksPath, tasksData, projectRoot);
+    
+    // UI 출력
+    if (outputFormat === 'text') {
+        displayTaskExpanded(newSubtasks, taskId, tag);
+        if (aiServiceResponse.telemetryData) {
+            displayAiUsageSummary(aiServiceResponse.telemetryData, 'cli');
         }
-      };
-      writeJSON(filepath, migratedData);
-      data = migratedData;
     }
     
-    return data;
-  }
-  ```
+    return {
+        actionData: newSubtasks,
+        telemetryData: aiServiceResponse.telemetryData
+    };
+}
+```
 
-- **Tag Resolution**:
-  - ✅ DO: Use tag resolution functions to maintain backward compatibility
-  - ✅ DO: Return legacy format to core functions
-  - ❌ DON'T: Expose tagged structure to existing core logic
+### **태스크 복잡도 분석**
+```javascript
+// ✅ DO: 태스크 복잡도 분석 함수 구조
+export async function analyzeTaskComplexity(tasksPath, options, context, outputFormat = 'text') {
+    const { projectRoot, commandNameFromContext, outputType } = context;
+    const { threshold = 5, useResearch = false } = options;
+    
+    // 모든 태스크 조회
+    const tasksData = readJSON(tasksPath, projectRoot, context.tag);
+    const tag = context.tag || 'master';
+    const tasks = tasksData[tag].tasks;
+    
+    // AI 서비스를 통한 복잡도 분석
+    const aiServiceResponse = await generateObjectService({
+        prompt: `Analyze the complexity of ${tasks.length} tasks and recommend which ones need to be expanded.`,
+        outputType: 'complexity_analysis',
+        commandName: commandNameFromContext || 'analyze-complexity',
+        outputType: outputType || 'cli',
+        tasks: tasks,
+        threshold: threshold,
+        useResearch: useResearch || false,
+        projectContext: await gatherProjectContext(projectRoot)
+    });
+    
+    const analysis = aiServiceResponse.mainResult.object;
+    
+    // 분석 결과 저장
+    const reportPath = path.join(projectRoot, '.taskmaster/reports/task-complexity-report.json');
+    writeJSON(reportPath, analysis, projectRoot);
+    
+    // UI 출력
+    if (outputFormat === 'text') {
+        displayComplexityAnalysis(analysis, tag);
+        if (aiServiceResponse.telemetryData) {
+            displayAiUsageSummary(aiServiceResponse.telemetryData, 'cli');
+        }
+    }
+    
+    return {
+        actionData: analysis,
+        telemetryData: aiServiceResponse.telemetryData
+    };
+}
+```
 
-  ```javascript
-  // ✅ DO: Use tag resolution layer
-  function getTasksForTag(data, tagName) {
-    if (data.tasks && Array.isArray(data.tasks)) {
-      // Legacy format - return as-is
-      return data.tasks;
+## **태스크 이동 및 재구성**
+
+### **태스크 이동**
+```javascript
+// ✅ DO: 태스크 이동 함수 구조
+export async function moveTask(tasksPath, fromId, toId, options, context, outputFormat = 'text') {
+    const { projectRoot, tag } = context;
+    const { generateFiles = true } = options;
+    
+    // 소스 태스크 조회
+    const sourceTask = await getTask(tasksPath, fromId, context);
+    
+    // 대상 위치 검증
+    const [toMainId, toSubtaskId] = toId.split('.');
+    const tasksData = readJSON(tasksPath, projectRoot, tag);
+    
+    // 이동 로직 구현
+    if (sourceTask.isSubtask) {
+        // 서브태스크 이동
+        await moveSubtask(tasksData, fromId, toId, tag);
+    } else {
+        // 메인 태스크 이동
+        await moveMainTask(tasksData, fromId, toId, tag);
     }
     
-    if (data[tagName] && data[tagName].tasks) {
-      // Tagged format - return tasks for specified tag
-      return data[tagName].tasks;
+    // 파일 저장
+    writeJSON(tasksPath, tasksData, projectRoot);
+    
+    // 태스크 파일 재생성
+    if (generateFiles) {
+        generateTaskFiles(tasksPath, path.dirname(tasksPath));
     }
     
+    // UI 출력
+    if (outputFormat === 'text') {
+        displayTaskMoved(fromId, toId, tag);
+    }
+    
+    return { success: true };
+}
+```
+
+## **태스크 검색 및 필터링**
+
+### **태스크 검색**
+```javascript
+// ✅ DO: 태스크 검색 함수 구조
+export function searchTasks(tasksPath, query, context, options = {}) {
+    const { projectRoot, tag } = context;
+    const { includeSubtasks = true, status = null } = options;
+    
+    const tasksData = readJSON(tasksPath, projectRoot, tag);
+    const tasks = tasksData[tag].tasks;
+    
+    // 검색 로직
+    const results = tasks.filter(task => {
+        // 상태 필터
+        if (status && task.status !== status) {
+            return false;
+        }
+        
+        // 텍스트 검색
+        const searchText = `${task.title} ${task.description} ${task.details}`.toLowerCase();
+        const queryLower = query.toLowerCase();
+        
+        if (searchText.includes(queryLower)) {
+            return true;
+        }
+        
+        // 서브태스크 검색
+        if (includeSubtasks && task.subtasks) {
+            return task.subtasks.some(subtask => {
+                const subtaskText = `${subtask.title} ${subtask.description} ${subtask.details}`.toLowerCase();
+                return subtaskText.includes(queryLower);
+            });
+        }
+        
+        return false;
+    });
+    
+    return results;
+}
+```
+
+### **태스크 필터링**
+```javascript
+// ✅ DO: 태스크 필터링 함수 구조
+export function filterTasks(tasksPath, filters, context) {
+    const { projectRoot, tag } = context;
+    const { status, priority, dependencies, hasSubtasks } = filters;
+    
+    const tasksData = readJSON(tasksPath, projectRoot, tag);
+    const tasks = tasksData[tag].tasks;
+    
+    return tasks.filter(task => {
+        // 상태 필터
+        if (status && task.status !== status) {
+            return false;
+        }
+        
+        // 우선순위 필터
+        if (priority && task.priority !== priority) {
+            return false;
+        }
+        
+        // 의존성 필터
+        if (dependencies !== undefined) {
+            const hasDeps = task.dependencies && task.dependencies.length > 0;
+            if (dependencies !== hasDeps) {
+                return false;
+            }
+        }
+        
+        // 서브태스크 보유 필터
+        if (hasSubtasks !== undefined) {
+            const hasSubs = task.subtasks && task.subtasks.length > 0;
+            if (hasSubtasks !== hasSubs) {
+                return false;
+            }
+        }
+        
+        return true;
+    });
+}
+```
+
+## **태스크 통계 및 보고서**
+
+### **태스크 통계**
+```javascript
+// ✅ DO: 태스크 통계 함수 구조
+export function getTaskStatistics(tasksPath, context) {
+    const { projectRoot, tag } = context;
+    const tasksData = readJSON(tasksPath, projectRoot, tag);
+    const tasks = tasksData[tag].tasks;
+    
+    const stats = {
+        total: tasks.length,
+        byStatus: {},
+        byPriority: {},
+        withSubtasks: 0,
+        withDependencies: 0,
+        averageSubtasks: 0,
+        completionRate: 0
+    };
+    
+    let totalSubtasks = 0;
+    let completedTasks = 0;
+    
+    tasks.forEach(task => {
+        // 상태별 통계
+        stats.byStatus[task.status] = (stats.byStatus[task.status] || 0) + 1;
+        
+        // 우선순위별 통계
+        stats.byPriority[task.priority] = (stats.byPriority[task.priority] || 0) + 1;
+        
+        // 서브태스크 통계
+        if (task.subtasks && task.subtasks.length > 0) {
+            stats.withSubtasks++;
+            totalSubtasks += task.subtasks.length;
+        }
+        
+        // 의존성 통계
+        if (task.dependencies && task.dependencies.length > 0) {
+            stats.withDependencies++;
+        }
+        
+        // 완료율 계산
+        if (task.status === 'done') {
+            completedTasks++;
+        }
+    });
+    
+    stats.averageSubtasks = tasks.length > 0 ? totalSubtasks / tasks.length : 0;
+    stats.completionRate = tasks.length > 0 ? (completedTasks / tasks.length) * 100 : 0;
+    
+    return stats;
+}
+```
+
+---
+
+**참고 파일:**
+- [task-manager/](mdc:scripts/modules/task-manager/) - 태스크 관리 모듈들
+- [commands.js](mdc:scripts/modules/commands.js) - CLI 명령어 구현
+- [utils.js](mdc:scripts/modules/utils.js) - 유틸리티 함수들 
     return [];
   }
   ```

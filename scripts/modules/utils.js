@@ -1430,6 +1430,52 @@ function ensureTagMetadata(tagObj, opts = {}) {
 	return tagObj;
 }
 
+/**
+ * 진행률 바를 생성합니다
+ * @param {number} progress - 진행률 (0-100)
+ * @param {number} width - 바의 너비 (기본값: 20)
+ * @returns {string} 진행률 바 문자열
+ */
+function generateProgressBar(progress, width = 20) {
+	const filled = Math.round((progress / 100) * width);
+	const empty = width - filled;
+	
+	const filledBar = '█'.repeat(filled);
+	const emptyBar = '░'.repeat(empty);
+	
+	return `${filledBar}${emptyBar}`;
+}
+
+/**
+ * 밀리초를 사람이 읽기 쉬운 형식으로 변환합니다
+ * @param {number} milliseconds - 밀리초
+ * @returns {string} 포맷된 시간 문자열
+ */
+function formatDuration(milliseconds) {
+	if (milliseconds < 1000) {
+		return `${milliseconds}ms`;
+	}
+	
+	const seconds = Math.floor(milliseconds / 1000);
+	const remainingMs = milliseconds % 1000;
+	
+	if (seconds < 60) {
+		return `${seconds}s ${remainingMs}ms`;
+	}
+	
+	const minutes = Math.floor(seconds / 60);
+	const remainingSeconds = seconds % 60;
+	
+	if (minutes < 60) {
+		return `${minutes}m ${remainingSeconds}s`;
+	}
+	
+	const hours = Math.floor(minutes / 60);
+	const remainingMinutes = minutes % 60;
+	
+	return `${hours}h ${remainingMinutes}m`;
+}
+
 // Export all utility functions and configuration
 export {
 	LOG_LEVELS,
@@ -1467,5 +1513,7 @@ export {
 	markMigrationForNotice,
 	flattenTasksWithSubtasks,
 	ensureTagMetadata,
-	normalizeTaskIds
+	normalizeTaskIds,
+	generateProgressBar,
+	formatDuration
 };

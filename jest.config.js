@@ -23,7 +23,7 @@ export default {
 	// Disable transformations for node_modules
 	transformIgnorePatterns: ['/node_modules/'],
 
-	// Set moduleNameMapper for absolute paths
+	// Set moduleNameMapper for absolute paths only
 	moduleNameMapper: {
 		'^@/(.*)$': '<rootDir>/$1'
 	},
@@ -48,5 +48,12 @@ export default {
 	verbose: true,
 
 	// Setup file
-	setupFilesAfterEnv: ['<rootDir>/tests/setup.js']
+	setupFilesAfterEnv: ['<rootDir>/tests/setup.js'],
+
+	// ES Module support
+	globals: {
+		'ts-jest': {
+			useESM: true
+		}
+	}
 };

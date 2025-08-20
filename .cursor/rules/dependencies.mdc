@@ -1,222 +1,676 @@
+
+# Task Master 의존성 관리 가이드
+
+## **의존성 시스템 아키텍처**
+
+### **의존성 데이터 구조**
+```javascript
+// ✅ DO: 표준 의존성 데이터 구조
+const taskWithDependencies = {
+    id: "1",
+    title: "메인 태스크",
+    status: "pending",
+    dependencies: ["2", "3"], // 의존성 태스크 ID 배열
+    dependents: ["4", "5"],   // 이 태스크에 의존하는 태스크들
+    subtasks: [
+        {
+            id: "1.1",
+            title: "서브태스크",
+            status: "done",
+            dependencies: ["1.2"], // 서브태스크 간 의존성
+            dependents: []
+        }
+    ]
+};
+```
+
+### **의존성 관계 유형**
+```javascript
+// ✅ DO: 의존성 관계 유형 정의
+const DEPENDENCY_TYPES = {
+    BLOCKS: 'blocks',           // A가 B를 차단 (A 완료 후 B 시작)
+    REQUIRES: 'requires',       // A가 B를 요구 (B 완료 후 A 시작)
+    RELATED: 'related',         // A와 B가 관련됨 (순서 무관)
+    PARENT_CHILD: 'parent_child' // 부모-자식 관계
+};
+
+const DEPENDENCY_STATUS = {
+    SATISFIED: 'satisfied',     // 모든 의존성이 완료됨
+    PENDING: 'pending',         // 일부 의존성이 대기 중
+    BLOCKED: 'blocked',         // 의존성으로 인해 차단됨
+    CIRCULAR: 'circular'        // 순환 의존성 감지됨
+};
+```
+
+## **의존성 관리 함수**
+
+### **의존성 추가**
+```javascript
+// ✅ DO: 의존성 추가 표준 구현
+export async function addDependency(tasksPath, taskId, dependsOnId, context = {}) {
+    try {
+        // 1. 입력 검증
+        validateDependencyInput(taskId, dependsOnId);
+        
+        // 2. 태스크 존재 확인
+        const task = await findTaskById(taskId, tasksPath);
+        const dependencyTask = await findTaskById(dependsOnId, tasksPath);
+        
+        if (!task) {
+            throw new Error(`태스크 ${taskId}를 찾을 수 없습니다`);
+        }
+        
+        if (!dependencyTask) {
+            throw new Error(`의존성 태스크 ${dependsOnId}를 찾을 수 없습니다`);
+        }
+        
+        // 3. 순환 의존성 검사
+        if (await wouldCreateCircularDependency(tasksPath, taskId, dependsOnId)) {
+            throw new Error(`순환 의존성이 생성됩니다: ${taskId} → ${dependsOnId}`);
+        }
+        
+        // 4. 중복 의존성 검사
+        if (task.dependencies && task.dependencies.includes(dependsOnId)) {
+            throw new Error(`의존성 ${dependsOnId}가 이미 존재합니다`);
+        }
+        
+        // 5. 의존성 추가
+        const updatedTask = {
+            ...task,
+            dependencies: [...(task.dependencies || []), dependsOnId]
+        };
+        
+        // 6. 의존성 태스크에 dependents 추가
+        const updatedDependencyTask = {
+            ...dependencyTask,
+            dependents: [...(dependencyTask.dependents || []), taskId]
+        };
+        
+        // 7. 업데이트 저장
+        await updateTask(taskId, updatedTask, tasksPath);
+        await updateTask(dependsOnId, updatedDependencyTask, tasksPath);
+        
+        return {
+            success: true,
+            data: {
+                taskId,
+                dependsOnId,
+                message: `의존성 ${dependsOnId}가 태스크 ${taskId}에 추가되었습니다`
+            }
+        };
+    } catch (error) {
+        throw new Error(`의존성 추가 실패: ${error.message}`);
+    }
+}
+
+function validateDependencyInput(taskId, dependsOnId) {
+    if (!taskId || !dependsOnId) {
+        throw new Error('태스크 ID와 의존성 태스크 ID가 모두 필요합니다');
+    }
+    
+    if (taskId === dependsOnId) {
+        throw new Error('태스크는 자기 자신에 의존할 수 없습니다');
+    }
+    
+    // 서브태스크 의존성 검증
+    const taskParts = taskId.split('.');
+    const depParts = dependsOnId.split('.');
+    
+    // 부모 태스크는 자식 서브태스크에 의존할 수 없음
+    if (taskParts.length === 1 && depParts.length > 1) {
+        if (depParts[0] === taskParts[0]) {
+            throw new Error('부모 태스크는 자식 서브태스크에 의존할 수 없습니다');
+        }
+    }
+}
+```
+
+### **의존성 제거**
+```javascript
+// ✅ DO: 의존성 제거 표준 구현
+export async function removeDependency(tasksPath, taskId, dependsOnId, context = {}) {
+    try {
+        // 1. 태스크 조회
+        const task = await findTaskById(taskId, tasksPath);
+        const dependencyTask = await findTaskById(dependsOnId, tasksPath);
+        
+        if (!task) {
+            throw new Error(`태스크 ${taskId}를 찾을 수 없습니다`);
+        }
+        
+        if (!dependencyTask) {
+            throw new Error(`의존성 태스크 ${dependsOnId}를 찾을 수 없습니다`);
+        }
+        
+        // 2. 의존성 존재 확인
+        if (!task.dependencies || !task.dependencies.includes(dependsOnId)) {
+            throw new Error(`태스크 ${taskId}에 의존성 ${dependsOnId}가 존재하지 않습니다`);
+        }
+        
+        // 3. 의존성 제거
+        const updatedTask = {
+            ...task,
+            dependencies: task.dependencies.filter(id => id !== dependsOnId)
+        };
+        
+        // 4. 의존성 태스크에서 dependents 제거
+        const updatedDependencyTask = {
+            ...dependencyTask,
+            dependents: (dependencyTask.dependents || []).filter(id => id !== taskId)
+        };
+        
+        // 5. 업데이트 저장
+        await updateTask(taskId, updatedTask, tasksPath);
+        await updateTask(dependsOnId, updatedDependencyTask, tasksPath);
+        
+        return {
+            success: true,
+            data: {
+                taskId,
+                dependsOnId,
+                message: `의존성 ${dependsOnId}가 태스크 ${taskId}에서 제거되었습니다`
+            }
+        };
+    } catch (error) {
+        throw new Error(`의존성 제거 실패: ${error.message}`);
+    }
+}
+```
+
+## **의존성 검증 및 분석**
+
+### **순환 의존성 검사**
+```javascript
+// ✅ DO: 깊이 우선 탐색을 통한 순환 의존성 검사
+export async function wouldCreateCircularDependency(tasksPath, taskId, dependsOnId) {
+    const visited = new Set();
+    const recursionStack = new Set();
+    
+    function hasCycle(currentId) {
+        if (recursionStack.has(currentId)) {
+            return true; // 순환 의존성 발견
+        }
+        
+        if (visited.has(currentId)) {
+            return false; // 이미 방문했고 순환이 없음
+        }
+        
+        visited.add(currentId);
+        recursionStack.add(currentId);
+        
+        try {
+            const task = await findTaskById(currentId, tasksPath);
+            if (!task || !task.dependencies) {
+                return false;
+            }
+            
+            // 의존성 추가를 시뮬레이션
+            const dependencies = [...task.dependencies];
+            if (currentId === taskId) {
+                dependencies.push(dependsOnId);
+            }
+            
+            for (const depId of dependencies) {
+                if (hasCycle(depId)) {
+                    return true;
+                }
+            }
+        } finally {
+            recursionStack.delete(currentId);
+        }
+        
+        return false;
+    }
+    
+    return await hasCycle(dependsOnId);
+}
+
+// ✅ DO: 간단한 순환 의존성 검사 (성능 최적화)
+export async function checkCircularDependencySimple(tasksPath, taskId, dependsOnId) {
+    const visited = new Set();
+    
+    async function canReach(targetId, currentId) {
+        if (currentId === targetId) {
+            return true;
+        }
+        
+        if (visited.has(currentId)) {
+            return false;
+        }
+        
+        visited.add(currentId);
+        
+        const task = await findTaskById(currentId, tasksPath);
+        if (!task || !task.dependencies) {
+            return false;
+        }
+        
+        for (const depId of task.dependencies) {
+            if (await canReach(targetId, depId)) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    return await canReach(taskId, dependsOnId);
+}
+```
+
+### **의존성 상태 분석**
+```javascript
+// ✅ DO: 의존성 상태 분석
+export async function analyzeDependencyStatus(tasksPath, taskId) {
+    const task = await findTaskById(taskId, tasksPath);
+    if (!task) {
+        throw new Error(`태스크 ${taskId}를 찾을 수 없습니다`);
+    }
+    
+    const analysis = {
+        taskId,
+        status: DEPENDENCY_STATUS.SATISFIED,
+        dependencies: [],
+        blockers: [],
+        dependents: [],
+        canStart: true,
+        blockingOthers: false
+    };
+    
+    // 의존성 분석
+    if (task.dependencies && task.dependencies.length > 0) {
+        for (const depId of task.dependencies) {
+            const depTask = await findTaskById(depId, tasksPath);
+            if (depTask) {
+                analysis.dependencies.push({
+                    id: depId,
+                    title: depTask.title,
+                    status: depTask.status,
+                    isCompleted: depTask.status === 'done'
+                });
+                
+                if (depTask.status !== 'done') {
+                    analysis.blockers.push({
+                        id: depId,
+                        title: depTask.title,
+                        status: depTask.status
+                    });
+                    analysis.canStart = false;
+                }
+            }
+        }
+        
+        if (analysis.blockers.length > 0) {
+            analysis.status = DEPENDENCY_STATUS.BLOCKED;
+        }
+    }
+    
+    // 의존하는 태스크들 분석
+    if (task.dependents && task.dependents.length > 0) {
+        for (const depId of task.dependents) {
+            const depTask = await findTaskById(depId, tasksPath);
+            if (depTask) {
+                analysis.dependents.push({
+                    id: depId,
+                    title: depTask.title,
+                    status: depTask.status
+                });
+                
+                if (task.status !== 'done' && depTask.status === 'pending') {
+                    analysis.blockingOthers = true;
+                }
+            }
+        }
+    }
+    
+    return analysis;
+}
+```
+
+## **의존성 시각화**
+
+### **의존성 그래프 생성**
+```javascript
+// ✅ DO: 의존성 그래프 생성
+export async function generateDependencyGraph(tasksPath, rootTaskId = null) {
+    const tasks = await loadAllTasks(tasksPath);
+    const graph = {
+        nodes: [],
+        edges: [],
+        rootNode: rootTaskId
+    };
+    
+    // 노드 생성
+    for (const task of tasks) {
+        graph.nodes.push({
+            id: task.id,
+            title: task.title,
+            status: task.status,
+            type: task.id.includes('.') ? 'subtask' : 'task'
+        });
+        
+        // 서브태스크 노드 추가
+        if (task.subtasks) {
+            for (const subtask of task.subtasks) {
+                graph.nodes.push({
+                    id: subtask.id,
+                    title: subtask.title,
+                    status: subtask.status,
+                    type: 'subtask'
+                });
+            }
+        }
+    }
+    
+    // 엣지 생성
+    for (const task of tasks) {
+        if (task.dependencies) {
+            for (const depId of task.dependencies) {
+                graph.edges.push({
+                    from: task.id,
+                    to: depId,
+                    type: 'dependency'
+                });
+            }
+        }
+        
+        // 서브태스크 의존성
+        if (task.subtasks) {
+            for (const subtask of task.subtasks) {
+                if (subtask.dependencies) {
+                    for (const depId of subtask.dependencies) {
+                        graph.edges.push({
+                            from: subtask.id,
+                            to: depId,
+                            type: 'dependency'
+                        });
+                    }
+                }
+            }
+        }
+    }
+    
+    return graph;
+}
+
+// ✅ DO: 의존성 체인 찾기
+export async function findDependencyChain(tasksPath, startTaskId, endTaskId) {
+    const visited = new Set();
+    const path = [];
+    
+    function dfs(currentId, targetId) {
+        if (currentId === targetId) {
+            return true;
+        }
+        
+        if (visited.has(currentId)) {
+            return false;
+        }
+        
+        visited.add(currentId);
+        path.push(currentId);
+        
+        const task = await findTaskById(currentId, tasksPath);
+        if (task && task.dependencies) {
+            for (const depId of task.dependencies) {
+                if (await dfs(depId, targetId)) {
+                    return true;
+                }
+            }
+        }
+        
+        path.pop();
+        return false;
+    }
+    
+    const found = await dfs(startTaskId, endTaskId);
+    return found ? path : null;
+}
+```
+
+## **의존성 기반 작업 흐름**
+
+### **다음 실행 가능한 태스크 찾기**
+```javascript
+// ✅ DO: 의존성 기반 다음 태스크 찾기
+export async function findNextAvailableTasks(tasksPath, context = {}) {
+    const tasks = await loadAllTasks(tasksPath);
+    const availableTasks = [];
+    
+    for (const task of tasks) {
+        const analysis = await analyzeDependencyStatus(tasksPath, task.id);
+        
+        if (analysis.canStart && task.status === 'pending') {
+            availableTasks.push({
+                id: task.id,
+                title: task.title,
+                priority: task.priority || 'medium',
+                dependencies: analysis.dependencies,
+                dependents: analysis.dependents.length
+            });
+        }
+    }
+    
+    // 우선순위 및 의존성 수로 정렬
+    availableTasks.sort((a, b) => {
+        const priorityOrder = { high: 3, medium: 2, low: 1 };
+        const aPriority = priorityOrder[a.priority] || 2;
+        const bPriority = priorityOrder[b.priority] || 2;
+        
+        if (aPriority !== bPriority) {
+            return bPriority - aPriority;
+        }
+        
+        // 의존성이 적은 태스크 우선
+        return a.dependencies.length - b.dependencies.length;
+    });
+    
+    return availableTasks;
+}
+```
+
+### **의존성 기반 태스크 완료**
+```javascript
+// ✅ DO: 의존성 검증을 통한 태스크 완료
+export async function completeTaskWithDependencyCheck(tasksPath, taskId, context = {}) {
+    try {
+        const task = await findTaskById(taskId, tasksPath);
+        if (!task) {
+            throw new Error(`태스크 ${taskId}를 찾을 수 없습니다`);
+        }
+        
+        // 의존성 상태 확인
+        const analysis = await analyzeDependencyStatus(tasksPath, taskId);
+        
+        if (!analysis.canStart) {
+            const blockerList = analysis.blockers.map(b => `${b.id}: ${b.title}`).join(', ');
+            throw new Error(`태스크를 완료할 수 없습니다. 다음 의존성이 완료되지 않았습니다: ${blockerList}`);
+        }
+        
+        // 서브태스크 완료 상태 확인
+        if (task.subtasks && task.subtasks.length > 0) {
+            const incompleteSubtasks = task.subtasks.filter(st => st.status !== 'done');
+            if (incompleteSubtasks.length > 0) {
+                const subtaskList = incompleteSubtasks.map(st => `${st.id}: ${st.title}`).join(', ');
+                throw new Error(`모든 서브태스크가 완료되지 않았습니다: ${subtaskList}`);
+            }
+        }
+        
+        // 태스크 완료
+        const updatedTask = {
+            ...task,
+            status: 'done',
+            completedAt: new Date().toISOString()
+        };
+        
+        await updateTask(taskId, updatedTask, tasksPath);
+        
+        // 의존하는 태스크들의 상태 업데이트
+        await updateDependentTasks(tasksPath, taskId);
+        
+        return {
+            success: true,
+            data: {
+                taskId,
+                message: `태스크 ${taskId}가 완료되었습니다`,
+                dependents: analysis.dependents
+            }
+        };
+    } catch (error) {
+        throw new Error(`태스크 완료 실패: ${error.message}`);
+    }
+}
+
+async function updateDependentTasks(tasksPath, completedTaskId) {
+    const tasks = await loadAllTasks(tasksPath);
+    
+    for (const task of tasks) {
+        if (task.dependencies && task.dependencies.includes(completedTaskId)) {
+            const analysis = await analyzeDependencyStatus(tasksPath, task.id);
+            
+            // 모든 의존성이 완료되었고 태스크가 대기 중이면 진행 중으로 변경
+            if (analysis.canStart && task.status === 'pending') {
+                const updatedTask = {
+                    ...task,
+                    status: 'in-progress',
+                    startedAt: new Date().toISOString()
+                };
+                
+                await updateTask(task.id, updatedTask, tasksPath);
+            }
+        }
+    }
+}
+```
+
+## **의존성 유효성 검사**
+
+### **전체 의존성 검증**
+```javascript
+// ✅ DO: 전체 의존성 시스템 검증
+export async function validateAllDependencies(tasksPath) {
+    const tasks = await loadAllTasks(tasksPath);
+    const issues = [];
+    
+    for (const task of tasks) {
+        // 1. 존재하지 않는 의존성 확인
+        if (task.dependencies) {
+            for (const depId of task.dependencies) {
+                const depTask = await findTaskById(depId, tasksPath);
+                if (!depTask) {
+                    issues.push({
+                        type: 'missing_dependency',
+                        taskId: task.id,
+                        dependencyId: depId,
+                        message: `태스크 ${task.id}의 의존성 ${depId}가 존재하지 않습니다`
+                    });
+                }
+            }
+        }
+        
+        // 2. 순환 의존성 확인
+        if (task.dependencies) {
+            for (const depId of task.dependencies) {
+                if (await checkCircularDependencySimple(tasksPath, task.id, depId)) {
+                    issues.push({
+                        type: 'circular_dependency',
+                        taskId: task.id,
+                        dependencyId: depId,
+                        message: `순환 의존성 발견: ${task.id} → ${depId}`
+                    });
+                }
+            }
+        }
+        
+        // 3. 서브태스크 의존성 검증
+        if (task.subtasks) {
+            for (const subtask of task.subtasks) {
+                if (subtask.dependencies) {
+                    for (const depId of subtask.dependencies) {
+                        const depTask = await findTaskById(depId, tasksPath);
+                        if (!depTask) {
+                            issues.push({
+                                type: 'missing_subtask_dependency',
+                                taskId: subtask.id,
+                                dependencyId: depId,
+                                message: `서브태스크 ${subtask.id}의 의존성 ${depId}가 존재하지 않습니다`
+                            });
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    return {
+        isValid: issues.length === 0,
+        issues,
+        summary: {
+            totalTasks: tasks.length,
+            totalIssues: issues.length,
+            issueTypes: {
+                missing_dependency: issues.filter(i => i.type === 'missing_dependency').length,
+                circular_dependency: issues.filter(i => i.type === 'circular_dependency').length,
+                missing_subtask_dependency: issues.filter(i => i.type === 'missing_subtask_dependency').length
+            }
+        }
+    };
+}
+```
+
+## **테스트 및 검증**
+
+### **의존성 관리 테스트**
+```javascript
+// ✅ DO: 의존성 관리 단위 테스트
+describe('Dependency Management', () => {
+    let mockTasksPath;
+    let mockTasks;
+    
+    beforeEach(() => {
+        mockTasksPath = '/path/to/tasks.json';
+        mockTasks = [
+            { id: '1', title: 'Task 1', status: 'pending', dependencies: [] },
+            { id: '2', title: 'Task 2', status: 'done', dependencies: [] },
+            { id: '3', title: 'Task 3', status: 'pending', dependencies: ['2'] }
+        ];
+        
+        // 모킹 설정
+        jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify({ tasks: mockTasks }));
+    });
+    
+    it('should add dependency successfully', async () => {
+        const result = await addDependency(mockTasksPath, '1', '2');
+        
+        expect(result.success).toBe(true);
+        expect(result.data.taskId).toBe('1');
+        expect(result.data.dependsOnId).toBe('2');
+    });
+    
+    it('should detect circular dependency', async () => {
+        // 순환 의존성 설정: 1 → 2 → 3 → 1
+        mockTasks[0].dependencies = ['3'];
+        mockTasks[1].dependencies = ['1'];
+        mockTasks[2].dependencies = ['2'];
+        
+        await expect(addDependency(mockTasksPath, '1', '2'))
+            .rejects.toThrow('순환 의존성이 생성됩니다');
+    });
+    
+    it('should prevent self-dependency', async () => {
+        await expect(addDependency(mockTasksPath, '1', '1'))
+            .rejects.toThrow('태스크는 자기 자신에 의존할 수 없습니다');
+    });
+});
+```
+
 ---
-description: Guidelines for managing task dependencies and relationships
-globs: scripts/modules/dependency-manager.js
-alwaysApply: false
----
 
-# Dependency Management Guidelines
-
-## Dependency Structure Principles
-
-- **Dependency References**:
-  - ✅ DO: Represent task dependencies as arrays of task IDs
-  - ✅ DO: Use numeric IDs for direct task references
-  - ✅ DO: Use string IDs with dot notation (e.g., "1.2") for subtask references
-  - ❌ DON'T: Mix reference types without proper conversion
-
-  ```javascript
-  // ✅ DO: Use consistent dependency formats
-  // For main tasks
-  task.dependencies = [1, 2, 3]; // Dependencies on other main tasks
-  
-  // For subtasks
-  subtask.dependencies = [1, "3.2"]; // Dependency on main task 1 and subtask 2 of task 3
-  ```
-
-- **Subtask Dependencies**:
-  - ✅ DO: Allow numeric subtask IDs to reference other subtasks within the same parent
-  - ✅ DO: Convert between formats appropriately when needed
-  - ❌ DON'T: Create circular dependencies between subtasks
-
-  ```javascript
-  // ✅ DO: Properly normalize subtask dependencies
-  // When a subtask refers to another subtask in the same parent
-  if (typeof depId === 'number' && depId < 100) {
-    // It's likely a reference to another subtask in the same parent task
-    const fullSubtaskId = `${parentId}.${depId}`;
-    // Now use fullSubtaskId for validation
-  }
-  ```
-
-## Dependency Validation
-
-- **Existence Checking**:
-  - ✅ DO: Validate that referenced tasks exist before adding dependencies
-  - ✅ DO: Provide clear error messages for non-existent dependencies
-  - ✅ DO: Remove references to non-existent tasks during validation
-
-  ```javascript
-  // ✅ DO: Check if the dependency exists before adding
-  if (!taskExists(data.tasks, formattedDependencyId)) {
-    log('error', `Dependency target ${formattedDependencyId} does not exist in tasks.json`);
-    process.exit(1);
-  }
-  ```
-
-- **Circular Dependency Prevention**:
-  - ✅ DO: Check for circular dependencies before adding new relationships
-  - ✅ DO: Use graph traversal algorithms (DFS) to detect cycles
-  - ✅ DO: Provide clear error messages explaining the circular chain
-
-  ```javascript
-  // ✅ DO: Check for circular dependencies before adding
-  const dependencyChain = [formattedTaskId];
-  if (isCircularDependency(data.tasks, formattedDependencyId, dependencyChain)) {
-    log('error', `Cannot add dependency ${formattedDependencyId} to task ${formattedTaskId} as it would create a circular dependency.`);
-    process.exit(1);
-  }
-  ```
-
-- **Self-Dependency Prevention**:
-  - ✅ DO: Prevent tasks from depending on themselves
-  - ✅ DO: Handle both direct and indirect self-dependencies
-
-  ```javascript
-  // ✅ DO: Prevent self-dependencies
-  if (String(formattedTaskId) === String(formattedDependencyId)) {
-    log('error', `Task ${formattedTaskId} cannot depend on itself.`);
-    process.exit(1);
-  }
-  ```
-
-## Dependency Modification
-
-- **Adding Dependencies**:
-  - ✅ DO: Format task and dependency IDs consistently
-  - ✅ DO: Check for existing dependencies to prevent duplicates
-  - ✅ DO: Sort dependencies for better readability
-
-  ```javascript
-  // ✅ DO: Format IDs consistently when adding dependencies
-  const formattedTaskId = typeof taskId === 'string' && taskId.includes('.') 
-    ? taskId : parseInt(taskId, 10);
-  
-  const formattedDependencyId = formatTaskId(dependencyId);
-  ```
-
-- **Removing Dependencies**:
-  - ✅ DO: Check if the dependency exists before removing
-  - ✅ DO: Handle different ID formats consistently
-  - ✅ DO: Provide feedback about the removal result
-
-  ```javascript
-  // ✅ DO: Properly handle dependency removal
-  const dependencyIndex = targetTask.dependencies.findIndex(dep => {
-    // Convert both to strings for comparison
-    let depStr = String(dep);
-    
-    // Handle relative subtask references
-    if (typeof dep === 'number' && dep < 100 && isSubtask) {
-      const [parentId] = formattedTaskId.split('.');
-      depStr = `${parentId}.${dep}`;
-    }
-    
-    return depStr === normalizedDependencyId;
-  });
-  
-  if (dependencyIndex === -1) {
-    log('info', `Task ${formattedTaskId} does not depend on ${formattedDependencyId}, no changes made.`);
-    return;
-  }
-  
-  // Remove the dependency
-  targetTask.dependencies.splice(dependencyIndex, 1);
-  ```
-
-## Dependency Cleanup
-
-- **Duplicate Removal**:
-  - ✅ DO: Use Set objects to identify and remove duplicates
-  - ✅ DO: Handle both numeric and string ID formats
-
-  ```javascript
-  // ✅ DO: Remove duplicate dependencies
-  const uniqueDeps = new Set();
-  const uniqueDependencies = task.dependencies.filter(depId => {
-    // Convert to string for comparison to handle both numeric and string IDs
-    const depIdStr = String(depId);
-    if (uniqueDeps.has(depIdStr)) {
-      log('warn', `Removing duplicate dependency from task ${task.id}: ${depId}`);
-      return false;
-    }
-    uniqueDeps.add(depIdStr);
-    return true;
-  });
-  ```
-
-- **Invalid Reference Cleanup**:
-  - ✅ DO: Check for and remove references to non-existent tasks
-  - ✅ DO: Check for and remove self-references
-  - ✅ DO: Track and report changes made during cleanup
-
-  ```javascript
-  // ✅ DO: Filter invalid task dependencies
-  task.dependencies = task.dependencies.filter(depId => {
-    const numericId = typeof depId === 'string' ? parseInt(depId, 10) : depId;
-    if (!validTaskIds.has(numericId)) {
-      log('warn', `Removing invalid task dependency from task ${task.id}: ${depId} (task does not exist)`);
-      return false;
-    }
-    return true;
-  });
-  ```
-
-## Dependency Visualization
-
-- **Status Indicators**:
-  - ✅ DO: Use visual indicators to show dependency status (✅/⏱️)
-  - ✅ DO: Format dependency lists consistently
-
-  ```javascript
-  // ✅ DO: Format dependencies with status indicators
-  function formatDependenciesWithStatus(dependencies, allTasks) {
-    if (!dependencies || dependencies.length === 0) {
-      return 'None';
-    }
-    
-    return dependencies.map(depId => {
-      const depTask = findTaskById(allTasks, depId);
-      if (!depTask) return `${depId} (Not found)`;
-      
-      const isDone = depTask.status === 'done' || depTask.status === 'completed';
-      const statusIcon = isDone ? '✅' : '⏱️';
-      
-      return `${statusIcon} ${depId} (${depTask.status})`;
-    }).join(', ');
-  }
-  ```
-
-## Cycle Detection
-
-- **Graph Traversal**:
-  - ✅ DO: Use depth-first search (DFS) for cycle detection
-  - ✅ DO: Track visited nodes and recursion stack
-  - ✅ DO: Support both task and subtask dependencies
-
-  ```javascript
-  // ✅ DO: Use proper cycle detection algorithms
-  function findCycles(subtaskId, dependencyMap, visited = new Set(), recursionStack = new Set()) {
-    // Mark the current node as visited and part of recursion stack
-    visited.add(subtaskId);
-    recursionStack.add(subtaskId);
-    
-    const cyclesToBreak = [];
-    const dependencies = dependencyMap.get(subtaskId) || [];
-    
-    for (const depId of dependencies) {
-      if (!visited.has(depId)) {
-        const cycles = findCycles(depId, dependencyMap, visited, recursionStack);
-        cyclesToBreak.push(...cycles);
-      } 
-      else if (recursionStack.has(depId)) {
-        // Found a cycle, add the edge to break
-        cyclesToBreak.push(depId);
-      }
-    }
-    
-    // Remove the node from recursion stack before returning
-    recursionStack.delete(subtaskId);
-    
+**참고 파일:**
+- [task-manager/](mdc:scripts/modules/task-manager/) - 태스크 관리 모듈
+- [commands.js](mdc:scripts/modules/commands.js) - CLI 명령어
+- [add-dependency.js](mdc:scripts/modules/task-manager/add-dependency.js) - 의존성 추가
+- [remove-dependency.js](mdc:scripts/modules/task-manager/remove-dependency.js) - 의존성 제거 
     return cyclesToBreak;
   }
   ```

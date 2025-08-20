@@ -1,661 +1,356 @@
----
-description: Guidelines for implementing CLI commands using Commander.js
-globs: scripts/modules/commands.js
-alwaysApply: false
----
 
-# Command-Line Interface Implementation Guidelines
+# Task Master CLI 명령어 구현 가이드라인
 
-**Note on Interaction Method:**
+## **명령어 구조 및 패턴**
 
-While this document details the implementation of Task Master's **CLI commands**, the **preferred method for interacting with Task Master in integrated environments (like Cursor) is through the MCP server tools**. 
-
-- **Use MCP Tools First**: Always prefer using the MCP tools (e.g., `get_tasks`, `add_task`) when interacting programmatically or via an integrated tool. They offer better performance, structured data, and richer error handling. See [`taskmaster.mdc`](mdc:.cursor/rules/taskmaster.mdc) for a comprehensive list of MCP tools and their corresponding CLI commands.
-- **CLI as Fallback/User Interface**: The `task-master` CLI commands described here are primarily intended for:
-    - Direct user interaction in the terminal.
-    - A fallback mechanism if the MCP server is unavailable or a specific functionality is not exposed via an MCP tool.
-- **Implementation Context**: This document (`commands.mdc`) focuses on the standards for *implementing* the CLI commands using Commander.js within the [`commands.js`](mdc:scripts/modules/commands.js) module.
-
-## Command Structure Standards
-
-- **Basic Command Template**:
-  ```javascript
-  // ✅ DO: Follow this structure for all commands
-  programInstance
+### **Commander.js 명령어 등록 패턴**
+```javascript
+// ✅ DO: 표준 명령어 등록 패턴
+programInstance
     .command('command-name')
-    .description('Clear, concise description of what the command does')
-    .option('-o, --option <value>', 'Option description', 'default value')
-    .option('--long-option <value>', 'Option description')
+    .description('명령어 설명')
+    .option('-f, --file <file>', 'Path to the tasks file', TASKMASTER_TASKS_FILE)
+    .option('--tag <tag>', 'Specify tag context for task operations')
     .action(async (options) => {
-      // Command implementation
+        // 명령어 로직
     });
-  ```
+```
 
-- **Command Handler Organization**:
-  - ✅ DO: Keep action handlers concise and focused
-  - ✅ DO: Extract core functionality to appropriate modules
-  - ✅ DO: Have the action handler import and call the relevant functions from core modules, like `task-manager.js` or `init.js`, passing the parsed `options`.
-  - ✅ DO: Perform basic parameter validation, such as checking for required options, within the action handler or at the start of the called core function.
-  - ❌ DON'T: Implement business logic in command handlers
+### **TaskMaster 초기화 패턴**
+```javascript
+// ✅ DO: 모든 명령어에서 TaskMaster 초기화
+const taskMaster = initTaskMaster({
+    tasksPath: options.file || true,
+    tag: options.tag
+});
 
-## Best Practices for Removal/Delete Commands
+const projectRoot = taskMaster.getProjectRoot();
+const tasksPath = taskMaster.getTasksPath();
+const tag = taskMaster.getCurrentTag();
+```
 
-When implementing commands that delete or remove data (like `remove-task` or `remove-subtask`), follow these specific guidelines:
-
-- **Confirmation Prompts**:
-  - ✅ **DO**: Include a confirmation prompt by default for destructive operations
-  - ✅ **DO**: Provide a `--yes` or `-y` flag to skip confirmation, useful for scripting or automation
-  - ✅ **DO**: Show what will be deleted in the confirmation message
-  - ❌ **DON'T**: Perform destructive operations without user confirmation unless explicitly overridden
-
-  ```javascript
-  // ✅ DO: Include confirmation for destructive operations
-  programInstance
-    .command('remove-task')
-    .description('Remove a task or subtask permanently')
-    .option('-i, --id <id>', 'ID of the task to remove')
-    .option('-y, --yes', 'Skip confirmation prompt', false)
-    .action(async (options) => {
-      // Validation code...
-      
-      if (!options.yes) {
-        const confirm = await inquirer.prompt([{
-          type: 'confirm',
-          name: 'proceed',
-          message: `Are you sure you want to permanently delete task ${taskId}? This cannot be undone.`,
-          default: false
-        }]);
-        
-        if (!confirm.proceed) {
-          console.log(chalk.yellow('Operation cancelled.'));
-          return;
-        }
-      }
-      
-      // Proceed with removal...
-    });
-  ```
-
-- **File Path Handling**:
-  - ✅ **DO**: Use `path.join()` to construct file paths
-  - ✅ **DO**: Follow established naming conventions for tasks, like `task_001.txt`
-  - ✅ **DO**: Check if files exist before attempting to delete them
-  - ✅ **DO**: Handle file deletion errors gracefully
-  - ❌ **DON'T**: Construct paths with string concatenation
-
-  ```javascript
-  // ✅ DO: Properly construct file paths
-  const taskFilePath = path.join(
-    path.dirname(tasksPath),
-    `task_${taskId.toString().padStart(3, '0')}.txt`
-  );
-  
-  // ✅ DO: Check existence before deletion
-  if (fs.existsSync(taskFilePath)) {
-    try {
-      fs.unlinkSync(taskFilePath);
-      console.log(chalk.green(`Task file deleted: ${taskFilePath}`));
-    } catch (error) {
-      console.warn(chalk.yellow(`Could not delete task file: ${error.message}`));
-    }
-  }
-  ```
-
-- **Clean Up References**:
-  - ✅ **DO**: Clean up references to the deleted item in other parts of the data
-  - ✅ **DO**: Handle both direct and indirect references
-  - ✅ **DO**: Explain what related data is being updated
-  - ❌ **DON'T**: Leave dangling references
-
-  ```javascript
-  // ✅ DO: Clean up references when deleting items
-  console.log(chalk.blue('Cleaning up task dependencies...'));
-  let referencesRemoved = 0;
-  
-  // Update dependencies in other tasks
-  data.tasks.forEach(task => {
-    if (task.dependencies && task.dependencies.includes(taskId)) {
-      task.dependencies = task.dependencies.filter(depId => depId !== taskId);
-      referencesRemoved++;
-    }
-  });
-  
-  if (referencesRemoved > 0) {
-    console.log(chalk.green(`Removed ${referencesRemoved} references to task ${taskId} from other tasks`));
-  }
-  ```
-
-- **Task File Regeneration**:
-  - ✅ **DO**: Regenerate task files after destructive operations
-  - ✅ **DO**: Pass all required parameters to generation functions
-  - ✅ **DO**: Provide an option to skip regeneration if needed
-  - ❌ **DON'T**: Assume default parameters will work
-
-  ```javascript
-  // ✅ DO: Properly regenerate files after deletion
-  if (!options.skipGenerate) {
-    console.log(chalk.blue('Regenerating task files...'));
-    try {
-      // Note both parameters are explicitly provided
-      await generateTaskFiles(tasksPath, path.dirname(tasksPath));
-      console.log(chalk.green('Task files regenerated successfully'));
-    } catch (error) {
-      console.warn(chalk.yellow(`Warning: Could not regenerate task files: ${error.message}`));
-    }
-  }
-  ```
-
-- **Alternative Suggestions**:
-  - ✅ **DO**: Suggest non-destructive alternatives when appropriate
-  - ✅ **DO**: Explain the difference between deletion and status changes
-  - ✅ **DO**: Include examples of alternative commands
-
-  ```javascript
-  // ✅ DO: Suggest alternatives for destructive operations
-  console.log(chalk.yellow('Note: If you just want to exclude this task from active work, consider:'));
-  console.log(chalk.cyan(`  task-master set-status --id='${taskId}' --status='cancelled'`));
-  console.log(chalk.cyan(`  task-master set-status --id='${taskId}' --status='deferred'`));
-  console.log('This preserves the task and its history for reference.');
-  ```
-
-## Option Naming Conventions
-
-- **Command Names**:
-  - ✅ DO: Use kebab-case for command names (`analyze-complexity`)
-  - ❌ DON'T: Use camelCase for command names (`analyzeComplexity`)
-  - ✅ DO: Use descriptive, action-oriented names
-
-- **Option Names**:
-  - ✅ DO: Use kebab-case for long-form option names, like `--output-format`
-  - ✅ DO: Provide single-letter shortcuts when appropriate, like `-f, --file`
-  - ✅ DO: Use consistent option names across similar commands
-  - ❌ DON'T: Use different names for the same concept, such as `--file` in one command and `--path` in another
-
-  ```javascript
-  // ✅ DO: Use consistent option naming
-  .option('-f, --file <path>', 'Path to the tasks file', 'tasks/tasks.json')
-  .option('-o, --output <dir>', 'Output directory', 'tasks')
-  
-  // ❌ DON'T: Use inconsistent naming
-  .option('-f, --file <path>', 'Path to the tasks file')
-  .option('-p, --path <dir>', 'Output directory') // Should be --output
-  ```
-
-  > **Note**: Although options are defined with kebab-case, like `--num-tasks`, Commander.js stores them internally as camelCase properties. Access them in code as `options.numTasks`, not `options['num-tasks']`.
-
-- **Boolean Flag Conventions**:
-  - ✅ DO: Use positive flags with `--skip-` prefix for disabling behavior
-  - ❌ DON'T: Use negated boolean flags with `--no-` prefix
-  - ✅ DO: Use consistent flag handling across all commands
-
-  ```javascript
-  // ✅ DO: Use positive flag with skip- prefix 
-  .option('--skip-generate', 'Skip generating task files')
-  
-  // ❌ DON'T: Use --no- prefix 
-  .option('--no-generate', 'Skip generating task files')
-  ```
-
-  > **Important**: When handling boolean flags in the code, make your intent clear:
-  ```javascript
-  // ✅ DO: Use clear variable naming that matches the flag's intent
-  const generateFiles = !options.skipGenerate;
-  
-  // ❌ DON'T: Use confusing double negatives
-  const dontSkipGenerate = !options.skipGenerate;
-  ```
-
-## Input Validation
-
-- **Required Parameters**:
-  - ✅ DO: Check that required parameters are provided
-  - ✅ DO: Provide clear error messages when parameters are missing
-  - ✅ DO: Use early returns with `process.exit(1)` for validation failures
-
-  ```javascript
-  // ✅ DO: Validate required parameters early
-  if (!prompt) {
-    console.error(chalk.red('Error: --prompt parameter is required. Please provide a task description.'));
-    process.exit(1);
-  }
-  ```
-
-- **Parameter Type Conversion**:
-  - ✅ DO: Convert string inputs to appropriate types, such as numbers or booleans
-  - ✅ DO: Handle conversion errors gracefully
-
-  ```javascript
-  // ✅ DO: Parse numeric parameters properly
-  const fromId = parseInt(options.from, 10);
-  if (isNaN(fromId)) {
-    console.error(chalk.red('Error: --from must be a valid number'));
-    process.exit(1);
-  }
-  ```
-
-- **Enhanced Input Validation**:
-  - ✅ DO: Validate file existence for critical file operations
-  - ✅ DO: Provide context-specific validation for identifiers
-  - ✅ DO: Check required API keys for features that depend on them
-
-  ```javascript
-  // ✅ DO: Validate file existence
-  if (!fs.existsSync(tasksPath)) {
-    console.error(chalk.red(`Error: Tasks file not found at path: ${tasksPath}`));
-    if (tasksPath === 'tasks/tasks.json') {
-      console.log(chalk.yellow('Hint: Run task-master init or task-master parse-prd to create tasks.json first'));
-    } else {
-      console.log(chalk.yellow(`Hint: Check if the file path is correct: ${tasksPath}`));
-    }
-    process.exit(1);
-  }
-  
-  // ✅ DO: Validate task ID
-  const taskId = parseInt(options.id, 10);
-  if (isNaN(taskId) || taskId <= 0) {
-    console.error(chalk.red(`Error: Invalid task ID: ${options.id}. Task ID must be a positive integer.`));
-    console.log(chalk.yellow("Usage example: task-master update-task --id='23' --prompt='Update with new information.\\nEnsure proper error handling.'"));
-    process.exit(1);
-  }
-  
-  // ✅ DO: Check for required API keys
-  if (useResearch && !process.env.PERPLEXITY_API_KEY) {
-    console.log(chalk.yellow('Warning: PERPLEXITY_API_KEY environment variable is missing. Research-backed updates will not be available.'));
-    console.log(chalk.yellow('Falling back to Claude AI for task update.'));
-  }
-  ```
-
-## User Feedback
-
-- **Operation Status**:
-  - ✅ DO: Provide clear feedback about the operation being performed
-  - ✅ DO: Display success or error messages after completion
-  - ✅ DO: Use colored output to distinguish between different message types
-
-  ```javascript
-  // ✅ DO: Show operation status
-  console.log(chalk.blue(`Parsing PRD file: ${file}`));
-  console.log(chalk.blue(`Generating ${numTasks} tasks...`));
-  
-  try {
-    await parsePRD(file, outputPath, numTasks);
-    console.log(chalk.green('Successfully generated tasks from PRD'));
-  } catch (error) {
+### **에러 처리 패턴**
+```javascript
+// ✅ DO: 일관된 에러 처리
+try {
+    // 명령어 로직
+} catch (error) {
     console.error(chalk.red(`Error: ${error.message}`));
     process.exit(1);
-  }
-  ```
-
-- **Success Messages with Next Steps**:
-  - ✅ DO: Use boxen for important success messages with clear formatting
-  - ✅ DO: Provide suggested next steps after command completion
-  - ✅ DO: Include ready-to-use commands for follow-up actions
-
-  ```javascript
-  // ✅ DO: Display success with next steps
-  console.log(boxen(
-    chalk.white.bold(`Subtask ${parentId}.${subtask.id} Added Successfully`) + '\n\n' +
-    chalk.white(`Title: ${subtask.title}`) + '\n' +
-    chalk.white(`Status: ${getStatusWithColor(subtask.status)}`) + '\n' +
-    (dependencies.length > 0 ? chalk.white(`Dependencies: ${dependencies.join(', ')}`) + '\n' : '') +
-    '\n' +
-    chalk.white.bold('Next Steps:') + '\n' +
-    chalk.cyan(`1. Run ${chalk.yellow(`task-master show '${parentId}'`)} to see the parent task with all subtasks`) + '\n' +
-    chalk.cyan(`2. Run ${chalk.yellow(`task-master set-status --id='${parentId}.${subtask.id}' --status='in-progress'`)} to start working on it`),
-    { padding: 1, borderColor: 'green', borderStyle: 'round', margin: { top: 1 } }
-  ));
-  ```
-
-## Command Registration
-
-- **Command Grouping**:
-  - ✅ DO: Group related commands together in the code
-  - ✅ DO: Add related commands in a logical order
-  - ✅ DO: Use comments to delineate command groups
-
-- **Command Export**:
-  - ✅ DO: Export the registerCommands function
-  - ✅ DO: Keep the CLI setup code clean and maintainable
-
-  ```javascript
-  // ✅ DO: Follow this export pattern
-  export {
-    registerCommands,
-    setupCLI,
-    runCLI,
-    checkForUpdate, // Include version checking functions
-    compareVersions,
-    displayUpgradeNotification
-  };
-  ```
-
-## Context-Aware Command Pattern
-
-For AI-powered commands that benefit from project context, follow the research command pattern:
-
-- **Context Integration**:
-  - ✅ DO: Use `ContextGatherer` utility for multi-source context extraction
-  - ✅ DO: Support task IDs, file paths, custom context, and project tree
-  - ✅ DO: Implement fuzzy search for automatic task discovery
-  - ✅ DO: Display detailed token breakdown for transparency
-
-  ```javascript
-  // ✅ DO: Follow this pattern for context-aware commands
-  programInstance
-    .command('research')
-    .description('Perform AI-powered research queries with project context')
-    .argument('<prompt>', 'Research prompt to investigate')
-    .option('-i, --id <ids>', 'Comma-separated task/subtask IDs to include as context')
-    .option('-f, --files <paths>', 'Comma-separated file paths to include as context')
-    .option('-c, --context <text>', 'Additional custom context')
-    .option('--tree', 'Include project file tree structure')
-    .option('-d, --detail <level>', 'Output detail level: low, medium, high', 'medium')
-    .action(async (prompt, options) => {
-      // 1. Parameter validation and parsing
-      const taskIds = options.id ? parseTaskIds(options.id) : [];
-      const filePaths = options.files ? parseFilePaths(options.files) : [];
-      
-      // 2. Initialize context gatherer
-      const projectRoot = findProjectRoot() || '.';
-      const gatherer = new ContextGatherer(projectRoot, tasksPath);
-      
-      // 3. Auto-discover relevant tasks if none specified
-      if (taskIds.length === 0) {
-        const fuzzySearch = new FuzzyTaskSearch(tasksData.tasks, 'research');
-        const discoveredIds = fuzzySearch.getTaskIds(
-          fuzzySearch.findRelevantTasks(prompt)
-        );
-        taskIds.push(...discoveredIds);
-      }
-      
-      // 4. Gather context with token breakdown
-      const contextResult = await gatherer.gather({
-        tasks: taskIds,
-        files: filePaths,
-        customContext: options.context,
-        includeProjectTree: options.projectTree,
-        format: 'research',
-        includeTokenCounts: true
-      });
-      
-      // 5. Display token breakdown and execute AI call
-      // Implementation continues...
-    });
-  ```
-
-## Error Handling
-
-- **Exception Management**:
-  - ✅ DO: Wrap async operations in try/catch blocks
-  - ✅ DO: Display user-friendly error messages
-  - ✅ DO: Include detailed error information in debug mode
-
-  ```javascript
-  // ✅ DO: Handle errors properly
-  try {
-    // Command implementation
-  } catch (error) {
-    console.error(chalk.red(`Error: ${error.message}`));
-    
-    if (CONFIG.debug) {
-      console.error(error);
-    }
-    
-    process.exit(1);
-  }
-  ```
-
-- **Unknown Options Handling**:
-  - ✅ DO: Provide clear error messages for unknown options
-  - ✅ DO: Show available options when an unknown option is used
-  - ✅ DO: Include command-specific help displays for common errors
-  - ❌ DON'T: Allow unknown options with `.allowUnknownOption()`
-
-  ```javascript
-  // ✅ DO: Register global error handlers for unknown options
-  programInstance.on('option:unknown', function(unknownOption) {
-    const commandName = this._name || 'unknown';
-    console.error(chalk.red(`Error: Unknown option '${unknownOption}'`));
-    console.error(chalk.yellow(`Run 'task-master ${commandName} --help' to see available options`));
-    process.exit(1);
-  });
-  
-  // ✅ DO: Add command-specific help displays
-  function showCommandHelp() {
-    console.log(boxen(
-      chalk.white.bold('Command Help') + '\n\n' +
-      chalk.cyan('Usage:') + '\n' +
-      `  task-master command --option1=<value> [options]\n\n` +
-      chalk.cyan('Options:') + '\n' +
-      '  --option1 <value>    Description of option1 (required)\n' +
-      '  --option2 <value>    Description of option2\n\n' +
-      chalk.cyan('Examples:') + '\n' +
-      '  task-master command --option1=\'value1\' --option2=\'value2\'',
-      { padding: 1, borderColor: 'blue', borderStyle: 'round' }
-    ));
-  }
-  ```
-
-- **Global Error Handling**:
-  - ✅ DO: Set up global error handlers for uncaught exceptions
-  - ✅ DO: Detect and format Commander-specific errors
-  - ✅ DO: Provide suitable guidance for fixing common errors
-
-  ```javascript
-  // ✅ DO: Set up global error handlers with helpful messages
-  process.on('uncaughtException', (err) => {
-    // Handle Commander-specific errors
-    if (err.code === 'commander.unknownOption') {
-      const option = err.message.match(/'([^']+)'/)?.[1]; // Safely extract option name
-      console.error(chalk.red(`Error: Unknown option '${option}'`));
-      console.error(chalk.yellow("Run 'task-master <command> --help' to see available options"));
-      process.exit(1);
-    }
-    
-    // Handle other error types...
-    console.error(chalk.red(`Error: ${err.message}`));
-    process.exit(1);
-  });
-  ```
-
-- **Contextual Error Handling**:
-  - ✅ DO: Provide specific error handling for common issues
-  - ✅ DO: Include troubleshooting hints for each error type
-  - ✅ DO: Use consistent error formatting across all commands
-
-  ```javascript
-  // ✅ DO: Provide specific error handling with guidance
-  try {
-    // Implementation
-  } catch (error) {
-    console.error(chalk.red(`Error: ${error.message}`));
-    
-    // Provide more helpful error messages for common issues
-    if (error.message.includes('task') && error.message.includes('not found')) {
-      console.log(chalk.yellow('\nTo fix this issue:'));
-      console.log('  1. Run \'task-master list\' to see all available task IDs');
-      console.log('  2. Use a valid task ID with the --id parameter');
-    } else if (error.message.includes('API key')) {
-      console.log(chalk.yellow('\nThis error is related to API keys. Check your environment variables.'));
-    }
-    
-    if (CONFIG.debug) {
-      console.error(error);
-    }
-    
-    process.exit(1);
-  }
-  ```
-
-## Integration with Other Modules
-
-- **Import Organization**:
-  - ✅ DO: Group imports by module/functionality
-  - ✅ DO: Import only what's needed, not entire modules
-  - ❌ DON'T: Create circular dependencies
-
-  ```javascript
-  // ✅ DO: Organize imports by module
-  import { program } from 'commander';
-  import path from 'path';
-  import chalk from 'chalk';
-  import https from 'https';
-  
-  import { CONFIG, log, readJSON } from './utils.js';
-  import { displayBanner, displayHelp } from './ui.js';
-  import { parsePRD, listTasks } from './task-manager.js';
-  import { addDependency } from './dependency-manager.js';
-  ```
-
-## Subtask Management Commands
-
-- **Add Subtask Command Structure**:
-  ```javascript
-  // ✅ DO: Follow this structure for adding subtasks
-  programInstance
-    .command('add-subtask')
-    .description('Add a new subtask to a parent task or convert an existing task to a subtask')
-    .option('-f, --file <path>', 'Path to the tasks file', 'tasks/tasks.json')
-    .option('-p, --parent <id>', 'ID of the parent task (required)')
-    .option('-i, --task-id <id>', 'Existing task ID to convert to subtask')
-    .option('-t, --title <title>', 'Title for the new subtask, required if not converting')
-    .option('-d, --description <description>', 'Description for the new subtask, optional')
-    .option('--details <details>', 'Implementation details for the new subtask, optional')
-    .option('--dependencies <ids>', 'Comma-separated list of subtask IDs this subtask depends on')
-    .option('--status <status>', 'Initial status for the subtask', 'pending')
-    .option('--generate', 'Regenerate task files after adding subtask')
-    .action(async (options) => {
-      // Validate required parameters
-      if (!options.parent) {
-        console.error(chalk.red('Error: --parent parameter is required'));
-        showAddSubtaskHelp(); // Show contextual help
-        process.exit(1);
-      }
-      
-      // Implementation with detailed error handling
-    });
-  ```
-
-- **Remove Subtask Command Structure**:
-  ```javascript
-  // ✅ DO: Follow this structure for removing subtasks
-  programInstance
-    .command('remove-subtask')
-    .description('Remove a subtask from its parent task, optionally converting it to a standalone task')
-    .option('-f, --file <path>', 'Path to the tasks file', 'tasks/tasks.json')
-    .option('-i, --id <id>', 'ID of the subtask to remove in format parentId.subtaskId, required')
-    .option('-c, --convert', 'Convert the subtask to a standalone task instead of deleting')
-    .option('--generate', 'Regenerate task files after removing subtask')
-    .action(async (options) => {
-      // Implementation with detailed error handling
-    })
-    .on('error', function(err) {
-      console.error(chalk.red(`Error: ${err.message}`));
-      showRemoveSubtaskHelp(); // Show contextual help
-      process.exit(1);
-    });
-  ```
-
-## Version Checking and Updates
-
-- **Automatic Version Checking**:
-  - ✅ DO: Implement version checking to notify users of available updates
-  - ✅ DO: Use non-blocking version checks that don't delay command execution
-  - ✅ DO: Display update notifications after command completion
-
-  ```javascript
-  // ✅ DO: Implement version checking function
-  async function checkForUpdate() {
-    // Implementation details...
-    // Example return structure:
-    return { currentVersion, latestVersion, updateAvailable };
-  }
-  
-  // ✅ DO: Implement semantic version comparison
-  function compareVersions(v1, v2) {
-    const v1Parts = v1.split('.').map(p => parseInt(p, 10));
-    const v2Parts = v2.split('.').map(p => parseInt(p, 10));
-    
-    // Implementation details...
-    return result; // -1, 0, or 1
-  }
-  
-  // ✅ DO: Display attractive update notifications
-  function displayUpgradeNotification(currentVersion, latestVersion) {
-    const message = boxen(
-      `${chalk.blue.bold('Update Available!')} ${chalk.dim(currentVersion)} → ${chalk.green(latestVersion)}\n\n` +
-      `Run ${chalk.cyan('npm i task-master-ai@latest -g')} to update to the latest version with new features and bug fixes.`,
-      {
-        padding: 1,
-        margin: { top: 1, bottom: 1 },
-        borderColor: 'yellow',
-        borderStyle: 'round'
-      }
-    );
-    
-    console.log(message);
-  }
-  
-  // ✅ DO: Integrate version checking in CLI run function
-  async function runCLI(argv = process.argv) {
-    try {
-      // Start the update check in the background - don't await yet
-      const updateCheckPromise = checkForUpdate();
-      
-      // Setup and parse
-      const programInstance = setupCLI();
-      await programInstance.parseAsync(argv);
-      
-      // After command execution, check if an update is available
-      const updateInfo = await updateCheckPromise;
-      if (updateInfo.updateAvailable) {
-        displayUpgradeNotification(updateInfo.currentVersion, updateInfo.latestVersion);
-      }
-    } catch (error) {
-      // Error handling...
-    }
-  }
-  ```
-
-Refer to [`commands.js`](mdc:scripts/modules/commands.js) for implementation examples and [`new_features.mdc`](mdc:.cursor/rules/new_features.mdc) for integration guidelines. 
-// Helper function to show add-subtask command help
-function showAddSubtaskHelp() {
-  console.log(boxen(
-    chalk.white.bold('Add Subtask Command Help') + '\n\n' +
-    chalk.cyan('Usage:') + '\n' +
-    `  task-master add-subtask --parent=<id> [options]\n\n` +
-    chalk.cyan('Options:') + '\n' +
-    '  -p, --parent <id>         Parent task ID (required)\n' +
-    '  -i, --task-id <id>        Existing task ID to convert to subtask\n' +
-    '  -t, --title <title>       Title for the new subtask\n' +
-    '  -d, --description <text>  Description for the new subtask\n' +
-    '  --details <text>          Implementation details for the new subtask\n' +
-    '  --dependencies <ids>      Comma-separated list of dependency IDs\n' +
-    '  -s, --status <status>     Status for the new subtask (default: "pending")\n' +
-    '  -f, --file <file>         Path to the tasks file (default: "tasks/tasks.json")\n' +
-    '  --generate                Regenerate task files after adding subtask\n\n' +
-    chalk.cyan('Examples:') + '\n' +
-    '  task-master add-subtask --parent=\'5\' --task-id=\'8\'\n' +
-    '  task-master add-subtask -p \'5\' -t \'Implement login UI\' -d \'Create the login form\'\n' +
-    '  task-master add-subtask -p \'5\' -t \'Handle API Errors\' --details "Handle 401 Unauthorized.\\nHandle 500 Server Error." --generate',
-    { padding: 1, borderColor: 'blue', borderStyle: 'round' }
-  ));
 }
+```
 
-// Helper function to show remove-subtask command help
-function showRemoveSubtaskHelp() {
-  console.log(boxen(
-    chalk.white.bold('Remove Subtask Command Help') + '\n\n' +
-    chalk.cyan('Usage:') + '\n' +
-    `  task-master remove-subtask --id=<parentId.subtaskId> [options]\n\n` +
-    chalk.cyan('Options:') + '\n' +
-    '  -i, --id <id>       Subtask ID(s) to remove in format "parentId.subtaskId" (can be comma-separated, required)\n' +
-    '  -c, --convert       Convert the subtask to a standalone task instead of deleting it\n' +
-    '  -f, --file <file>   Path to the tasks file (default: "tasks/tasks.json")\n' +
-    '  --generate          Regenerate task files after removing subtask\n\n' +
-    chalk.cyan('Examples:') + '\n' +
-    '  task-master remove-subtask --id=\'5.2\'\n' +
-    '  task-master remove-subtask --id=\'5.2,6.3,7.1\'\n' +
+## **명령어 카테고리별 구현**
+
+### **1. 태스크 관리 명령어**
+- **파일**: [commands.js](mdc:scripts/modules/commands.js) (라인 200-1000)
+- **패턴**: `add-task`, `remove-task`, `list`, `show`, `next`
+- **공통 옵션**: `--file`, `--tag`, `--status`
+
+```javascript
+// ✅ DO: 태스크 명령어 표준 패턴
+programInstance
+    .command('add-task')
+    .description('Add a new task')
+    .option('-p, --prompt <text>', 'Task description')
+    .option('--priority <priority>', 'Task priority')
+    .option('--dependencies <ids>', 'Comma-separated dependency IDs')
+    .action(async (options) => {
+        const taskMaster = initTaskMaster({
+            tasksPath: options.file || true,
+            tag: options.tag
+        });
+        
+        const context = {
+            projectRoot: taskMaster.getProjectRoot(),
+            commandName: 'add-task',
+            outputType: 'cli'
+        };
+        
+        await addTask(taskMaster.getTasksPath(), options, context, 'text');
+    });
+```
+
+### **2. 태그 관리 명령어**
+- **파일**: [commands.js](mdc:scripts/modules/commands.js) (라인 4500-5000)
+- **패턴**: `add-tag`, `delete-tag`, `tags`, `use-tag`, `rename-tag`, `copy-tag`
+
+```javascript
+// ✅ DO: 태그 명령어 표준 패턴
+programInstance
+    .command('add-tag')
+    .description('Create a new tag context')
+    .argument('[tagName]', 'Name of the new tag')
+    .option('--from-branch', 'Create tag from current git branch')
+    .option('--copy-from-current', 'Copy tasks from current tag')
+    .action(async (tagName, options) => {
+        const taskMaster = initTaskMaster({
+            tasksPath: options.file || true
+        });
+        
+        const context = {
+            projectRoot: taskMaster.getProjectRoot(),
+            commandName: 'add-tag',
+            outputType: 'cli'
+        };
+        
+        await createTag(taskMaster.getTasksPath(), tagName, options, context, 'text');
+    });
+```
+
+### **3. 스크립트 실행 명령어**
+- **파일**: [commands.js](mdc:scripts/modules/commands.js) (라인 5000-5800)
+- **패턴**: `run-script`, `get-script-result`, `list-script-results`, `analyze-script-result`
+
+```javascript
+// ✅ DO: 스크립트 명령어 표준 패턴
+programInstance
+    .command('run-script')
+    .description('Execute terminal script and capture results')
+    .argument('<command>', 'Command to execute')
+    .option('-w, --working-directory <dir>', 'Working directory')
+    .option('-t, --timeout <ms>', 'Execution timeout', '300000')
+    .action(async (command, options) => {
+        const taskMaster = initTaskMaster({
+            tasksPath: options.file || true
+        });
+        
+        const result = await executeScript(command, {
+            workingDirectory: options.workingDirectory || process.cwd(),
+            timeout: parseInt(options.timeout, 10)
+        });
+        
+        // 결과 표시 로직
+    });
+```
+
+### **4. AI 모델 관리 명령어**
+- **파일**: [commands.js](mdc:scripts/modules/commands.js) (라인 1000-1500)
+- **패턴**: `models`, `lang`
+
+```javascript
+// ✅ DO: 모델 설정 명령어 패턴
+programInstance
+    .command('models')
+    .description('Manage AI model configuration')
+    .option('--set-main <model_id>', 'Set primary model')
+    .option('--set-research <model_id>', 'Set research model')
+    .option('--setup', 'Interactive setup')
+    .action(async (options) => {
+        const taskMaster = initTaskMaster({});
+        const projectRoot = taskMaster.getProjectRoot();
+        
+        if (options.setup) {
+            await runInteractiveSetup(projectRoot);
+        } else {
+            // 모델 설정 로직
+        }
+    });
+```
+
+## **옵션 및 인자 처리**
+
+### **공통 옵션 패턴**
+```javascript
+// ✅ DO: 모든 명령어에 공통 옵션 추가
+.option('-f, --file <file>', 'Path to the tasks file', TASKMASTER_TASKS_FILE)
+.option('--tag <tag>', 'Specify tag context for task operations')
+.option('-y, --yes', 'Skip confirmation prompts')
+```
+
+### **인자 검증 패턴**
+```javascript
+// ✅ DO: 필수 인자 검증
+if (!sourceId || !destinationId) {
+    console.error(chalk.red('Error: Both --from and --to parameters are required'));
+    console.log(chalk.yellow('Usage: taskgarage move --from=<sourceId> --to=<destinationId>'));
+    process.exit(1);
+}
+```
+
+### **파일 존재성 검증**
+```javascript
+// ✅ DO: tasks.json 파일 존재성 검증
+if (!fs.existsSync(tasksPath)) {
+    console.error(chalk.red(`Error: Tasks file not found at path: ${tasksPath}`));
+    console.log(chalk.yellow('Hint: Run taskgarage init or taskgarage parse-prd to create tasks.json first'));
+    process.exit(1);
+}
+```
+
+## **UI 및 출력 처리**
+
+### **색상 사용 패턴**
+```javascript
+// ✅ DO: 일관된 색상 사용
+console.log(chalk.blue('Processing...'));           // 정보
+console.log(chalk.green('Success!'));              // 성공
+console.log(chalk.yellow('Warning...'));           // 경고
+console.error(chalk.red('Error: ...'));            // 에러
+console.log(chalk.cyan('=== Section ==='));        // 섹션 구분
+```
+
+### **진행률 표시**
+```javascript
+// ✅ DO: ora를 사용한 로딩 표시
+const spinner = ora('Processing...').start();
+try {
+    // 작업 수행
+    spinner.succeed('Completed successfully');
+} catch (error) {
+    spinner.fail('Failed');
+    throw error;
+}
+```
+
+### **도움말 표시**
+```javascript
+// ✅ DO: 명령어별 도움말 추가
+.addHelpText('after', `
+Examples:
+$ taskgarage add-task --prompt="Implement user auth"
+$ taskgarage list --status=pending
+$ taskgarage show 5
+`);
+```
+
+## **MCP 서버 통합**
+
+### **MCP 도구와 CLI 명령어 매핑**
+- **MCP 도구**: `mcp-server/src/tools/` 디렉토리
+- **CLI 명령어**: `scripts/modules/commands.js`
+- **공통 로직**: `scripts/modules/task-manager/` 디렉토리
+
+```javascript
+// ✅ DO: MCP와 CLI 간 일관된 로직 사용
+// MCP 도구에서 사용
+import { addTask } from '../../../scripts/modules/task-manager/add-task.js';
+
+// CLI 명령어에서 사용
+import { addTask } from './task-manager/add-task.js';
+```
+
+## **테스트 및 검증**
+
+### **명령어 테스트 패턴**
+```javascript
+// ✅ DO: 명령어별 테스트 작성
+describe('add-task command', () => {
+    it('should add a new task successfully', async () => {
+        // 테스트 로직
+    });
+    
+    it('should handle missing required options', async () => {
+        // 에러 케이스 테스트
+    });
+});
+```
+
+### **통합 테스트**
+```javascript
+// ✅ DO: CLI 통합 테스트
+describe('CLI integration', () => {
+    it('should handle command line arguments correctly', async () => {
+        // CLI 인수 처리 테스트
+    });
+});
+```
+
+## **성능 및 최적화**
+
+### **비동기 처리**
+```javascript
+// ✅ DO: 모든 명령어를 async/await로 처리
+.action(async (options) => {
+    try {
+        const result = await performAsyncOperation(options);
+        console.log(chalk.green('Success'));
+    } catch (error) {
+        console.error(chalk.red(`Error: ${error.message}`));
+        process.exit(1);
+    }
+});
+```
+
+### **메모리 관리**
+```javascript
+// ✅ DO: 큰 파일 처리 시 스트리밍 사용
+import { createReadStream } from 'fs';
+import { pipeline } from 'stream/promises';
+
+await pipeline(
+    createReadStream(largeFile),
+    process.stdout
+);
+```
+
+## **보안 고려사항**
+
+### **입력 검증**
+```javascript
+// ✅ DO: 사용자 입력 검증
+function validateTaskId(id) {
+    if (!/^\d+(\.\d+)?$/.test(id)) {
+        throw new Error('Invalid task ID format');
+    }
+}
+```
+
+### **파일 경로 검증**
+```javascript
+// ✅ DO: 경로 순회 공격 방지
+import path from 'path';
+
+const safePath = path.resolve(userInput);
+if (!safePath.startsWith(projectRoot)) {
+    throw new Error('Invalid file path');
+}
+```
+
+## **문서화 및 주석**
+
+### **명령어 문서화**
+```javascript
+/**
+ * Add a new task to the task list
+ * 
+ * @example
+ * taskgarage add-task --prompt="Implement user authentication"
+ * taskgarage add-task --prompt="Fix login bug" --priority=high
+ * 
+ * @param {Object} options - Command options
+ * @param {string} options.prompt - Task description
+ * @param {string} options.priority - Task priority (high|medium|low)
+ * @param {string} options.dependencies - Comma-separated dependency IDs
+ */
+```
+
+### **복잡한 로직 주석**
+```javascript
+// ✅ DO: 복잡한 비즈니스 로직에 주석 추가
+// 태스크 의존성 순환 참조 검사
+const hasCircularDependency = (taskId, dependencies, visited = new Set()) => {
+    if (visited.has(taskId)) return true;
+    visited.add(taskId);
+    
+    for (const depId of dependencies) {
+        if (hasCircularDependency(depId, getDependencies(depId), visited)) {
+            return true;
+        }
+    }
+    
+    visited.delete(taskId);
+    return false;
+};
+```
+
+---
+
+**참고 파일:**
+- [commands.js](mdc:scripts/modules/commands.js) - 메인 CLI 명령어 파일
+- [task-manager/](mdc:scripts/modules/task-manager/) - 태스크 관리 로직
+- [mcp-server/src/tools/](mdc:mcp-server/src/tools/) - MCP 도구 구현 
+
     '  task-master remove-subtask --id=\'5.2\' --convert',
     { padding: 1, borderColor: 'blue', borderStyle: 'round' }
   ));

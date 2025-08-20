@@ -1,0 +1,15 @@
+{
+  "id": "script_002",
+  "command": "echo \"Error recovery test\"",
+  "workingDirectory": "/Users/sukbeom/Desktop/workspace/taskmaster/tests/temp/test-1755571041379",
+  "startTime": 1755571041387,
+  "endTime": 1755571041450,
+  "duration": 63,
+  "exitCode": 0,
+  "stdout": "\"Error recovery test\"\n",
+  "stderr": "",
+  "success": true,
+  "error": null,
+  "metadata": {},
+  "savedAt": "2025-08-19T02:37:21.453Z"
+}
